@@ -6,8 +6,11 @@ import me.func.murder.activeStatus
 import me.func.murder.app
 import clepto.bukkit.B
 import io.netty.buffer.Unpooled
+import net.md_5.bungee.api.ChatMessageType
+import net.md_5.bungee.api.chat.TextComponent
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
+import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
@@ -38,11 +41,18 @@ class ConnectionHandler : Listener {
     @EventHandler
     fun PlayerJoinEvent.handle() {
         player.inventory.clear()
+        player.gameMode = GameMode.SURVIVAL
 
         val user = app.getUser(player)
 
         B.postpone(1) {
             player.teleport(spawn)
+
+            player.spigot().sendMessage(
+                ChatMessageType.ACTION_BAR,
+                TextComponent("§eШансы: §cМаньяк - ${2.35 * user.stat.villagerStreak}%§e, §bДетектив - ${2 * user.stat.villagerStreak}%")
+            )
+
             modList.forEach {
                 user.sendPacket(
                     PacketPlayOutCustomPayload(

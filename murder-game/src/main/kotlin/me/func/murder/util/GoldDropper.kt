@@ -16,7 +16,7 @@ class GoldDropper(private val places: List<Location>) {
     }.build()
     private val vector = Vector(0.0, 0.4, 0.0)
 
-    fun GoldDropper.dropGold() {
+    fun dropGold() {
         val any = places.minus(spawned).random()
 
         // Генерация золота и подбрасывание его вверх, куодаун 20 секунд
