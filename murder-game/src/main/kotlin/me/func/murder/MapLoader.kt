@@ -1,3 +1,5 @@
+package me.func.murder
+
 import clepto.cristalix.Cristalix
 import clepto.cristalix.WorldMeta
 import ru.cristalix.core.map.BukkitWorldLoader

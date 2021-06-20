@@ -1,10 +1,16 @@
+package me.func.murder.user
+
 import dev.implario.kensuke.Session
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
+import net.minecraft.server.v1_12_R1.Packet
+import net.minecraft.server.v1_12_R1.PlayerConnection
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import java.util.*
 
 class User(session: Session, stat: Stat?) : IBukkitKensukeUser {
 
+    private var connection: PlayerConnection? = null
     var tempKills = 0
     var role = Role.NONE
 
@@ -32,5 +38,11 @@ class User(session: Session, stat: Stat?) : IBukkitKensukeUser {
             this.stat = stat
         }
         this.session = session
+    }
+
+    fun sendPacket(packet: Packet<*>) {
+        if (connection == null)
+            connection = (player as CraftPlayer).handle.playerConnection
+        connection?.sendPacket(packet)
     }
 }

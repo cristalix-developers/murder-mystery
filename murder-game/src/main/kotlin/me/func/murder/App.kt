@@ -1,10 +1,17 @@
+package me.func.murder
+
+import me.func.murder.bar.WaitingPlayers
 import clepto.bukkit.B
+import clepto.cristalix.WorldMeta
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.Session
 import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
+import me.func.murder.listener.ConnectionHandler
+import me.func.murder.listener.TempListener
+import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
 import ru.cristalix.core.inventory.IInventoryService
@@ -16,8 +23,16 @@ import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
+import me.func.murder.user.Stat
+import me.func.murder.user.User
+import me.func.murder.util.GoldDropper
+import java.util.*
 
 lateinit var app: App
+lateinit var goldDropper: GoldDropper
+var activeStatus = Status.STARTING
+const val slots = 16
+var activeBar = WaitingPlayers()
 
 class App : JavaPlugin() {
 
@@ -27,6 +42,7 @@ class App : JavaPlugin() {
         { session: Session, context -> User(session, context.getData(statScope)) },
         { user, context -> context.store(statScope, user.stat) }
     )
+    lateinit var worldMeta: WorldMeta
 
     override fun onEnable() {
         B.plugin = this
@@ -34,22 +50,25 @@ class App : JavaPlugin() {
         Platforms.set(PlatformDarkPaper())
 
         // Загрузка карты
-        MapLoader.load("prod")
+        worldMeta = MapLoader.load("prod")!!
+
+        // Создание раздатчика золота
+        goldDropper = GoldDropper(worldMeta.getLabels("gold").map { it.toCenterLocation() })
 
         // Регистрация сервисов
         val core = CoreApi.get()
         core.registerService(IPartyService::class.java, PartyService(ISocketClient.get()))
         core.registerService(ITransferService::class.java, TransferService(ISocketClient.get()))
         core.registerService(IInventoryService::class.java, InventoryService())
-
-
+        
         // Конфигурация реалма
         val info = IRealmService.get().currentRealmInfo
         info.status = RealmStatus.WAITING_FOR_PLAYERS
-        info.maxPlayers = 16
+        info.maxPlayers = slots
         info.readableName = "Мардер #${info.realmId.id}"
         info.groupName = "Мардер #${info.realmId.id}"
 
+        // Подключение к сервису статистики
         val kensuke = BukkitKensuke.setup(this)
         kensuke.addGlobalUserManager(userManager)
         kensuke.globalRealm = info.realmId.realmName
@@ -59,6 +78,14 @@ class App : JavaPlugin() {
         Timer().runTaskTimer(this, 10, 1)
 
         // Регистрация обработчиков событий
-        B.events(TempListener(), GlobalListener())
+        B.events(TempListener(), ConnectionHandler())
+    }
+
+    fun getUser(player: Player): User {
+        return userManager.getUser(player)
+    }
+
+    fun getUser(uuid: UUID): User {
+        return userManager.getUser(uuid)
     }
 }

@@ -1,3 +1,5 @@
+package me.func.murder.user
+
 import java.util.*
 
 data class Stat(
