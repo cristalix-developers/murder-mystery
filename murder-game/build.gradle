@@ -80,8 +80,8 @@ task upload() {
     doLast {
         ssh.run {
             session(remotes.webServer) {
-                put from: jar.getArchiveFile().get().getAsFile(), into: "/home/func/forest/resources-bin/test"
-                execute 'netstat -tulpn | grep :10112 | grep --perl-regexp -o \"\\d+(?=/java)\" | xargs kill -TERM'
+                put from: jar.getArchiveFile().get().getAsFile(), into: "/home/func/forest/resources-bin/prod"
+                execute 'netstat -tulpn | grep :10568 | grep --perl-regexp -o \"\\d+(?=/java)\" | xargs kill -TERM'
             }
         }
     }

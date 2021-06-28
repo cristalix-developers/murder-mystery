@@ -17,13 +17,18 @@ class GoldDropper(private val places: List<Location>) {
     private val vector = Vector(0.0, 0.4, 0.0)
 
     fun dropGold() {
-        val any = places.minus(spawned).random()
+        val any = places.minus(spawned)
+
+        if (any.isEmpty())
+            return
+
+        val random = any.random()
 
         // Генерация золота и подбрасывание его вверх, куодаун 20 секунд
-        app.worldMeta.world.dropItemNaturally(any, gold).velocity = vector
-        spawned.add(any)
+        app.worldMeta.world.dropItemNaturally(random, gold).velocity = vector
+        spawned.add(random)
 
-        B.postpone(20 * 20) { spawned.remove(any) }
+        B.postpone(20 * 20) { spawned.remove(random) }
     }
 
 }

@@ -6,10 +6,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.*
 import org.bukkit.event.entity.EntityExplodeEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
+import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent
+import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
 
@@ -20,12 +22,27 @@ class GlobalListeners : Listener {
     }
 
     @EventHandler
+    fun BlockBreakEvent.handle() {
+        isCancelled = true
+    }
+
+    @EventHandler
+    fun BlockPhysicsEvent.handle() {
+        isCancelled = true
+    }
+
+    @EventHandler
     fun CraftItemEvent.handle() {
         isCancelled = true
     }
 
     @EventHandler
     fun PlayerInteractEntityEvent.handle() {
+        isCancelled = true
+    }
+
+    @EventHandler
+    fun PlayerDropItemEvent.handle() {
         isCancelled = true
     }
 
@@ -87,5 +104,10 @@ class GlobalListeners : Listener {
     @EventHandler
     fun FoodLevelChangeEvent.handle() {
         foodLevel = 20
+    }
+
+    @EventHandler
+    fun ProjectileHitEvent.handle() {
+        entity.remove()
     }
 }

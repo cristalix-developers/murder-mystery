@@ -28,14 +28,15 @@ import ru.cristalix.core.transfer.TransferService
 import me.func.murder.user.Stat
 import me.func.murder.user.User
 import me.func.murder.util.GoldDropper
+import ru.cristalix.core.permissions.IPermissionService
 import java.util.*
 
 lateinit var app: App
 lateinit var goldDropper: GoldDropper
 lateinit var activeBar: GameBar
 var activeStatus = Status.STARTING
-const val slots = 16
-const val lobby = "MURL-1"
+const val slots = 7
+const val lobby = "HUB-1"
 
 class App : JavaPlugin() {
 

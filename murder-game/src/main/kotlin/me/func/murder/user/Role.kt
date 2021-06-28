@@ -3,19 +3,25 @@ package me.func.murder.user
 import dev.implario.bukkit.item.item
 import org.bukkit.Material
 
-enum class Role(val title: String, val start: (User) -> Unit) {
-    VILLAGER("Мирный житель", {}),
-    DETECTIVE("Детектив", {
+enum class Role(val title: String, val start: ((User) -> Unit)?) {
+    VILLAGER("§eМирный житель", null),
+    DETECTIVE("§bДетектив", {
         it.player!!.inventory.setItem(2, item {
             type = Material.BOW
-            text("Лук детектива")
+            nbt("Unbreakable", 1)
+            text("§bЛук детектива")
+        }.build())
+        it.player!!.inventory.setItem(20, item {
+            type = Material.ARROW
+            text("§bСтрела детектива")
         }.build())
     }),
-    MURDER("Убийца", {
+    MURDER("§cМаньяк", { it ->
         it.player!!.inventory.setItem(2, item {
             type = Material.IRON_SWORD
-            text("Орудие убийства")
+            text("§cОрудие убийства")
         }.build())
+        org.bukkit.Bukkit.getOnlinePlayers().forEach { it.sendTitle("§eОсторожно!", "§cМаньяк с оружием") }
     }),
-    NONE("Не отпределен", {})
+    NONE("Не отпределен", null)
 }

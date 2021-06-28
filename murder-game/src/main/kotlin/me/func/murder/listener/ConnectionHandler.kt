@@ -5,6 +5,7 @@ import me.func.murder.activeBar
 import me.func.murder.activeStatus
 import me.func.murder.app
 import clepto.bukkit.B
+import io.netty.buffer.ByteBuf
 import io.netty.buffer.Unpooled
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
@@ -19,6 +20,7 @@ import ru.cristalix.core.display.DisplayChannels
 import ru.cristalix.core.display.messages.Mod
 import java.io.File
 import java.nio.file.Files
+import java.util.*
 
 class ConnectionHandler : Listener {
 
@@ -32,7 +34,7 @@ class ConnectionHandler : Listener {
                 buffer
             }.toList()
     } catch (exception: Exception) {
-        throw RuntimeException(exception)
+        Collections.emptyList()
     }
 
     // Получении точки спавна
@@ -41,16 +43,16 @@ class ConnectionHandler : Listener {
     @EventHandler
     fun PlayerJoinEvent.handle() {
         player.inventory.clear()
-        player.gameMode = GameMode.SURVIVAL
+        player.gameMode = GameMode.ADVENTURE
 
         val user = app.getUser(player)
 
-        B.postpone(1) {
+        B.postpone(10) {
             player.teleport(spawn)
 
             player.spigot().sendMessage(
                 ChatMessageType.ACTION_BAR,
-                TextComponent("§eШансы: §cМаньяк - ${2.35 * user.stat.villagerStreak}%§e, §bДетектив - ${2 * user.stat.villagerStreak}%")
+                TextComponent("§eШансы: §cМаньяк - ${2 * (1 + user.stat.villagerStreak)}%§e, §bДетектив - ${3 * (1 + user.stat.villagerStreak)}%")
             )
 
             modList.forEach {

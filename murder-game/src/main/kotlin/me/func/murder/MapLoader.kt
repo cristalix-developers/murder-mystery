@@ -14,7 +14,7 @@ object MapLoader {
             val meta = WorldMeta(Cristalix.mapService().loadMap(mapInfo.latest, BukkitWorldLoader.INSTANCE).get())
             meta.world.setGameRuleValue("doDaylightCycle", "false")
             meta.world.setGameRuleValue("naturalRegeneration", "true")
-            meta.world.time = 12000
+            meta.world.time = 21000
             meta
         } catch (exception: Exception) {
             when (exception) {

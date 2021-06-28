@@ -11,8 +11,7 @@ import ru.cristalix.core.formatting.Color
 object PlayBar : GameBar() {
     override val message: ProgressMessage
         get() {
-            val online = Bukkit.getOnlinePlayers().size
-            val timeLess = activeStatus.lastSecond - app.timer.time
+            val timeLess = activeStatus.lastSecond - app.timer.time / 20
             return ProgressMessage
                 .builder()
                 .name("Мирные игроки победят через ${String.format("%02d:%02d", timeLess / 60, timeLess % 60)}")
@@ -20,7 +19,7 @@ object PlayBar : GameBar() {
                 .color(Color.AQUA)
                 .position(EnumPosition.TOPTOP)
                 .start(0)
-                .percent((app.timer.time).toFloat() / (activeStatus.lastSecond).toFloat())
+                .percent(1f - (app.timer.time / 20).toFloat() / (activeStatus.lastSecond).toFloat())
                 .build()
         }
 }
