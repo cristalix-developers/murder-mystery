@@ -8,11 +8,10 @@ import dev.implario.kensuke.Session
 import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
-import me.func.murder.bar.GameBar
-import me.func.murder.listener.GoldListener
-import me.func.murder.listener.ConnectionHandler
-import me.func.murder.listener.DamageListener
-import me.func.murder.listener.GlobalListeners
+import me.func.murder.listener.*
+import me.func.murder.user.Stat
+import me.func.murder.user.User
+import me.func.murder.util.GoldDropper
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
@@ -25,18 +24,20 @@ import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
-import me.func.murder.user.Stat
-import me.func.murder.user.User
-import me.func.murder.util.GoldDropper
-import ru.cristalix.core.permissions.IPermissionService
 import java.util.*
 
+const val GAMES_STREAK_RESTART = 10
 lateinit var app: App
 lateinit var goldDropper: GoldDropper
-lateinit var activeBar: GameBar
 var activeStatus = Status.STARTING
-const val slots = 7
+const val slots = 16
 const val lobby = "HUB-1"
+lateinit var murderName: String
+lateinit var detectiveName: String
+var heroName = ""
+lateinit var winMessage: String
+lateinit var timer: Timer
+var games = 0
 
 class App : JavaPlugin() {
 
@@ -47,7 +48,6 @@ class App : JavaPlugin() {
         { user, context -> context.store(statScope, user.stat) }
     )
     lateinit var worldMeta: WorldMeta
-    lateinit var timer: Timer
 
     override fun onEnable() {
         B.plugin = this
@@ -55,7 +55,7 @@ class App : JavaPlugin() {
         Platforms.set(PlatformDarkPaper())
 
         // Загрузка карты
-        worldMeta = MapLoader.load("prod")!!
+        worldMeta = MapLoader.load("hall")!!
 
         // Создание раздатчика золота
         goldDropper = GoldDropper(worldMeta.getLabels("gold").map { it.toCenterLocation() })
@@ -84,7 +84,7 @@ class App : JavaPlugin() {
         timer.runTaskTimer(this, 10, 1)
 
         // Регистрация обработчиков событий
-        B.events(DamageListener(), ConnectionHandler(), GlobalListeners(), GoldListener())
+        B.events(DamageListener(), ConnectionHandler(), GlobalListeners(), GoldListener(), ChatListener())
     }
 
     fun getUser(player: Player): User {

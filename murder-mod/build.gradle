@@ -1,0 +1,83 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        maven {
+            url "https://repo.implario.dev/public"
+        }
+    }
+    dependencies {
+        classpath("ru.cristalix:bundler:2.3.2")
+    }
+}
+
+plugins {
+    id 'org.hidetake.ssh' version '2.10.1'
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        url 'https://repo.implario.dev/public'
+    }
+    mavenCentral()
+}
+
+apply plugin: 'ru.cristalix.uiengine.bundler'
+apply plugin: 'kotlin'
+
+dependencies {
+    compileOnly 'ru.cristalix:client-api:latest-SNAPSHOT'
+    implementation 'ru.cristalix:uiengine:3.7.9'
+    implementation 'ru.cristalix:client-sdk:5.1.0'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.4.31'
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+jar {
+    configurations.all {
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+    from configurations.runtimeClasspath.collect { it.directory ? it : zipTree(it) }
+}
+
+bundler {
+    name 'Murder'
+    mainClass 'App'
+    version '1.0'
+    author 'func'
+}
+
+remotes {
+    webServer {
+        port = project.properties["DEPLOY_PORT"] as int
+        host = project.properties["DEPLOY_HOST"]
+        user = project.properties["DEPLOY_USER"]
+        identity = file(project.properties["DEPLOY_KEY_ROOT"])
+        passphrase = project.properties["DEPLOY_PASSPHRASE"]
+    }
+}
+
+ssh.settings {
+     knownHosts = allowAnyHosts
+}
+
+task upload() {
+    doLast {
+        ssh.run {
+            session(remotes.webServer) {
+                put from: jar.getArchiveFile().get().getAsFile().path.replace("-raw", "-bundle"), into: "/home/func/forest/resources-bin/prod/mods"
+                execute 'netstat -tulpn | grep :10111 | grep --perl-regexp -o \"\\d+(?=/java)\" | xargs kill -TERM'
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.upload.dependsOn(tasks.bundle)
+}

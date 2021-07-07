@@ -17,7 +17,9 @@ class GoldDropper(private val places: List<Location>) {
     private val vector = Vector(0.0, 0.4, 0.0)
 
     fun dropGold() {
-        val any = places.minus(spawned)
+        val any = places.minus(spawned).filter { location ->
+            location.getNearbyEntities(4.0,4.0,4.0).map { it.type }.isEmpty()
+        }
 
         if (any.isEmpty())
             return

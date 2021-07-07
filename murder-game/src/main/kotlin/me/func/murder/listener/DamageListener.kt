@@ -2,17 +2,13 @@ package me.func.murder.listener
 
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
-import me.func.murder.Status
-import me.func.murder.activeStatus
-import me.func.murder.app
+import me.func.murder.*
+import me.func.murder.mod.ModHelper
 import me.func.murder.user.Role
 import me.func.murder.user.User
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
-import org.bukkit.Bukkit
-import org.bukkit.GameMode
-import org.bukkit.Material
-import org.bukkit.Particle
+import org.bukkit.*
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.Arrow
@@ -63,22 +59,19 @@ class DamageListener : Listener {
                 if (killer.itemInHand.getType() != Material.IRON_SWORD && damage != 10.0)
                     return
                 // Убийца убивает с меча или с лука
-                if (userVictim.role == Role.DETECTIVE) {
-                    killDetective(userVictim)
-                } else if (userVictim.role == Role.VILLAGER) {
-                    B.bc(Formatting.error("§e${victim.name} §fбыл убит маньяком."))
-                }
+                kill(userVictim)
+                val sword = killer.inventory.getItem(1)
+                killer.inventory.setItem(1, null)
+                B.postpone(50) { killer.inventory.setItem(1, sword) }
+                return
             } else if (byArrow) {
-                when (userVictim.role) {
-                    Role.MURDER -> killMurder(userVictim)
-                    Role.DETECTIVE -> killDetective(userVictim)
-                    else -> B.bc(Formatting.error("§e${victim.name} §fбыл убит."))
-                }
+                if (userVictim.role == Role.MURDER)
+                    heroName = userKiller.name
+                else
+                    kill(userKiller)
+                kill(userVictim)
             } else
                 return
-            victim.sendTitle("§cПоражение", "§cвы были убиты")
-            victim.gameMode = GameMode.SPECTATOR
-            userVictim.role = Role.NONE
         }
     }
 
@@ -87,21 +80,31 @@ class DamageListener : Listener {
         quitMessage = null
         if (activeStatus != Status.GAME)
             return
-        val user = app.getUser(player)
         // Если важная роль вышла из игры, то важно отметить
-        when (user.role) {
-            Role.DETECTIVE -> killDetective(user)
-            Role.MURDER -> killMurder(user)
-            Role.VILLAGER -> B.bc(Formatting.error("§e${player.name} §fубежал от игры."))
-            else -> {
-            }
-        }
+        kill(app.getUser(player))
     }
 
     @EventHandler
     fun ProjectileLaunchEvent.handle() {
-        if (getEntity() is Arrow)
-            B.postpone(60) { (getEntity().shooter as Player).inventory.setItem(20, ItemStack(Material.ARROW)) }
+        if (getEntity() is Arrow && app.getUser(getEntity().shooter as Player).role == Role.DETECTIVE)
+            B.postpone(120) { (getEntity().shooter as Player).inventory.setItem(20, ItemStack(Material.ARROW)) }
+    }
+
+    private fun kill(victim: User) {
+        if (victim.player!!.gameMode == GameMode.SPECTATOR)
+            return
+        if (victim.role == Role.DETECTIVE)
+            killDetective(victim)
+        if (victim.role == Role.MURDER)
+            killMurder(victim)
+        B.bc(Formatting.error("§c${victim.name} §fбыл убит."))
+        victim.player!!.sendTitle("§cПоражение", "§cвы были убиты")
+        victim.player!!.gameMode = GameMode.SPECTATOR
+        victim.role = Role.NONE
+        ModHelper.makeCorpse(victim)
+        Bukkit.getOnlinePlayers().forEach {
+            it.playSound(it.location, Sound.ENTITY_PLAYER_DEATH, 1f, 1f)
+        }
     }
 
     private fun killDetective(user: User) {
@@ -124,10 +127,10 @@ class DamageListener : Listener {
     private fun killMurder(user: User) {
         // Детектив/Мирный житель убивает с лука убийцу
         Bukkit.getOnlinePlayers().minus(user.player!!).forEach {
+            winMessage = "§aМирные жители победили!"
             it.sendTitle("§aПобеда мирных", "§aМаньяк уничтожен")
             it.gameMode = GameMode.SPECTATOR
         }
-        B.bc(Formatting.fine("§bМаньяк был убит!"))
         activeStatus = Status.END
     }
 
@@ -159,9 +162,9 @@ class DamageListener : Listener {
 
             val vector = player.eyeLocation.direction.normalize()
 
-            Cycle.run(1, 20 * 3) { iteration ->
-                if (iteration == 20 * 3 - 1) {
-                    player.inventory.setItem(2, sword.itemInHand)
+            Cycle.run(1, 20 * 6) { iteration ->
+                if (iteration == 20 * 6 - 1) {
+                    player.inventory.setItem(1, sword.itemInHand)
                     sword.remove()
                 }
 

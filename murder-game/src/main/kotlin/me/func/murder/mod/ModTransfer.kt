@@ -39,6 +39,11 @@ class ModTransfer {
         return this
     }
 
+    fun boolean(boolean: Boolean): ModTransfer {
+        serializer.writeBoolean(boolean)
+        return this
+    }
+
     fun send(channel: String?, user: User) {
         user.sendPacket(PacketPlayOutCustomPayload(channel, serializer))
     }

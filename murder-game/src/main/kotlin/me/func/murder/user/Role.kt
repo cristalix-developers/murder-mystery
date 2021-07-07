@@ -6,7 +6,7 @@ import org.bukkit.Material
 enum class Role(val title: String, val start: ((User) -> Unit)?) {
     VILLAGER("§eМирный житель", null),
     DETECTIVE("§bДетектив", {
-        it.player!!.inventory.setItem(2, item {
+        it.player!!.inventory.setItem(1, item {
             type = Material.BOW
             nbt("Unbreakable", 1)
             text("§bЛук детектива")
@@ -17,7 +17,7 @@ enum class Role(val title: String, val start: ((User) -> Unit)?) {
         }.build())
     }),
     MURDER("§cМаньяк", { it ->
-        it.player!!.inventory.setItem(2, item {
+        it.player!!.inventory.setItem(1, item {
             type = Material.IRON_SWORD
             text("§cОрудие убийства")
         }.build())
