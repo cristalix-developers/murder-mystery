@@ -9,6 +9,8 @@ import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.murder.listener.*
+import me.func.murder.map.MapType
+import me.func.murder.mod.ModHelper
 import me.func.murder.user.Stat
 import me.func.murder.user.User
 import me.func.murder.util.GoldDropper
@@ -27,6 +29,7 @@ import ru.cristalix.core.transfer.TransferService
 import java.util.*
 
 const val GAMES_STREAK_RESTART = 10
+val map = MapType.valueOf(System.getenv("MAP"))
 lateinit var app: App
 lateinit var goldDropper: GoldDropper
 var activeStatus = Status.STARTING

@@ -10,6 +10,8 @@ import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryOpenEvent
+import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerArmorStandManipulateEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEntityEvent
@@ -109,5 +111,11 @@ class GlobalListeners : Listener {
     @EventHandler
     fun ProjectileHitEvent.handle() {
         entity.remove()
+    }
+
+    @EventHandler
+    fun InventoryOpenEvent.handle() {
+        if (inventory.type == InventoryType.CHEST)
+            isCancelled = true
     }
 }

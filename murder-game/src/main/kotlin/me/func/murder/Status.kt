@@ -42,7 +42,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 )
                 // Обнуление прошлого героя и добавления количества игр
                 heroName = ""
-                me.func.murder.games++
+                games++
                 // Телепортация игроком на игровые точки
                 val places = app.worldMeta.getLabels("start")
                 players.forEachIndexed { index, player ->
@@ -67,10 +67,8 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         it.stat.villagerStreak++
                     }
                 }
-                // Создание списка игроков для замены скинов
-                val playerList = org.bukkit.Bukkit.getBannedPlayers()
-                    .map { (it as org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer).entityId }
-                    .joinToString { it.toString() + " " }
+                // Показать карту
+                me.func.murder.mod.ModHelper.loadMap()
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
                 val manager = org.bukkit.Bukkit.getScoreboardManager()
                 val board = manager.newScoreboard
@@ -84,7 +82,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     )
                     team.addEntry(user.name)
                     player.scoreboard = board
-                    player.sendTitle("Ваша роль:", user.role.title)
+                    me.func.murder.mod.ModHelper.sendTitle(user, "Роль: ${user.role.title}")
                     // Выполнение ролийных особенностей
                     clepto.bukkit.B.postpone(10 * 20) {
                         user.role.start?.invoke(user)
@@ -104,51 +102,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         .record { "Игроков: §7" + org.bukkit.Bukkit.getOnlinePlayers().size }
                     clepto.cristalix.Cristalix.scoreboardService().setCurrentObjective(player.uniqueId, address)
                     // Убрать шансы
-                    me.func.murder.mod.ModTransfer().string(playerList).send("murder-start", user)
-                    // Замена скинов
-                    val profile: com.destroystokyo.paper.profile.PlayerProfile = user.player!!.playerProfile
-                    val currentSkin = me.func.murder.util.SkitSet.skins.random()
-                    val craftPlayer = user.player!! as org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
-
-                    profile.setProperty(com.destroystokyo.paper.profile.ProfileProperty("skinURL", currentSkin.url))
-                    profile.setProperty(
-                        com.destroystokyo.paper.profile.ProfileProperty(
-                            "skinDigest",
-                            currentSkin.digest
-                        )
-                    )
-
-                    user.player!!.playerProfile = profile
-
-                    org.bukkit.Bukkit.getOnlinePlayers().forEach {
-                        it.hidePlayer(app, user.player!!)
-                        it.showPlayer(app, user.player!!)
-                    }
-
-                    craftPlayer.reregisterPlayer(craftPlayer.handle)
-                    craftPlayer.handle.playerConnection.sendPacket(
-                        net.minecraft.server.v1_12_R1.PacketPlayOutRespawn(
-                            0,
-                            app.worldMeta.world.handle.difficulty,
-                            net.minecraft.server.v1_12_R1.WorldType.NORMAL,
-                            craftPlayer.handle.playerInteractManager.gameMode
-                        )
-                    )
-
-                    craftPlayer.handle.updateAbilities()
-                    craftPlayer.handle.playerConnection.sendPacket(
-                        net.minecraft.server.v1_12_R1.PacketPlayOutPosition(
-                            craftPlayer.location.getX(),
-                            craftPlayer.location.getY(),
-                            craftPlayer.location.getZ(),
-                            craftPlayer.location.getYaw(),
-                            craftPlayer.location.getPitch(),
-                            HashSet(),
-                            0
-                        )
-                    )
-
-                    net.minecraft.server.v1_12_R1.MinecraftServer.getServer().playerList.updateClient(craftPlayer.handle)
+                    me.func.murder.mod.ModTransfer().send("murder-start", user)
                 }
 
                 activeStatus = GAME
@@ -244,7 +198,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 )
                 activeStatus = STARTING
                 app.worldMeta.world.entities.forEach { it.remove() }
-                if (me.func.murder.games > me.func.murder.GAMES_STREAK_RESTART)
+                if (games > GAMES_STREAK_RESTART)
                     org.bukkit.Bukkit.shutdown()
                 -1
             }

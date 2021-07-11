@@ -29,10 +29,9 @@ class GoldListener : Listener {
 
     @EventHandler
     fun PlayerAttemptPickupItemEvent.handle() {
-        val toGive = gold.clone()
         val gold = player.inventory.getItem(8)
         if (gold != null) {
-            player.inventory.addItem(toGive)
+            player.inventory.addItem(gold)
             val user = app.getUser(player)
             if (gold.getAmount() == 10 && user.role != Role.DETECTIVE) {
                 player.inventory.remove(Material.GOLD_INGOT)
@@ -40,7 +39,7 @@ class GoldListener : Listener {
                 player.inventory.setItem(20, arrow)
             }
         } else
-            player.inventory.setItem(8, toGive)
+            player.inventory.setItem(8, gold)
         player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
         item.remove()
         isCancelled = true

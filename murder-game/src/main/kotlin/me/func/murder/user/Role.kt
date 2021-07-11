@@ -16,12 +16,12 @@ enum class Role(val title: String, val start: ((User) -> Unit)?) {
             text("§bСтрела детектива")
         }.build())
     }),
-    MURDER("§cМаньяк", { it ->
+    MURDER("§cМаньяк", {
         it.player!!.inventory.setItem(1, item {
             type = Material.IRON_SWORD
             text("§cОрудие убийства")
         }.build())
-        org.bukkit.Bukkit.getOnlinePlayers().forEach { it.sendTitle("§eОсторожно!", "§cМаньяк с оружием") }
+        me.func.murder.mod.ModHelper.sendGlobalTitle("Опасность!")
     }),
     NONE("Не отпределен", null)
 }

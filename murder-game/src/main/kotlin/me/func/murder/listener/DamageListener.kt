@@ -2,6 +2,7 @@ package me.func.murder.listener
 
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
+import dev.implario.bukkit.item.item
 import me.func.murder.*
 import me.func.murder.mod.ModHelper
 import me.func.murder.user.Role
@@ -10,6 +11,7 @@ import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.*
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.EntityType
@@ -62,6 +64,7 @@ class DamageListener : Listener {
                 kill(userVictim)
                 val sword = killer.inventory.getItem(1)
                 killer.inventory.setItem(1, null)
+                ModHelper.sendCooldown(userKiller, "Возвращение меча", 50)
                 B.postpone(50) { killer.inventory.setItem(1, sword) }
                 return
             } else if (byArrow) {
@@ -86,22 +89,50 @@ class DamageListener : Listener {
 
     @EventHandler
     fun ProjectileLaunchEvent.handle() {
-        if (getEntity() is Arrow && app.getUser(getEntity().shooter as Player).role == Role.DETECTIVE)
-            B.postpone(120) { (getEntity().shooter as Player).inventory.setItem(20, ItemStack(Material.ARROW)) }
+        if (getEntity() is Arrow && getEntity().shooter is CraftPlayer) {
+            val user = app.getUser(getEntity().shooter as Player)
+            if (user.role == Role.DETECTIVE) {
+                ModHelper.sendCooldown(user, "Перезарядка лука", 120)
+                B.postpone(120) { user.player!!.inventory.setItem(20, ItemStack(Material.ARROW)) }
+            }
+        }
     }
 
     private fun kill(victim: User) {
-        if (victim.player!!.gameMode == GameMode.SPECTATOR)
+        val player = victim.player!!
+        if (player.gameMode == GameMode.SPECTATOR)
             return
         if (victim.role == Role.DETECTIVE)
             killDetective(victim)
         if (victim.role == Role.MURDER)
             killMurder(victim)
         B.bc(Formatting.error("§c${victim.name} §fбыл убит."))
-        victim.player!!.sendTitle("§cПоражение", "§cвы были убиты")
-        victim.player!!.gameMode = GameMode.SPECTATOR
+        ModHelper.sendTitle(victim, "Вы проиграли")
+        player.gameMode = GameMode.SPECTATOR
+        player.inventory.clear()
         victim.role = Role.NONE
         ModHelper.makeCorpse(victim)
+
+        var location = player.location.clone()
+        var id: Int
+        var counter = 0
+        do {
+            counter++
+            location = location.clone().subtract(0.0, 0.15, 0.0)
+            id = location.block.typeId
+        } while ((id == 0 || id == 171 || id == 96 || id == 167) && counter < 30)
+        val grove = player.world.spawnEntity(location.clone().subtract(0.0, 1.5, 0.0), EntityType.ARMOR_STAND)
+        val nmsGrove = (grove as CraftArmorStand).handle
+        grove.isInvulnerable = true
+        nmsGrove.isMarker = true
+        nmsGrove.isInvisible = true
+        nmsGrove.isNoGravity = true
+        // todo: replace with enum
+        nmsGrove.setSlot(EnumItemSlot.HEAD, CraftItemStack.asNMSCopy(item {
+            type = Material.CLAY_BALL
+            nbt("other", "g4")
+        }.build()))
+
         Bukkit.getOnlinePlayers().forEach {
             it.playSound(it.location, Sound.ENTITY_PLAYER_DEATH, 1f, 1f)
         }
@@ -109,7 +140,7 @@ class DamageListener : Listener {
 
     private fun killDetective(user: User) {
         // Сообщение о выпадении лука
-        Bukkit.getOnlinePlayers().forEach { it.sendTitle("§eЛук выпал", "§cДетектив убит") }
+        ModHelper.sendGlobalTitle("Лук выпал")
         // Выпадение лука
         val bow = user.player!!.world.spawnEntity(
             user.player!!.location.clone().subtract(0.0, 1.0, 0.0),
@@ -128,7 +159,7 @@ class DamageListener : Listener {
         // Детектив/Мирный житель убивает с лука убийцу
         Bukkit.getOnlinePlayers().minus(user.player!!).forEach {
             winMessage = "§aМирные жители победили!"
-            it.sendTitle("§aПобеда мирных", "§aМаньяк уничтожен")
+            ModHelper.sendTitle(app.getUser(it), "Победа мирных")
             it.gameMode = GameMode.SPECTATOR
         }
         activeStatus = Status.END
@@ -162,6 +193,7 @@ class DamageListener : Listener {
 
             val vector = player.eyeLocation.direction.normalize()
 
+            ModHelper.sendCooldown(user, "Возвращение меча", 6 * 20)
             Cycle.run(1, 20 * 6) { iteration ->
                 if (iteration == 20 * 6 - 1) {
                     player.inventory.setItem(1, sword.itemInHand)
@@ -182,7 +214,7 @@ class DamageListener : Listener {
                     return@run
                 nmsSword.move(EnumMoveType.SELF, vector.x / 1.6, vector.y / 1.6, vector.z / 1.6)
                 Bukkit.getOnlinePlayers().minus(player)
-                    .filter { it.gameMode != GameMode.SPECTATOR && it.location.distanceSquared(sword.location) < 3.4 }
+                    .filter { it.gameMode != GameMode.SPECTATOR && it.location.distanceSquared(sword.location) < 1.5 }
                     .forEach {
                         it.damage(10.0, player)
                     }
