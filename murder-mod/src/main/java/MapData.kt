@@ -1,8 +1,9 @@
 data class MapData(
-    val maxX: Double,
-    val maxZ: Double,
+    val title: String,
+    var maxX: Double,
+    var maxZ: Double,
     val playerTexturePath: String,
-    val mapTexturePath: String,
-    val textureSize: Double,
+    var mapTexturePath: String,
+    var textureSize: Double,
     val markers: List<Marker>
 )

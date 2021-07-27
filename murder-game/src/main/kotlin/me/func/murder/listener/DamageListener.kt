@@ -7,6 +7,7 @@ import me.func.murder.*
 import me.func.murder.mod.ModHelper
 import me.func.murder.user.Role
 import me.func.murder.user.User
+import me.func.murder.util.StandHelper
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.*
@@ -61,6 +62,8 @@ class DamageListener : Listener {
                 if (killer.itemInHand.getType() != Material.IRON_SWORD && damage != 10.0)
                     return
                 // Убийца убивает с меча или с лука
+                userKiller.giveMoney(2)
+                userKiller.stat.kills++
                 kill(userVictim)
                 val sword = killer.inventory.getItem(1)
                 killer.inventory.setItem(1, null)
@@ -68,9 +71,10 @@ class DamageListener : Listener {
                 B.postpone(50) { killer.inventory.setItem(1, sword) }
                 return
             } else if (byArrow) {
-                if (userVictim.role == Role.MURDER)
+                if (userVictim.role == Role.MURDER) {
                     heroName = userKiller.name
-                else
+                    userKiller.giveMoney(5)
+                } else
                     kill(userKiller)
                 kill(userVictim)
             } else
@@ -91,6 +95,7 @@ class DamageListener : Listener {
     fun ProjectileLaunchEvent.handle() {
         if (getEntity() is Arrow && getEntity().shooter is CraftPlayer) {
             val user = app.getUser(getEntity().shooter as Player)
+            user.player!!.inventory.remove(Material.ARROW)
             if (user.role == Role.DETECTIVE) {
                 ModHelper.sendCooldown(user, "Перезарядка лука", 120)
                 B.postpone(120) { user.player!!.inventory.setItem(20, ItemStack(Material.ARROW)) }
@@ -112,6 +117,7 @@ class DamageListener : Listener {
         player.inventory.clear()
         victim.role = Role.NONE
         ModHelper.makeCorpse(victim)
+        ModHelper.update()
 
         var location = player.location.clone()
         var id: Int
@@ -121,17 +127,15 @@ class DamageListener : Listener {
             location = location.clone().subtract(0.0, 0.15, 0.0)
             id = location.block.typeId
         } while ((id == 0 || id == 171 || id == 96 || id == 167) && counter < 30)
-        val grove = player.world.spawnEntity(location.clone().subtract(0.0, 1.5, 0.0), EntityType.ARMOR_STAND)
-        val nmsGrove = (grove as CraftArmorStand).handle
-        grove.isInvulnerable = true
-        nmsGrove.isMarker = true
-        nmsGrove.isInvisible = true
-        nmsGrove.isNoGravity = true
-        // todo: replace with enum
-        nmsGrove.setSlot(EnumItemSlot.HEAD, CraftItemStack.asNMSCopy(item {
-            type = Material.CLAY_BALL
-            nbt("other", "g4")
-        }.build()))
+        StandHelper(location.clone().subtract(0.0, 1.5, 0.0))
+            .marker(true)
+            .invisible(true)
+            .gravity(false)
+            .slot(EnumItemSlot.HEAD, item {
+                type = Material.CLAY_BALL
+                nbt("other", "g4")
+            }.build())
+            .markTrash()
 
         Bukkit.getOnlinePlayers().forEach {
             it.playSound(it.location, Sound.ENTITY_PLAYER_DEATH, 1f, 1f)
@@ -142,17 +146,13 @@ class DamageListener : Listener {
         // Сообщение о выпадении лука
         ModHelper.sendGlobalTitle("Лук выпал")
         // Выпадение лука
-        val bow = user.player!!.world.spawnEntity(
-            user.player!!.location.clone().subtract(0.0, 1.0, 0.0),
-            EntityType.ARMOR_STAND
-        )
-        bow.setMetadata("detective", FixedMetadataValue(app, true))
-        bow.isInvulnerable = true
-        val nmsBow = (bow as CraftArmorStand).handle
-        nmsBow.isMarker = true
-        nmsBow.isInvisible = true
-        nmsBow.isNoGravity = true
-        nmsBow.setSlot(EnumItemSlot.HEAD, CraftItemStack.asNMSCopy(ItemStack(Material.BOW)))
+        StandHelper(user.player!!.location.clone().subtract(0.0, 1.0, 0.0))
+            .gravity(false)
+            .marker(true)
+            .invisible(true)
+            .slot(EnumItemSlot.HEAD, ItemStack(Material.BOW))
+            .markTrash()
+            .fixedData("detective", FixedMetadataValue(app, true))
     }
 
     private fun killMurder(user: User) {
@@ -173,14 +173,14 @@ class DamageListener : Listener {
 
         // Если маньяк нажал на меч, то запустить его вперед
         if (user.role == Role.MURDER && action == Action.RIGHT_CLICK_AIR && material == Material.IRON_SWORD) {
-            val sword =
-                player.world.spawnEntity(player.location.clone().add(0.0, 1.0, 0.0), EntityType.ARMOR_STAND)
-            sword.isInvulnerable = true
+            val sword = StandHelper(player.location.clone().add(0.0, 1.0, 0.0))
+                .invisible(true)
+                .marker(true)
+                .gravity(false)
+                .child(true)
+                .markTrash()
+                .build()
             val nmsSword = (sword as CraftArmorStand).handle
-            nmsSword.isMarker = true
-            nmsSword.isInvisible = true
-            nmsSword.isNoGravity = true
-            nmsSword.isSmall = true
             sword.itemInHand = player.itemInHand
             player.itemInHand = null
             sword.rightArmPose = EulerAngle(

@@ -2,9 +2,11 @@ package me.func.murder.mod
 
 import me.func.murder.app
 import me.func.murder.map
+import me.func.murder.map.MapType
+import me.func.murder.user.Role
 import me.func.murder.user.User
 import org.bukkit.Bukkit
-import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
+import org.bukkit.GameMode
 import java.util.*
 
 object ModHelper {
@@ -32,13 +34,25 @@ object ModHelper {
             .send("corpse", to)
     }
 
-    fun loadMap() {
+    fun loadMap(map: MapType) {
         Bukkit.getOnlinePlayers().map { app.getUser(it) }
             .forEach {
                 ModTransfer()
                     .json(map.data)
                     .send("murder:map-load", it)
             }
+    }
+
+    fun update() {
+        val users = Bukkit.getOnlinePlayers().map { app.getUser(it) }
+        val detectiveAlive = users.any { it.role == Role.DETECTIVE && it.player!!.gameMode != GameMode.SPECTATOR }
+        val alive = users.filter { it.player!!.gameMode != GameMode.SPECTATOR }.size
+        users.forEach {
+            ModTransfer()
+                .boolean(detectiveAlive)
+                .integer(alive)
+                .send("murder:update", it)
+        }
     }
 
     fun sendCooldown(user: User, text: String, ticks: Int) {

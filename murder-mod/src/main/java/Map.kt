@@ -1,26 +1,80 @@
 import com.google.gson.Gson
+import dev.xdark.clientapi.event.lifecycle.GameLoop
 import dev.xdark.clientapi.event.network.PluginMessage
 import dev.xdark.clientapi.event.render.GuiOverlayRender
 import dev.xdark.feder.NetUtil
 import org.lwjgl.opengl.GL11
 import ru.cristalix.uiengine.UIEngine
+import ru.cristalix.uiengine.UIEngine.clientApi
+import ru.cristalix.uiengine.element.RectangleElement
 import ru.cristalix.uiengine.utility.*
 import kotlin.math.PI
 
+const val MAP_SIZE = 90.0
+
 class Map {
 
-    private val minimapSize = 100.0
     private val gson = Gson()
+    private lateinit var mapData: MapData
+    private lateinit var minimap: RectangleElement
+    private var started = false
 
     init {
         UIEngine.registerHandler(PluginMessage::class.java) {
             if (channel == "murder:map-load") {
-                createMinimap(gson.fromJson(NetUtil.readUtf8(data, 65536), MapData::class.java))
+                mapData = gson.fromJson(NetUtil.readUtf8(data, 65536), MapData::class.java)
+                minimap = createMinimap(mapData)
+                started = true
             }
+        }
+
+        UIEngine.registerHandler(GameLoop::class.java) {
+            if (!started)
+                return@registerHandler
+            if (mapData.title == "OUTLAST") {
+                val y = clientApi.minecraft().player.y
+                if (y > 121) {
+                    mapData.mapTexturePath = "2.png"
+                    mapData.textureSize = 128.0
+                    mapData.maxX = 42.0
+                    mapData.maxZ = -18.0
+                } else if (y < 112) {
+                    mapData.mapTexturePath = "-1.png"
+                    mapData.textureSize = 64.0
+                    mapData.maxX = 39.0
+                    mapData.maxZ = -21.0
+                } else {
+                    mapData.mapTexturePath = "1.png"
+                    mapData.textureSize = 128.0
+                    mapData.maxX = 43.0
+                    mapData.maxZ = -16.0
+                }
+                minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
+            }
+        }
+
+        UIEngine.registerHandler(GuiOverlayRender::class.java) {
+            if (!started)
+                return@registerHandler
+            val player = clientApi.minecraft().player
+
+            val rotation = -player.rotationYaw * PI / 180
+            minimap.rotation.degrees = rotation
+
+            for (child in minimap.children) {
+                child.rotation.degrees = -rotation
+            }
+
+            val partialTicks = clientApi.minecraft().timer.renderPartialTicks
+
+            minimap.origin.x =
+                -(player.lastX + (player.x - player.lastX) * partialTicks - mapData.maxX) / mapData.textureSize
+            minimap.origin.y =
+                -(player.lastZ + (player.z - player.lastZ) * partialTicks - mapData.maxZ) / mapData.textureSize
         }
     }
 
-    private fun createMinimap(mapData: MapData) {
+    private fun createMinimap(mapData: MapData): RectangleElement {
         val minimap = rectangle {
             size.x = mapData.textureSize
             size.y = mapData.textureSize
@@ -30,7 +84,7 @@ class Map {
 
             align = Relative.CENTER
             val mapTexture = mapData.mapTexturePath.replace("minecraft:", "")
-            textureLocation = UIEngine.clientApi.resourceManager().getLocation(NAMESPACE, mapTexture)
+            textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapTexture)
 
             addChild(rectangle {
                 color = WHITE
@@ -59,25 +113,24 @@ class Map {
                     offset = V3(marker.x, marker.y)
                     scale.x /= 2.5
                     scale.y /= 2.5
-                    color = Color(255, 255, 255, 0.6)
+                    color = Color(0, 0, 0, 0.62)
                     origin = Relative.CENTER
                     content = marker.text
                     shadow = true
                 })
             }
-
         }
 
         val minimapBounds = rectangle {
-            size.x = minimapSize
-            size.y = minimapSize
+            size.x = MAP_SIZE
+            size.y = MAP_SIZE
             offset.z = 0.01
             origin = Relative.CENTER
             align = Relative.CENTER
-            color = Color(18, 18, 18, 0.7)
+            color = Color(0, 0, 0, 0.62)
             addChild(minimap)
             val playerTexture = mapData.playerTexturePath.replace("minecraft:", "")
-            val location = UIEngine.clientApi.resourceManager().getLocation("minecraft", playerTexture)
+            val location = clientApi.resourceManager().getLocation("minecraft", playerTexture)
             addChild(rectangle {
                 size.x = 8.0
                 size.y = 8.0
@@ -91,9 +144,9 @@ class Map {
         }
 
         val minimapContainer = rectangle {
-            size.x = minimapSize + 4
-            size.y = minimapSize + 4
-            color = Color(18, 18, 18, 0.7)
+            size.x = MAP_SIZE
+            size.y = MAP_SIZE
+            color = Color(0, 0, 0, 0.0)
             addChild(minimapBounds)
             origin = Relative.BOTTOM_RIGHT
             align = Relative.BOTTOM_RIGHT
@@ -103,22 +156,6 @@ class Map {
 
         UIEngine.overlayContext.addChild(minimapContainer)
 
-        UIEngine.registerHandler(GuiOverlayRender::class.java) {
-            val player = UIEngine.clientApi.minecraft().player
-
-            val rotation = -player.rotationYaw * PI / 180
-            minimap.rotation.degrees = rotation
-
-            for (child in minimap.children) {
-                child.rotation.degrees = -rotation
-            }
-
-            val partialTicks = UIEngine.clientApi.minecraft().timer.renderPartialTicks
-
-            minimap.origin.x =
-                -(player.lastX + (player.x - player.lastX) * partialTicks - mapData.maxX) / mapData.textureSize
-            minimap.origin.y =
-                -(player.lastZ + (player.z - player.lastZ) * partialTicks - mapData.maxZ) / mapData.textureSize
-        }
+        return minimap
     }
 }

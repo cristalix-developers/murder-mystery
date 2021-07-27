@@ -3,17 +3,23 @@ package me.func.murder
 import clepto.bukkit.B
 import clepto.cristalix.WorldMeta
 import dev.implario.bukkit.platform.Platforms
+import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.Session
 import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
+import me.func.murder.command.AdminCommand
+import me.func.murder.interactive.InteractEvent
 import me.func.murder.listener.*
+import me.func.murder.lobbycontent.LobbyNPC
+import me.func.murder.lobbycontent.LobbyTop
 import me.func.murder.map.MapType
-import me.func.murder.mod.ModHelper
 import me.func.murder.user.Stat
 import me.func.murder.user.User
-import me.func.murder.util.GoldDropper
+import me.func.murder.util.GoldManager
+import me.func.murder.util.TopCreator
+import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
@@ -26,14 +32,17 @@ import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
+import ru.cristalix.npcs.data.NpcBehaviour
+import ru.cristalix.npcs.server.Npc
+import ru.cristalix.npcs.server.Npcs
 import java.util.*
 
 const val GAMES_STREAK_RESTART = 10
 val map = MapType.valueOf(System.getenv("MAP"))
 lateinit var app: App
-lateinit var goldDropper: GoldDropper
+lateinit var goldManager: GoldManager
 var activeStatus = Status.STARTING
-const val slots = 16
+var slots = 4
 const val lobby = "HUB-1"
 lateinit var murderName: String
 lateinit var detectiveName: String
@@ -44,8 +53,9 @@ var games = 0
 
 class App : JavaPlugin() {
 
-    private val statScope = Scope("murder", Stat::class.java)
-    private var userManager = BukkitUserManager(
+    lateinit var kensuke: Kensuke
+    val statScope = Scope("murder", Stat::class.java)
+    var userManager = BukkitUserManager(
         listOf(statScope),
         { session: Session, context -> User(session, context.getData(statScope)) },
         { user, context -> context.store(statScope, user.stat) }
@@ -59,9 +69,10 @@ class App : JavaPlugin() {
 
         // Загрузка карты
         worldMeta = MapLoader.load("hall")!!
+        map.interactive.forEach { it.init() }
 
         // Создание раздатчика золота
-        goldDropper = GoldDropper(worldMeta.getLabels("gold").map { it.toCenterLocation() })
+        goldManager = GoldManager(worldMeta.getLabels("gold").map { it.toCenterLocation() })
 
         // Регистрация сервисов
         val core = CoreApi.get()
@@ -77,7 +88,7 @@ class App : JavaPlugin() {
         info.groupName = "Мардер #${info.realmId.id}"
 
         // Подключение к сервису статистики
-        val kensuke = BukkitKensuke.setup(this)
+        kensuke = BukkitKensuke.setup(this)
         kensuke.addGlobalUserManager(userManager)
         kensuke.globalRealm = info.realmId.realmName
         userManager.isOptional = true
@@ -87,7 +98,21 @@ class App : JavaPlugin() {
         timer.runTaskTimer(this, 10, 1)
 
         // Регистрация обработчиков событий
-        B.events(DamageListener(), ConnectionHandler(), GlobalListeners(), GoldListener(), ChatListener())
+        B.events(
+            DamageListener(),
+            ConnectionHandler(),
+            GlobalListeners(),
+            GoldListener(),
+            ChatListener(),
+            InteractEvent()
+        )
+
+        // Регистрация админ команд
+        AdminCommand()
+
+        // Создание контента для лобби
+        LobbyTop()
+        LobbyNPC()
     }
 
     fun getUser(player: Player): User {

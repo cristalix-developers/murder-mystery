@@ -1,6 +1,9 @@
 package me.func.murder.listener
 
 import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent
+import me.func.murder.Status
+import me.func.murder.activeStatus
+import net.minecraft.server.v1_12_R1.BlockRedstoneLamp
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
@@ -29,8 +32,8 @@ class GlobalListeners : Listener {
     }
 
     @EventHandler
-    fun BlockPhysicsEvent.handle() {
-        isCancelled = true
+    fun BlockRedstoneEvent.handle() {
+        newCurrent = oldCurrent
     }
 
     @EventHandler
@@ -115,7 +118,7 @@ class GlobalListeners : Listener {
 
     @EventHandler
     fun InventoryOpenEvent.handle() {
-        if (inventory.type == InventoryType.CHEST)
+        if (inventory.type == InventoryType.CHEST && activeStatus != Status.STARTING)
             isCancelled = true
     }
 }

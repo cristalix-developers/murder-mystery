@@ -60,6 +60,9 @@ dependencies {
     implementation 'dev.implario.bukkit:bukkit-tools:4.0.0'
     implementation 'dev.implario.bukkit:kotlin-api:1.0.0'
     implementation 'dev.implario.bukkit:dark-paper:1.0.0'
+
+    implementation 'ru.cristalix:boards-bukkit-api:3.0.0'
+    implementation 'ru.cristalix:npcs-bukkit-api:3.0.5'
 }
 
 remotes {

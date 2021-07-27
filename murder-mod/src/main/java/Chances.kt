@@ -95,6 +95,32 @@ class Chances {
         enabled = false
     }
 
+    private val topMessage = rectangle {
+        align = TOP
+        origin = TOP
+        color = Color(0, 0, 0, 0.0)
+        size = V3(90.0, 18.0, 0.0)
+        addChild(text {
+            origin = TOP
+            align = TOP
+            offset.y += 2
+            content = "§dMurderMystery §bCristalix"
+            shadow = true
+            scale = V3(0.76, 0.76, 0.76)
+            color.alpha = 0.62
+        }, text {
+            origin = BOTTOM
+            align = BOTTOM
+            content = "§fНазвание карты"
+            shadow = true
+            scale = V3(0.82, 0.82, 0.82)
+        })
+    }
+
+    private lateinit var roleAndOnline: RectangleElement
+    private lateinit var detectiveAlive: RectangleElement
+    private var role = ""
+
     private val message = rectangle {
         origin = CENTER
         align = CENTER
@@ -110,7 +136,7 @@ class Chances {
     }
 
     init {
-        UIEngine.overlayContext.addChild(box, online, cooldown, message)
+        UIEngine.overlayContext.addChild(box, online, cooldown, message, topMessage)
         box.enabled = false
 
         UIEngine.registerHandler(HealthRender::class.java) { isCancelled = true }
@@ -122,6 +148,30 @@ class Chances {
             if (channel == "murder-join") {
                 (murder.children[0] as TextElement).content = "§cМаньяк " + data.readInt() + "%"
                 (detective.children[0] as TextElement).content = "§bДетектив " + data.readInt() + "%"
+                // Мигание названием карты в начале
+                val text = (topMessage.children[1] as TextElement)
+                text.content = "Аутласт 㗡"
+                val signals = 6
+                for (i in 1..signals) {
+                    UIEngine.overlayContext.schedule(i * 2) {
+                        text.animate(0.9, Easings.BACK_IN) {
+                            color.alpha = 0.8
+                        }
+                    }
+                    UIEngine.overlayContext.schedule(i * 2 + 1) {
+                        text.animate(0.9, Easings.BACK_IN) {
+                            color.alpha = 0.3
+                        }
+                    }
+                }
+                UIEngine.overlayContext.schedule(signals * 2 + 2) {
+                    text.animate(0.4, Easings.BACK_IN) {
+                        scale.x = 0.0
+                        scale.y = 0.0
+                        color.alpha = 0.0
+                    }
+                }
+
                 box.enabled = true
                 // Загрузка фотографий
                 loadTextures(
@@ -136,6 +186,42 @@ class Chances {
                 online.animate(2, Easings.BACK_BOTH) {
                     offset.y = -25.0
                 }
+                role = NetUtil.readUtf8(data)
+                detectiveAlive = rectangle {
+                    origin = BOTTOM_RIGHT
+                    align = BOTTOM_RIGHT
+                    offset.y -= MAP_SIZE + 28
+                    offset.x -= 25
+                    size = V3(MAP_SIZE, 20.0, 0.0)
+                    color = Color(0, 0, 0, 0.62)
+                    addChild(text {
+                        origin = CENTER
+                        align = CENTER
+                        content = "§bДетектив жив"
+                        shadow = true
+                    })
+                }
+                roleAndOnline = rectangle {
+                    origin = BOTTOM_RIGHT
+                    align = BOTTOM_RIGHT
+                    offset.y -= MAP_SIZE + 51
+                    offset.x -= 25
+                    size = V3(MAP_SIZE, 25.0, 0.0)
+                    color = Color(0, 0, 0, 0.62)
+                    addChild(text {
+                        origin = CENTER
+                        align = CENTER
+                        content = "§fмирных живо §216\n§fвы $role"
+                        shadow = true
+                    })
+                }
+                UIEngine.overlayContext.addChild(roleAndOnline, detectiveAlive)
+            } else if (channel == "murder:update") {
+                val detective = data.readBoolean()
+                val online = data.readInt()
+                (roleAndOnline.children[0] as TextElement).content = "§fмирных живо §2$online\n§fвы $role"
+                (detectiveAlive.children[0] as TextElement).content =
+                    if (detective) "§bДетектив жив" else "§cДетектив мертв"
             } else if (channel == "update-online") {
                 val max = data.readInt()
                 val current = data.readInt()
@@ -174,17 +260,17 @@ class Chances {
                     color.green = 140
                     color.blue = 185
                     color.alpha = 1.0
-                    scale.x = 3.0
-                    scale.y = 3.0
+                    scale.x = 2.2
+                    scale.y = 2.2
                 }
-                UIEngine.overlayContext.schedule(3.3) {
-                    text.animate(3.45) {
+                UIEngine.overlayContext.schedule(3.1) {
+                    text.animate(3.15) {
                         scale.x = 20.0
                         scale.y = 20.0
                         color.alpha = 0.0
                     }
                 }
-                UIEngine.overlayContext.schedule(3.5) {
+                UIEngine.overlayContext.schedule(3.3) {
                     message.enabled = false
                     text.color.red = 0
                     text.color.green = 0
