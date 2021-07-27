@@ -81,7 +81,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 val board = manager.newScoreboard
                 users.forEach { user ->
                     val player = user.player!!
-                    val team = board.registerNewTeam(user.id.substring(0, 14))
+                    val team = board.registerNewTeam(user.session.userId.substring(0, 14))
                     team.nameTagVisibility = org.bukkit.scoreboard.NameTagVisibility.HIDE_FOR_OTHER_TEAMS
                     team.setOption(
                         org.bukkit.scoreboard.Team.Option.COLLISION_RULE,

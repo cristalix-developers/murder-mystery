@@ -1,6 +1,4 @@
 rootProject.name = 'Murder Mystery'
 include 'murder-game'
-include 'murder-game'
-include 'murder-lobby'
 include 'murder-mod'
 

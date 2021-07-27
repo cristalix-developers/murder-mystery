@@ -10,7 +10,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/murder-game" />
-            <option value="$PROJECT_DIR$/murder-lobby" />
             <option value="$PROJECT_DIR$/murder-mod" />
           </set>
         </option>

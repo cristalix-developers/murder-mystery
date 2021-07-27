@@ -5,7 +5,7 @@ import clepto.cristalix.WorldMeta
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
-import dev.implario.kensuke.Session
+import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
@@ -57,7 +57,7 @@ class App : JavaPlugin() {
     val statScope = Scope("murder", Stat::class.java)
     var userManager = BukkitUserManager(
         listOf(statScope),
-        { session: Session, context -> User(session, context.getData(statScope)) },
+        { session: KensukeSession, context -> User(session, context.getData(statScope)) },
         { user, context -> context.store(statScope, user.stat) }
     )
     lateinit var worldMeta: WorldMeta
