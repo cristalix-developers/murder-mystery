@@ -4,8 +4,8 @@ import me.func.murder.user.User
 import org.bukkit.Material
 
 object GoldRobber {
-    private fun forceTake(user: User, count: Int) {
-        val newGold = user.player!!.inventory.getItem(8).clone()
+    fun forceTake(user: User, count: Int) {
+        val newGold = gold.clone()
         newGold.setAmount(count)
         user.player!!.inventory.removeItem(newGold)
         user.player!!.updateInventory()

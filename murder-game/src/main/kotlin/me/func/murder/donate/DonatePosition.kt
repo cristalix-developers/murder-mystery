@@ -1,5 +1,8 @@
 package me.func.murder.donate
 
+import me.func.murder.user.User
+import org.bukkit.inventory.ItemStack
+
 interface DonatePosition {
 
     fun getTitle(): String
@@ -8,6 +11,10 @@ interface DonatePosition {
 
     fun getRare(): Rare
 
-    fun give()
+    fun getIcon(): ItemStack
+
+    fun give(user: User)
+
+    fun isActive(user: User): Boolean
 
 }

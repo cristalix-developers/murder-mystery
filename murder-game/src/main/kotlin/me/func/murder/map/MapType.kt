@@ -84,15 +84,8 @@ enum class MapType(val title: String, val address: String, val data: MapData, va
                     StandardsInteract.movePlayer(user, inDot, outDot, 5 * 20, V3(-3.0, 116.0, -61.0))
                 }
             }, object : BlockInteract(V3(24.0, 117.0, -65.0), 8, "Повредить энергопередачу") {
-                var broken = false
-
-                override fun trigger(event: PlayerInteractEvent): Boolean {
-                    return super.trigger(event) && !broken
-                }
-
                 override fun interact(user: User) {
                     StandardsInteract.breakLamps()
-                    broken = true
                 }
             })
     )

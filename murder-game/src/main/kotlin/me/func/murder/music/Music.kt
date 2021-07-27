@@ -5,11 +5,12 @@ import org.bukkit.Bukkit
 import ru.cristalix.core.display.IDisplayService
 import ru.cristalix.core.display.messages.RadioMessage
 
-enum class Music(val url: String) {
+enum class Music(private val url: String) {
 
     LIGHT_OFF("https://implario.dev/murder/electro-break.mp3"),
     OUTLAST("https://implario.dev/murder/game.mp3"),
-    LOBBY("https://implario.dev/murder/waiting.mp3")
+    LOBBY("https://implario.dev/murder/waiting.mp3"),
+    VILLAGER_WIN("https://implario.dev/murder/win.mp3")
     ;
 
     fun play(user: User) {

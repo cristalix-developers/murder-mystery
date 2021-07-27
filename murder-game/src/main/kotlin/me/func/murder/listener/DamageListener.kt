@@ -4,18 +4,18 @@ import clepto.bukkit.B
 import clepto.bukkit.Cycle
 import dev.implario.bukkit.item.item
 import me.func.murder.*
+import me.func.murder.donate.impl.Corpse
 import me.func.murder.mod.ModHelper
 import me.func.murder.user.Role
 import me.func.murder.user.User
 import me.func.murder.util.StandHelper
+import me.func.murder.util.droppedBowManager
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.*
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.Arrow
-import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
 import org.bukkit.event.EventHandler
@@ -27,7 +27,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
-import org.bukkit.metadata.FixedMetadataValue
 import org.bukkit.util.EulerAngle
 import ru.cristalix.core.formatting.Formatting
 
@@ -127,15 +126,14 @@ class DamageListener : Listener {
             location = location.clone().subtract(0.0, 0.15, 0.0)
             id = location.block.typeId
         } while ((id == 0 || id == 171 || id == 96 || id == 167) && counter < 30)
-        StandHelper(location.clone().subtract(0.0, 1.5, 0.0))
-            .marker(true)
-            .invisible(true)
-            .gravity(false)
-            .slot(EnumItemSlot.HEAD, item {
-                type = Material.CLAY_BALL
-                nbt("other", "g4")
-            }.build())
-            .markTrash()
+
+        if (victim.stat.activeCorpse != Corpse.NONE)
+            StandHelper(location.clone().subtract(0.0, 1.5, 0.0))
+                .marker(true)
+                .invisible(true)
+                .gravity(false)
+                .slot(EnumItemSlot.HEAD, victim.stat.activeCorpse.getIcon())
+                .markTrash()
 
         Bukkit.getOnlinePlayers().forEach {
             it.playSound(it.location, Sound.ENTITY_PLAYER_DEATH, 1f, 1f)
@@ -145,16 +143,7 @@ class DamageListener : Listener {
     private fun killDetective(user: User) {
         // Сообщение о выпадении лука
         ModHelper.sendGlobalTitle("Лук выпал")
-        // Выпадение лука
-        StandHelper(user.player!!.location.clone().subtract(0.0, 1.0, 0.0))
-            .gravity(false)
-            .marker(true)
-            .invisible(true)
-            .slot(EnumItemSlot.HEAD, ItemStack(Material.BOW))
-            .markTrash()
-            .fixedData("detective", true)
-            .build()
-            .isGlowing = true
+        droppedBowManager.drop(user.player!!.location)
     }
 
     private fun killMurder(user: User) {
@@ -175,6 +164,7 @@ class DamageListener : Listener {
 
         // Если маньяк нажал на меч, то запустить его вперед
         if (user.role == Role.MURDER && action == Action.RIGHT_CLICK_AIR && material == Material.IRON_SWORD) {
+            user.player!!.playSound(user.player!!.location, Sound.BLOCK_CLOTH_STEP, 1.1f, 1f)
             val sword = StandHelper(player.location.clone().add(0.0, 1.0, 0.0))
                 .invisible(true)
                 .marker(true)

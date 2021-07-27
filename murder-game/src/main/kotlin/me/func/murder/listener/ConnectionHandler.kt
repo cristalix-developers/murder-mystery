@@ -76,7 +76,7 @@ class ConnectionHandler : Listener {
         var slot = 1
 
         while (goldCount > 64) {
-            if (slot > 35)
+            if (slot > 32)
                 break
             player.inventory.setItem(slot, stackOfGold)
             goldCount -= 64

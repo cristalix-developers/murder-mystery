@@ -23,7 +23,6 @@ class InteractEvent : Listener {
                 val user = app.getUser(player)
                 GoldRobber.take(user, it.gold) {
                     it.interact(user)
-                    user.giveMoney(1)
                     player.playSound(player.location, Sound.BLOCK_CLOTH_FALL, 1.1f, 1f)
                 }
             }

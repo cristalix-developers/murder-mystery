@@ -1,6 +1,8 @@
 package me.func.murder
 
 import clepto.bukkit.B
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
@@ -9,33 +11,40 @@ import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.murder.command.AdminCommand
+import me.func.murder.donate.DonateAdapter
+import me.func.murder.donate.DonatePosition
 import me.func.murder.interactive.InteractEvent
 import me.func.murder.listener.*
 import me.func.murder.lobbycontent.LobbyNPC
 import me.func.murder.lobbycontent.LobbyTop
 import me.func.murder.user.Stat
 import me.func.murder.user.User
+import me.func.murder.util.BowManager
 import me.func.murder.util.GoldManager
+import me.func.murder.util.droppedBowManager
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
+import ru.cristalix.core.GlobalSerializers
 import ru.cristalix.core.inventory.IInventoryService
 import ru.cristalix.core.inventory.InventoryService
 import ru.cristalix.core.network.ISocketClient
 import ru.cristalix.core.party.IPartyService
 import ru.cristalix.core.party.PartyService
 import ru.cristalix.core.realm.IRealmService
+import ru.cristalix.core.realm.RealmInfo
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
 import java.util.*
 
 const val GAMES_STREAK_RESTART = 10
+const val lobby = "HUB-1"
 lateinit var app: App
+lateinit var realm: RealmInfo
 var activeStatus = Status.STARTING
 var slots = 16
-const val lobby = "HUB-1"
 var games = 0
 
 class App : JavaPlugin() {
@@ -59,6 +68,8 @@ class App : JavaPlugin() {
 
         // Создание раздатчика золота
         GoldManager(worldMeta.getLabels("gold").map { it.toCenterLocation() })
+        // Регистрация менеджера выпавшего лука
+        BowManager()
 
         // Регистрация сервисов
         val core = CoreApi.get()
@@ -67,17 +78,20 @@ class App : JavaPlugin() {
         core.registerService(IInventoryService::class.java, InventoryService())
 
         // Конфигурация реалма
-        val info = IRealmService.get().currentRealmInfo
-        info.status = RealmStatus.WAITING_FOR_PLAYERS
-        info.maxPlayers = slots
-        info.readableName = "Мардер #${info.realmId.id}"
-        info.groupName = "Мардер #${info.realmId.id}"
+        realm = IRealmService.get().currentRealmInfo
+        realm.status = RealmStatus.WAITING_FOR_PLAYERS
+        realm.maxPlayers = slots
+        realm.readableName = "Мардер #${realm.realmId.id}"
+        realm.groupName = "Мардер #${realm.realmId.id}"
 
         // Подключение к сервису статистики
         kensuke = BukkitKensuke.setup(this)
         kensuke.addGlobalUserManager(userManager)
-        kensuke.globalRealm = info.realmId.realmName
+        kensuke.globalRealm = realm.realmId.realmName
         userManager.isOptional = true
+        kensuke.gson = GsonBuilder()
+            .registerTypeAdapter(DonatePosition::class.java, DonateAdapter())
+            .create()
 
         // Запуск игрового таймера
         timer = Timer()
@@ -110,6 +124,7 @@ class App : JavaPlugin() {
         // Очистка мусорных сущностей
         worldMeta.world.entities.filter { it.hasMetadata("trash") }
             .forEach { it.remove() }
+        droppedBowManager.clear()
         activeStatus = Status.STARTING
 
         // Полная перезагрузка если много игр наиграно

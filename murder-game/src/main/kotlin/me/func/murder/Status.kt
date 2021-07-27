@@ -12,10 +12,9 @@ lateinit var winMessage: String
 enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
     STARTING(30, { it ->
         // Если набор игроков начался, обновить статус реалма
-        if (it == 0) {
-            val realm = ru.cristalix.core.realm.IRealmService.get().currentRealmInfo
+        if (it == 0)
             realm.status = ru.cristalix.core.realm.RealmStatus.GAME_STARTED_CAN_JOIN
-        }
+
         val players = Bukkit.getOnlinePlayers()
         // Обновление шкалы онлайна
         players.forEach {
@@ -34,8 +33,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 actualTime = 1
             else {
                 // Обновление статуса реалма, чтобы нельзя было войти
-                val realm = ru.cristalix.core.realm.IRealmService.get().currentRealmInfo
-                realm.status = ru.cristalix.core.realm.RealmStatus.GAME_STARTED_RESTRICTED
+                me.func.murder.realm.status = ru.cristalix.core.realm.RealmStatus.GAME_STARTED_RESTRICTED
                 // Обнуление прошлого героя и добавления количества игр
                 heroName = ""
                 games++
@@ -96,7 +94,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     me.func.murder.music.Music.OUTLAST.play(user)
                 }
                 // Заспавнить перевернутых пауков
-                me.func.murder.worldMeta.getLabels("spider").forEach {
+                worldMeta.getLabels("spider").forEach {
                     val spider =
                         it.world.spawnEntity(it, org.bukkit.entity.EntityType.SPIDER) as org.bukkit.entity.Spider
                     spider.customName = "Grumm"
@@ -127,45 +125,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         // Каждые 10 секунд, генерировать золото в случайном месте
         if ((time / 20) % 10 == 0)
             me.func.murder.util.goldManager.dropGoldRandomly()
-        // Если выбит лук, то крутить его и проверять, есть ли рядом игрок
-        val droppedBow = me.func.murder.worldMeta.world.livingEntities.firstOrNull {
-            it.type == org.bukkit.entity.EntityType.ARMOR_STAND && it.hasMetadata("detective")
-        }
-        if (droppedBow != null) {
-            val asStand = droppedBow as org.bukkit.entity.ArmorStand
-            // Если есть кто-то рядом, сделать его детективом
-            val nearby = Bukkit.getOnlinePlayers()
-                .filter { app.getUser(it).role != me.func.murder.user.Role.MURDER }
-                .firstOrNull { it.location.distanceSquared(droppedBow.location) < 9 }
-            if (nearby != null) {
-                val first = app.getUser(nearby.uniqueId)
-                if (first.role == Role.VILLAGER) {
-                    asStand.remove()
-                    first.role = Role.DETECTIVE
-                    first.role.start?.invoke(first)
-                    B.bc(ru.cristalix.core.formatting.Formatting.fine("Лук перехвачен!"))
-                }
-            }
-            // Вращение
-            val pose = asStand.headPose
-            pose.y += Math.toRadians(360.0 / (20 * 3)) // Полный оборот за 3 секунды
-            asStand.headPose = pose
-            // Создание частиц возле лука
-            val radius = 1.2 // Радиус окружности
-            val omega = 1.0 // Скорость вращения
-            val amount = 2 // Количество частиц
-            for (counter in 0..amount) {
-                me.func.murder.worldMeta.world.spawnParticle(
-                    org.bukkit.Particle.SPELL_WITCH,
-                    asStand.location.clone().add(
-                        kotlin.math.sin(time / 2 / kotlin.math.PI * omega * counter) * radius,
-                        1.6 + kotlin.math.sin(time / kotlin.math.PI / 5),
-                        kotlin.math.cos(time / 2 / kotlin.math.PI * omega * counter) * radius
-                    ),
-                    1
-                )
-            }
-        }
+        me.func.murder.util.droppedBowManager.rotateIfPresent(time)
         // Если осталось менее двух минут, выдать скорость мардеру, и подсветить всех на 5 секунд
         val glowing = org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.GLOWING, 100, 1, false, false)
         if (time == (GAME.lastSecond - 60 * 2) * 20) {
@@ -190,9 +150,27 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             // Выдача побед выжившим и выдача всем доп. игр
             Bukkit.getOnlinePlayers().forEach {
                 val user = app.getUser(it)
-                if ( it.gameMode != org.bukkit.GameMode.SPECTATOR)
+                if ( it.gameMode != org.bukkit.GameMode.SPECTATOR) {
                     user.stat.wins++
+                    val firework = user.player?.world!!.spawn(user.player!!.location, org.bukkit.entity.Firework::class.java)
+                    val meta = firework.fireworkMeta
+                    meta.addEffect(
+                        org.bukkit.FireworkEffect.builder()
+                            .flicker(true)
+                            .trail(true)
+                            .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
+                            .with(org.bukkit.FireworkEffect.Type.BALL)
+                            .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
+                            .withColor(org.bukkit.Color.YELLOW)
+                            .withColor(org.bukkit.Color.GREEN)
+                            .withColor(org.bukkit.Color.WHITE)
+                            .build()
+                    )
+                    meta.power = 0
+                    firework.fireworkMeta = meta
+                }
                 user.stat.games++
+                me.func.murder.music.Music.VILLAGER_WIN.play(user)
             }
 
             B.bc("")

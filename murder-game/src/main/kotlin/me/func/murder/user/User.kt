@@ -2,6 +2,10 @@ package me.func.murder.user
 
 import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
+import me.func.murder.donate.impl.Corpse
+import me.func.murder.donate.impl.DeathImage
+import me.func.murder.donate.impl.NameTag
+import me.func.murder.donate.impl.StepParticle
 import me.func.murder.mod.ModTransfer
 import net.minecraft.server.v1_12_R1.Packet
 import net.minecraft.server.v1_12_R1.PlayerConnection
@@ -42,8 +46,34 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
     init {
         if (stat == null) {
-            this.stat = Stat(UUID.fromString(session.userId), 100, 0, 0, 0, 2, null)
+            this.stat = Stat(UUID.fromString(session.userId), 100, 0, 0, 0, 2, arrayListOf(
+                StepParticle.NONE,
+                DeathImage.NONE,
+                NameTag.NONE,
+                Corpse.NONE,
+            ),
+                StepParticle.NONE,
+                DeathImage.NONE,
+                NameTag.NONE,
+                Corpse.NONE,
+                ""
+            )
         } else {
+            if (stat.activeParticle == null)
+                stat.activeParticle = StepParticle.NONE
+            if (stat.activeDeathImage == null)
+                stat.activeDeathImage = DeathImage.NONE
+            if (stat.activeNameTag == null)
+                stat.activeNameTag = NameTag.NONE
+            if (stat.activeCorpse == null)
+                stat.activeCorpse = Corpse.NONE
+            if (stat.donate == null || stat.donate.isEmpty())
+                stat.donate = arrayListOf(
+                    StepParticle.NONE,
+                    DeathImage.NONE,
+                    NameTag.NONE,
+                    Corpse.NONE,
+                )
             this.stat = stat
         }
         this.session = session
