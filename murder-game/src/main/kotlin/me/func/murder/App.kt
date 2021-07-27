@@ -13,6 +13,7 @@ import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.murder.command.AdminCommand
 import me.func.murder.donate.DonateAdapter
 import me.func.murder.donate.DonatePosition
+import me.func.murder.donate.impl.Corpse
 import me.func.murder.interactive.InteractEvent
 import me.func.murder.listener.*
 import me.func.murder.lobbycontent.LobbyNPC
@@ -50,7 +51,7 @@ var games = 0
 class App : JavaPlugin() {
 
     lateinit var kensuke: Kensuke
-    val statScope = Scope("murder", Stat::class.java)
+    val statScope = Scope("murder-new", Stat::class.java)
     var userManager = BukkitUserManager(
         listOf(statScope),
         { session: KensukeSession, context -> User(session, context.getData(statScope)) },
@@ -90,7 +91,7 @@ class App : JavaPlugin() {
         kensuke.globalRealm = realm.realmId.realmName
         userManager.isOptional = true
         kensuke.gson = GsonBuilder()
-            .registerTypeAdapter(DonatePosition::class.java, DonateAdapter())
+            .registerTypeHierarchyAdapter(DonatePosition::class.java, DonateAdapter())
             .create()
 
         // Запуск игрового таймера

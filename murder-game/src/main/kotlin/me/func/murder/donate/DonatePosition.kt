@@ -17,4 +17,6 @@ interface DonatePosition {
 
     fun isActive(user: User): Boolean
 
+    fun getName(): String
+
 }

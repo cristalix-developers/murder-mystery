@@ -46,4 +46,8 @@ enum class Corpse(private val title: String, private val price: Int, private val
         return user.stat.activeCorpse == this
     }
 
+    override fun getName(): String {
+        return name
+    }
+
 }

@@ -29,4 +29,8 @@ class Lootbox : DonatePosition {
     override fun isActive(user: User): Boolean {
         TODO("Not yet implemented")
     }
+
+    override fun getName(): String {
+        return "Lootbox"
+    }
 }

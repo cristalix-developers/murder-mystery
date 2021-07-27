@@ -6,15 +6,7 @@ import me.func.murder.user.User
 import org.bukkit.inventory.ItemStack
 
 enum class DeathImage : DonatePosition {
-    NONE {
-        override fun give(user: User) {
-            TODO("Not yet implemented")
-        }
-
-        override fun isActive(user: User): Boolean {
-            TODO("Not yet implemented")
-        }
-    };
+    NONE();
 
     override fun getTitle(): String {
         TODO("Not yet implemented")
@@ -29,6 +21,17 @@ enum class DeathImage : DonatePosition {
     }
 
     override fun getIcon(): ItemStack {
+        TODO("Not yet implemented")
+    }
+    override fun getName(): String {
+        return name
+    }
+
+    override fun give(user: User) {
+        TODO("Not yet implemented")
+    }
+
+    override fun isActive(user: User): Boolean {
         TODO("Not yet implemented")
     }
 }

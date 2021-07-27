@@ -1,39 +1,39 @@
 package me.func.murder.donate
 
+import clepto.bukkit.B
 import com.google.gson.*
+import me.func.murder.donate.impl.Corpse
+import me.func.murder.donate.impl.DeathImage
+import me.func.murder.donate.impl.NameTag
+import me.func.murder.donate.impl.StepParticle
+import java.lang.IllegalArgumentException
 import java.lang.reflect.Type
 
-class DonateAdapter : JsonDeserializer<Any>, JsonSerializer<Any> {
+class DonateAdapter : JsonDeserializer<DonatePosition>, JsonSerializer<DonatePosition> {
 
     companion object {
         const val CLASSNAME = "CLASSNAME"
-        const val DATA  = "DATA"
+        const val DATA = "DATA"
     }
 
     @Throws(JsonParseException::class)
-    override fun deserialize(jsonElement: JsonElement, type: Type,
-                             jsonDeserializationContext: JsonDeserializationContext
-    ): DonatePosition {
-        val jsonObject = jsonElement.asJsonObject
-        val prim = jsonObject.get(CLASSNAME) as JsonPrimitive
-        val className = prim.asString
-        val objectClass = getObjectClass(className)
-        return jsonDeserializationContext.deserialize(jsonObject.get(DATA), objectClass)
-    }
-
-    override fun serialize(jsonElement: Any, type: Type, jsonSerializationContext: JsonSerializationContext): JsonElement {
-        val jsonObject = JsonObject()
-        jsonObject.addProperty(CLASSNAME, jsonElement.javaClass.name)
-        jsonObject.add(DATA, jsonSerializationContext.serialize(jsonElement))
-        return jsonObject
-    }
-
-    private fun getObjectClass(className: String): Class<*> {
-        try {
-            return Class.forName(className)
-        } catch (e: ClassNotFoundException) {
-            throw JsonParseException(e.message)
+    override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): DonatePosition {
+        val json = element.asJsonObject
+        val primitive = json.get(CLASSNAME).asString
+        val value = json.get(DATA).asString
+        return when(primitive) {
+            "DeathImage" -> DeathImage.valueOf(value)
+            "NameTag" -> NameTag.valueOf(value)
+            "StepParticle" -> StepParticle.valueOf(value)
+            "Corpse" -> Corpse.valueOf(value)
+            else -> throw IllegalArgumentException("Cannot deserialize data CLASS: $primitive, DATA: $value")
         }
+    }
 
+    override fun serialize(element: DonatePosition, type: Type, context: JsonSerializationContext): JsonElement {
+        val jsonObject = JsonObject()
+        jsonObject.addProperty(CLASSNAME, element.javaClass.simpleName)
+        jsonObject.add(DATA, JsonPrimitive(element.getName()))
+        return jsonObject
     }
 }

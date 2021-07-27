@@ -1,5 +1,6 @@
 package me.func.murder.user
 
+import clepto.bukkit.B
 import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
 import me.func.murder.donate.impl.Corpse
@@ -76,6 +77,7 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
                 )
             this.stat = stat
         }
+        B.bc(this.stat.donate.toString())
         this.session = session
     }
 

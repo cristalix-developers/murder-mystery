@@ -3,6 +3,7 @@ package me.func.murder.lobbycontent
 import clepto.bukkit.B
 import dev.implario.bukkit.item.item
 import me.func.murder.app
+import me.func.murder.donate.DonateHelper
 import me.func.murder.donate.DonatePosition
 import me.func.murder.donate.impl.Corpse
 import me.func.murder.user.User
@@ -65,7 +66,7 @@ class LobbyNPC {
                     subInventory(player) { player: Player, currentContent: InventoryContents ->
                         currentContent.setLayout("XGGGGGXBX")
                         Corpse.values().filter { it.ordinal > 0 }.forEach { corpse ->
-                            currentContent.add('G', ClickableItem.of(corpse.getIcon()) {
+                            currentContent.add('G', ClickableItem.of(DonateHelper.modifiedItem(user, corpse)) {
                                 donateMenu(player, corpse, false)
                             })
                         }
