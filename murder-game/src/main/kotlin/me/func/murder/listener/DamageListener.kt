@@ -152,7 +152,9 @@ class DamageListener : Listener {
             .invisible(true)
             .slot(EnumItemSlot.HEAD, ItemStack(Material.BOW))
             .markTrash()
-            .fixedData("detective", FixedMetadataValue(app, true))
+            .fixedData("detective", true)
+            .build()
+            .isGlowing = true
     }
 
     private fun killMurder(user: User) {

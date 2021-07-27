@@ -4,11 +4,11 @@ import clepto.bukkit.B
 import clepto.bukkit.Cycle
 import me.func.murder.Status
 import me.func.murder.activeStatus
-import me.func.murder.app
 import me.func.murder.mod.ModHelper
 import me.func.murder.music.Music
 import me.func.murder.user.User
 import me.func.murder.util.StandHelper
+import me.func.murder.worldMeta
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.Bukkit
@@ -27,7 +27,7 @@ import ru.cristalix.core.util.UtilV3
 object StandardsInteract {
 
     fun closeDoor(v3: V3, ticks: Int) {
-        val state = app.worldMeta.world.getBlockAt(v3.x.toInt(), v3.y.toInt(), v3.z.toInt()).state
+        val state = worldMeta.world.getBlockAt(v3.x.toInt(), v3.y.toInt(), v3.z.toInt()).state
         val door = state.data as Door
         door.isOpen = !door.isOpen
         state.update()
@@ -47,7 +47,7 @@ object StandardsInteract {
         if (dropped)
             return false
 
-        after.map { UtilV3.toLocation(it, app.worldMeta.world) }
+        after.map { UtilV3.toLocation(it, worldMeta.world) }
             .forEach { location ->
                 location.block.setTypeAndDataFast(replace.id, 0)
                 location.world.spawnParticle(org.bukkit.Particle.EXPLOSION_LARGE, location, 1)
@@ -60,7 +60,7 @@ object StandardsInteract {
                     )
                 }
             }
-        before.map { UtilV3.toLocation(it, app.worldMeta.world) }
+        before.map { UtilV3.toLocation(it, worldMeta.world) }
             .forEach { location -> location.block.setTypeAndDataFast(was.id, 0) }
 
         return true
@@ -69,7 +69,7 @@ object StandardsInteract {
     fun movePlayer(user: User, from: V3, to: V3, ticks: Int, outDot: V3) {
         if (user.animationLock)
             return
-        val world = app.worldMeta.world
+        val world = worldMeta.world
         val list = arrayListOf<ArmorStand>()
         val size = 5
         val platesInBlock = 1.8
@@ -117,7 +117,7 @@ object StandardsInteract {
     }
 
     fun breakLamps() {
-        val lamps = app.worldMeta.getLabels("lamp").map { it.clone().set(it.x, it.y - 1, it.z).block }
+        val lamps = worldMeta.getLabels("lamp").map { it.clone().set(it.x, it.y - 1, it.z).block }
         var lampOff = false
 
         ModHelper.sendGlobalTitle("㟣 §eЭлектро-сбой")

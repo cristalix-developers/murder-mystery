@@ -1,13 +1,13 @@
 package me.func.murder.lobbycontent
 
-import me.func.murder.app
 import me.func.murder.util.TopCreator
+import me.func.murder.worldMeta
 
 class LobbyTop {
 
     init {
         // Создание топа
-        val topLabel = app.worldMeta.getLabel("top")
+        val topLabel = worldMeta.getLabel("top")
         val topArgs = topLabel.tag.split(" ")
         topLabel.setYaw(topArgs[1].toFloat())
         topLabel.setPitch(topArgs[2].toFloat())

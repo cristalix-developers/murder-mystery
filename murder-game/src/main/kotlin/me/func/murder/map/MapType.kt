@@ -9,9 +9,9 @@ import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import ru.cristalix.core.math.V3
 
-enum class MapType(val title: String, val data: MapData, val interactive: List<Interactive<out PlayerEvent>>) {
+enum class MapType(val title: String, val address: String, val data: MapData, val interactive: List<Interactive<out PlayerEvent>>) {
     OUTLAST(
-        "Аутласт", MapData(
+        "Аутласт", "hall", MapData(
             "OUTLAST",
             43.0, -16.0,
             "mcpatcher/cit/others/colors/a.png",

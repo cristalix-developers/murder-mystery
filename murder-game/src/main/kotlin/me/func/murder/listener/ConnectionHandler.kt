@@ -2,10 +2,7 @@ package me.func.murder.listener
 
 import clepto.bukkit.B
 import io.netty.buffer.Unpooled
-import me.func.murder.Status
-import me.func.murder.activeStatus
-import me.func.murder.app
-import me.func.murder.map
+import me.func.murder.*
 import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
 import me.func.murder.music.Music
@@ -44,7 +41,7 @@ class ConnectionHandler : Listener {
     }
 
     // Получении точки спавна
-    private val spawn = app.worldMeta.getLabel("spawn").toCenterLocation()
+    private val spawn = worldMeta.getLabel("spawn").toCenterLocation()
 
     // Стак золотых слитков
     private val stackOfGold = Items.fromStack(gold).amount(64).displayName("§eВаши монеты").build()

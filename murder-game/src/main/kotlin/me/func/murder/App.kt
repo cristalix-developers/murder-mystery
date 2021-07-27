@@ -1,7 +1,6 @@
 package me.func.murder
 
 import clepto.bukkit.B
-import clepto.cristalix.WorldMeta
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
@@ -14,12 +13,10 @@ import me.func.murder.interactive.InteractEvent
 import me.func.murder.listener.*
 import me.func.murder.lobbycontent.LobbyNPC
 import me.func.murder.lobbycontent.LobbyTop
-import me.func.murder.map.MapType
 import me.func.murder.user.Stat
 import me.func.murder.user.User
 import me.func.murder.util.GoldManager
-import me.func.murder.util.TopCreator
-import org.bukkit.entity.EntityType
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
@@ -32,23 +29,13 @@ import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
-import ru.cristalix.npcs.data.NpcBehaviour
-import ru.cristalix.npcs.server.Npc
-import ru.cristalix.npcs.server.Npcs
 import java.util.*
 
 const val GAMES_STREAK_RESTART = 10
-val map = MapType.valueOf(System.getenv("MAP"))
 lateinit var app: App
-lateinit var goldManager: GoldManager
 var activeStatus = Status.STARTING
-var slots = 4
+var slots = 16
 const val lobby = "HUB-1"
-lateinit var murderName: String
-lateinit var detectiveName: String
-var heroName = ""
-lateinit var winMessage: String
-lateinit var timer: Timer
 var games = 0
 
 class App : JavaPlugin() {
@@ -60,7 +47,6 @@ class App : JavaPlugin() {
         { session: KensukeSession, context -> User(session, context.getData(statScope)) },
         { user, context -> context.store(statScope, user.stat) }
     )
-    lateinit var worldMeta: WorldMeta
 
     override fun onEnable() {
         B.plugin = this
@@ -68,11 +54,11 @@ class App : JavaPlugin() {
         Platforms.set(PlatformDarkPaper())
 
         // Загрузка карты
-        worldMeta = MapLoader.load("hall")!!
+        MapLoader()
         map.interactive.forEach { it.init() }
 
         // Создание раздатчика золота
-        goldManager = GoldManager(worldMeta.getLabels("gold").map { it.toCenterLocation() })
+        GoldManager(worldMeta.getLabels("gold").map { it.toCenterLocation() })
 
         // Регистрация сервисов
         val core = CoreApi.get()
@@ -115,8 +101,24 @@ class App : JavaPlugin() {
         LobbyNPC()
     }
 
+    fun restart() {
+        // Кик всех игроков с сервера
+        clepto.cristalix.Cristalix.transfer(
+            Bukkit.getOnlinePlayers().map { it.uniqueId },
+            ru.cristalix.core.realm.RealmId.of(lobby)
+        )
+        // Очистка мусорных сущностей
+        worldMeta.world.entities.filter { it.hasMetadata("trash") }
+            .forEach { it.remove() }
+        activeStatus = Status.STARTING
+
+        // Полная перезагрузка если много игр наиграно
+        if (games > GAMES_STREAK_RESTART)
+            Bukkit.shutdown()
+    }
+
     fun getUser(player: Player): User {
-        return userManager.getUser(player)
+        return getUser(player.uniqueId)
     }
 
     fun getUser(uuid: UUID): User {

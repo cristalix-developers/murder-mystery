@@ -4,6 +4,10 @@ import clepto.bukkit.B
 import me.func.murder.user.Role
 import org.bukkit.Bukkit
 
+lateinit var murderName: String
+lateinit var detectiveName: String
+var heroName = ""
+lateinit var winMessage: String
 
 enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
     STARTING(30, { it ->
@@ -11,14 +15,8 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         if (it == 0) {
             val realm = ru.cristalix.core.realm.IRealmService.get().currentRealmInfo
             realm.status = ru.cristalix.core.realm.RealmStatus.GAME_STARTED_CAN_JOIN
-            ru.cristalix.core.network.ISocketClient.get().write(
-                ru.cristalix.core.network.packages.RealmUpdatePackage(
-                    ru.cristalix.core.network.packages.RealmUpdatePackage.UpdateType.UPDATE,
-                    realm
-                )
-            )
         }
-        val players = org.bukkit.Bukkit.getOnlinePlayers()
+        val players = Bukkit.getOnlinePlayers()
         // Обновление шкалы онлайна
         players.forEach {
             me.func.murder.mod.ModTransfer()
@@ -38,17 +36,11 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 // Обновление статуса реалма, чтобы нельзя было войти
                 val realm = ru.cristalix.core.realm.IRealmService.get().currentRealmInfo
                 realm.status = ru.cristalix.core.realm.RealmStatus.GAME_STARTED_RESTRICTED
-                ru.cristalix.core.network.ISocketClient.get().write(
-                    ru.cristalix.core.network.packages.RealmUpdatePackage(
-                        ru.cristalix.core.network.packages.RealmUpdatePackage.UpdateType.UPDATE,
-                        realm
-                    )
-                )
                 // Обнуление прошлого героя и добавления количества игр
                 heroName = ""
                 games++
                 // Телепортация игроков на игровые точки и очистка инвентаря
-                val places = app.worldMeta.getLabels("start")
+                val places = me.func.murder.worldMeta.getLabels("start")
                 players.forEachIndexed { index, player ->
                     player.teleport(places[index])
                     player.inventory.clear()
@@ -104,12 +96,12 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     me.func.murder.music.Music.OUTLAST.play(user)
                 }
                 // Заспавнить перевернутых пауков
-                app.worldMeta.getLabels("spider").forEach {
+                me.func.murder.worldMeta.getLabels("spider").forEach {
                     val spider =
                         it.world.spawnEntity(it, org.bukkit.entity.EntityType.SPIDER) as org.bukkit.entity.Spider
                     spider.customName = "Grumm"
                     spider.isCustomNameVisible = false
-                    spider.setMetadata("trash", org.bukkit.metadata.FixedMetadataValue(me.func.murder.app, true))
+                    spider.setMetadata("trash", org.bukkit.metadata.FixedMetadataValue(app, true))
                 }
 
                 activeStatus = GAME
@@ -134,16 +126,17 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         }
         // Каждые 10 секунд, генерировать золото в случайном месте
         if ((time / 20) % 10 == 0)
-            goldManager.dropGoldRandomly()
+            me.func.murder.util.goldManager.dropGoldRandomly()
         // Если выбит лук, то крутить его и проверять, есть ли рядом игрок
-        val droppedBow = app.worldMeta.world.livingEntities.firstOrNull {
+        val droppedBow = me.func.murder.worldMeta.world.livingEntities.firstOrNull {
             it.type == org.bukkit.entity.EntityType.ARMOR_STAND && it.hasMetadata("detective")
         }
         if (droppedBow != null) {
             val asStand = droppedBow as org.bukkit.entity.ArmorStand
             // Если есть кто-то рядом, сделать его детективом
             val nearby = Bukkit.getOnlinePlayers()
-                .firstOrNull { it.location.distanceSquared(droppedBow.location) < 7 }
+                .filter { app.getUser(it).role != me.func.murder.user.Role.MURDER }
+                .firstOrNull { it.location.distanceSquared(droppedBow.location) < 9 }
             if (nearby != null) {
                 val first = app.getUser(nearby.uniqueId)
                 if (first.role == Role.VILLAGER) {
@@ -162,7 +155,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             val omega = 1.0 // Скорость вращения
             val amount = 2 // Количество частиц
             for (counter in 0..amount) {
-                app.worldMeta.world.spawnParticle(
+                me.func.murder.worldMeta.world.spawnParticle(
                     org.bukkit.Particle.SPELL_WITCH,
                     asStand.location.clone().add(
                         kotlin.math.sin(time / 2 / kotlin.math.PI * omega * counter) * radius,
@@ -214,17 +207,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
-                // Кик всех игроков с сервера
-                clepto.cristalix.Cristalix.transfer(
-                    Bukkit.getOnlinePlayers().map { it.uniqueId },
-                    ru.cristalix.core.realm.RealmId.of(lobby)
-                )
-                // Очистка мусорных сущностей
-                app.worldMeta.world.entities.filter { it.hasMetadata("trash") }
-                    .forEach { it.remove() }
-                activeStatus = STARTING
-                if (games > GAMES_STREAK_RESTART)
-                    Bukkit.shutdown()
+                app.restart()
                 -1
             }
             time < (END.lastSecond - 10) * 20 -> (END.lastSecond - 10) * 20

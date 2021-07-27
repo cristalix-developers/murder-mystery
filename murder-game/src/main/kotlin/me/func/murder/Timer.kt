@@ -2,6 +2,8 @@ package me.func.murder
 
 import org.bukkit.scheduler.BukkitRunnable
 
+lateinit var timer: Timer
+
 class Timer : BukkitRunnable() {
     var time = 0
 

@@ -2,8 +2,8 @@ package me.func.murder.lobbycontent
 
 import dev.implario.bukkit.item.item
 import me.func.murder.app
+import me.func.murder.worldMeta
 import org.bukkit.Material
-import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -41,13 +41,13 @@ class LobbyNPC {
     init {
         // Создание NPC в лобби
         Npcs.init(app)
-        val npcLabel = app.worldMeta.getLabel("guide")
+        val npcLabel = worldMeta.getLabel("guide")
         val npcArgs = npcLabel.tag.split(" ")
         npcLabel.setYaw(npcArgs[0].toFloat())
         npcLabel.setPitch(npcArgs[1].toFloat())
         Npcs.spawn(
             Npc.builder()
-                .location(app.worldMeta.getLabel("guide"))
+                .location(npcLabel)
                 .name("§d§lMurder§f§lMystery")
                 .behaviour(NpcBehaviour.STARE_AT_PLAYER)
                 .skinUrl("https://webdata.c7x.dev/textures/skin/307264a1-2c69-11e8-b5ea-1cb72caa35fd")

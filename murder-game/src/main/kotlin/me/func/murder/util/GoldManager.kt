@@ -2,11 +2,13 @@ package me.func.murder.util
 
 import clepto.bukkit.B
 import dev.implario.bukkit.item.item
-import me.func.murder.app
+import me.func.murder.worldMeta
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
+
+lateinit var goldManager: GoldManager
 
 val gold: ItemStack = item {
     type = Material.GOLD_INGOT
@@ -14,6 +16,10 @@ val gold: ItemStack = item {
 }.build()
 
 class GoldManager(private val places: List<Location>) {
+
+    init {
+        goldManager = this
+    }
 
     private val spawned = arrayListOf<Location>()
 
@@ -39,6 +45,6 @@ object GoldDropper {
     private val vector = Vector(0.0, 0.4, 0.0)
 
     fun dropGold(location: Location) {
-        app.worldMeta.world.dropItemNaturally(location, gold).velocity = vector
+        worldMeta.world.dropItemNaturally(location, gold).velocity = vector
     }
 }
