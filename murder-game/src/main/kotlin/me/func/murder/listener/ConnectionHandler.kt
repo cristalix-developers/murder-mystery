@@ -7,8 +7,7 @@ import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
 import me.func.murder.music.Music
 import me.func.murder.music.MusicHelper
-import me.func.murder.util.GoldRobber
-import me.func.murder.util.gold
+import me.func.murder.util.goldManager
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
 import org.bukkit.GameMode
@@ -20,7 +19,6 @@ import org.bukkit.event.player.PlayerQuitEvent
 import ru.cristalix.core.account.IAccountService
 import ru.cristalix.core.display.DisplayChannels
 import ru.cristalix.core.display.messages.Mod
-import ru.cristalix.core.item.Items
 import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmStatus
 import java.io.File
@@ -76,11 +74,11 @@ class ConnectionHandler : Listener {
         while (goldCount > 64) {
             if (slot > 32)
                 break
-            player.inventory.setItem(slot, GoldRobber.stackOfGold)
+            player.inventory.setItem(slot, goldManager.stackOfGold)
             goldCount -= 64
             slot++
         }
-        val goldClone = GoldRobber.stackOfGold.clone()
+        val goldClone = goldManager.stackOfGold.clone()
         goldClone.amount = goldCount
         player.inventory.setItem(slot, goldClone)
 

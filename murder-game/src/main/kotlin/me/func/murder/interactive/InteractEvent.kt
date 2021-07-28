@@ -4,7 +4,7 @@ import me.func.murder.Status
 import me.func.murder.activeStatus
 import me.func.murder.app
 import me.func.murder.map
-import me.func.murder.util.GoldRobber
+import me.func.murder.util.goldManager
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -21,7 +21,7 @@ class InteractEvent : Listener {
             .filter { it.trigger(this) }
             .forEach {
                 val user = app.getUser(player)
-                GoldRobber.take(user, it.gold) {
+                goldManager.take(user, it.gold) {
                     it.interact(user)
                     player.playSound(player.location, Sound.BLOCK_CLOTH_FALL, 1.1f, 1f)
                 }

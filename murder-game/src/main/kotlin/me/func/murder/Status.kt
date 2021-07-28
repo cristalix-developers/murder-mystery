@@ -72,6 +72,12 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 users.forEach { user ->
                     val player = user.player!!
                     val team = board.registerNewTeam(user.session.userId.substring(0, 14))
+                    if (user.stat.activeNameTag != me.func.murder.donate.impl.NameTag.NONE) {
+                        val customName = user.stat.activeNameTag.getTitle()
+                        player.playerListName = customName
+                        player.displayName = customName
+                        team.displayName = customName
+                    }
                     team.nameTagVisibility = org.bukkit.scoreboard.NameTagVisibility.HIDE_FOR_OTHER_TEAMS
                     team.setOption(
                         org.bukkit.scoreboard.Team.Option.COLLISION_RULE,
@@ -150,9 +156,14 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             // Выдача побед выжившим и выдача всем доп. игр
             Bukkit.getOnlinePlayers().forEach {
                 val user = app.getUser(it)
-                if ( it.gameMode != org.bukkit.GameMode.SPECTATOR) {
+                if (it.gameMode != org.bukkit.GameMode.SPECTATOR) {
                     user.stat.wins++
-                    val firework = user.player?.world!!.spawn(user.player!!.location, org.bukkit.entity.Firework::class.java)
+                    if (Math.random() < 0.2) {
+                        user.stat.lootbox++
+                        B.bc(ru.cristalix.core.formatting.Formatting.fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
+                    }
+                    val firework =
+                        user.player?.world!!.spawn(user.player!!.location, org.bukkit.entity.Firework::class.java)
                     val meta = firework.fireworkMeta
                     meta.addEffect(
                         org.bukkit.FireworkEffect.builder()

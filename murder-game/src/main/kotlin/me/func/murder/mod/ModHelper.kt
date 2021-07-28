@@ -24,7 +24,7 @@ object ModHelper {
     fun sendCorpse(uuid: UUID, to: User, x: Double, y: Double, z: Double) {
         ModTransfer()
             .string(uuid.toString())
-            .string("Труп")
+            .string(".")
             .string("https://webdata.c7x.dev/textures/skin/$uuid")
             .string(uuid.toString())
             .double(x)

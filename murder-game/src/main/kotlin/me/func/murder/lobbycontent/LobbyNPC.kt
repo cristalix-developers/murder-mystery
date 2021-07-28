@@ -6,11 +6,9 @@ import me.func.murder.app
 import me.func.murder.donate.DonateHelper
 import me.func.murder.donate.DonatePosition
 import me.func.murder.donate.MoneyFormatter
-import me.func.murder.donate.impl.Corpse
-import me.func.murder.donate.impl.NameTag
-import me.func.murder.donate.impl.StepParticle
+import me.func.murder.donate.impl.*
 import me.func.murder.user.User
-import me.func.murder.util.GoldRobber
+import me.func.murder.util.goldManager
 import me.func.murder.worldMeta
 import org.bukkit.Material
 import org.bukkit.enchantments.Enchantment
@@ -51,13 +49,14 @@ class LobbyNPC {
         .columns(9)
         .provider(object : InventoryProvider {
             override fun init(player: Player, contents: InventoryContents) {
-                contents.setLayout("XLXKXPXXS")
+                contents.setLayout("XLKPCIXSX")
 
                 val user = app.getUser(player)
                 val stat = user.stat
 
                 contents.add('S', ClickableItem.empty(item {
-                    type = Material.PAPER
+                    type = Material.CLAY_BALL
+                    nbt("other", "quest_week")
                     text("§bСтатистика\n\n§7Убийств: §c${stat.kills}\n§7Побед: §b${stat.wins}\n${MoneyFormatter.texted(stat.money)}\n§aСыграно ${stat.games} игр(ы)")
                 }.build()))
 
@@ -68,7 +67,7 @@ class LobbyNPC {
                 }.build()) {
                     subInventory(player, 1) { _: Player, currentContent: InventoryContents ->
                         currentContent.setLayout("XIIIIIXBX")
-                        pasteItems(user, currentContent, Corpse.values().filter { it != Corpse.NONE }) {
+                        pasteItems(user, false, currentContent, Corpse.values().filter { it != Corpse.NONE }) {
                             user.stat.activeCorpse = it as Corpse
                         }
                     }
@@ -84,7 +83,7 @@ class LobbyNPC {
                             "XIIIIIIIX",
                             "XXXXBXXXX"
                         )
-                        pasteItems(user, currentContent, StepParticle.values().asIterable()) {
+                        pasteItems(user, false, currentContent, StepParticle.values().asIterable()) {
                             user.stat.activeParticle = it as StepParticle
                         }
                     }
@@ -92,7 +91,7 @@ class LobbyNPC {
                 contents.add('L', ClickableItem.of(item {
                     type = Material.CLAY_BALL
                     nbt("other", "new_booster_2")
-                    text("§bПсевдонимы\n\n§7Выберите псевдоним,\n§7который появится в\n§7табе и над вами.")
+                    text("§bПсевдонимы\n\n§7Выберите псевдоним,\n§7который появится в\n§7табе.")
                 }.build()) {
                     subInventory(player, 3) { _: Player, currentContent: InventoryContents ->
                         currentContent.setLayout(
@@ -100,10 +99,24 @@ class LobbyNPC {
                             "XIIIIIIIX",
                             "XXXXBXXXX"
                         )
-                        pasteItems(user, currentContent, NameTag.values().asIterable()) {
+                        pasteItems(user, false, currentContent, NameTag.values().asIterable()) {
                             user.stat.activeNameTag = it as NameTag
                         }
                     }
+                })
+                contents.add('C', ClickableItem.of(item {
+                    type = Material.CLAY_BALL
+                    nbt("other", "new_lvl_rare_close")
+                    text("§bМонеты\n\n§7Приобретите монеты,\n§7и ни в чем себе\n§7не отказывайте.")
+                }.build()) {
+                    subInventory(player, 1) { _: Player, currentContent: InventoryContents ->
+                        currentContent.setLayout("XIIIIXXBX")
+                        pasteItems(user, true, currentContent, MoneyKit.values().filter { it != MoneyKit.NONE }) {}
+                    }
+                })
+                val chest = LootboxUnit.getIcon()
+                contents.add('I', ClickableItem.of(chest) {
+                    donateMenu(player, LootboxUnit, false)
                 })
                 contents.fillMask('X', ClickableItem.empty(ItemStack(Material.AIR)))
             }
@@ -135,14 +148,14 @@ class LobbyNPC {
         }, "menu", "help")
     }
 
-    fun pasteItems(user: User, content: InventoryContents, item: Iterable<out DonatePosition>, fill: (DonatePosition) -> Unit) {
+    fun pasteItems(user: User, realMoney: Boolean, content: InventoryContents, item: Iterable<DonatePosition>, fill: (DonatePosition) -> Unit) {
         item.forEach { currentItem ->
             content.add('I', ClickableItem.of(DonateHelper.modifiedItem(user, currentItem)) {
                 if (user.stat.donate.contains(currentItem)) {
                     fill(currentItem)
                     user.player!!.closeInventory()
                 } else {
-                    donateMenu(user.player!!, currentItem, false)
+                    donateMenu(user.player!!, currentItem, realMoney)
                 }
             })
         }
@@ -181,7 +194,7 @@ class LobbyNPC {
                     } else {
                         user.stat.money -= donatePosition.getPrice()
                         donatePosition.give(user)
-                        GoldRobber.forceTake(user, donatePosition.getPrice(), false)
+                        goldManager.forceTake(user, donatePosition.getPrice(), false)
                         player.sendMessage(Formatting.fine("Успешно!"))
                         player.closeInventory()
                     }

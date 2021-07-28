@@ -46,7 +46,7 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
     init {
         if (stat == null) {
-            this.stat = Stat(UUID.fromString(session.userId), 100, 0, 0, 0, 2, arrayListOf(
+            this.stat = Stat(UUID.fromString(session.userId), 0, 0, 0, 0, 0, 2, arrayListOf(
                 StepParticle.NONE,
                 DeathImage.NONE,
                 NameTag.NONE,

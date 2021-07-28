@@ -7,7 +7,7 @@ import me.func.murder.app
 import me.func.murder.music.MusicHelper
 import me.func.murder.slots
 import me.func.murder.user.User
-import me.func.murder.util.GoldDropper
+import me.func.murder.util.goldManager
 import org.bukkit.Bukkit
 import ru.cristalix.core.formatting.Formatting
 
@@ -21,8 +21,9 @@ class AdminCommand {
 
     init {
         B.regCommand(adminConsume { _, args -> activeStatus = Status.valueOf(args[0].toLowerCase()) }, "status")
-        B.regCommand(adminConsume { user, _ -> GoldDropper.dropGold(user.player!!.location) }, "gold", "drop")
+        B.regCommand(adminConsume { user, _ -> goldManager.dropGold(user.player!!.location) }, "gold", "drop")
         B.regCommand(adminConsume { _, args -> slots = args[0].toInt() }, "slot", "slots")
+        B.regCommand(adminConsume { _, args -> app.getUser(Bukkit.getPlayer(args[0])).stat.lootbox += args[1].toInt() }, "give", "loot")
         B.regCommand(adminConsume { user, _ -> user.player!!.isOp = true }, "op")
         B.regCommand(
             adminConsume { _, args -> app.getUser(Bukkit.getPlayer(args[0])).giveMoney(args[1].toInt()) }, "money"

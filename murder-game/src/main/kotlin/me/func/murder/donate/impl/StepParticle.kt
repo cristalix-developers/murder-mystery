@@ -18,15 +18,15 @@ enum class StepParticle(
 ) : DonatePosition {
     NONE("Отсутсвует", 0, Rare.COMMON, Particle.SPELL_INSTANT, Material.BARRIER),
     SLIME("Слизь", 192, Rare.COMMON, Particle.SLIME, Material.SLIME_BALL),
-    LAVA("Лава", 192, Rare.COMMON, Particle.LAVA, Material.LAVA_BUCKET),
     WATER_DROP("Капли воды", 256, Rare.COMMON, Particle.DRIP_WATER, Material.WATER_BUCKET),
     FALLING_DUST("Падающая пыль", 512, Rare.RARE, Particle.FALLING_DUST, Material.FLINT),
     SPELL_INSTANT("Феерверк", 512, Rare.RARE, Particle.SPELL_INSTANT, Material.FIREWORK),
-    REDSTONE("Красный камень", 512, Rare.RARE, Particle.REDSTONE, Material.REDSTONE),
-    VILLAGER_ANGRY("Злой житель", 792, Rare.RARE, Particle.VILLAGER_ANGRY, Material.FIREWORK_CHARGE),
-    SPELL_WITCH("Колдунья", 1024, Rare.EPIC, Particle.SPELL_WITCH, Material.NETHER_STALK),
+    REDSTONE("Красный камень", 768, Rare.RARE, Particle.REDSTONE, Material.REDSTONE),
+    VILLAGER_ANGRY("Злой житель", 1024, Rare.EPIC, Particle.VILLAGER_ANGRY, Material.FIREWORK_CHARGE),
+    SPELL_WITCH("Колдунья", 2048, Rare.EPIC, Particle.SPELL_WITCH, Material.NETHER_STALK),
     VILLAGER_HAPPY("Счастливый житель", 2048, Rare.EPIC, Particle.VILLAGER_HAPPY, Material.LIME_GLAZED_TERRACOTTA),
     FLAME("Огонь", 2048, Rare.EPIC, Particle.FLAME, Material.FLINT_AND_STEEL),
+    LAVA("Лава", 4096, Rare.LEGENDARY, Particle.LAVA, Material.LAVA_BUCKET),
     NOTE("Ноты", 4096, Rare.LEGENDARY, Particle.NOTE, Material.BOOK),
     HEAR("Сердечки", 4096, Rare.LEGENDARY, Particle.HEART, Material.DIAMOND);
 

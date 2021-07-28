@@ -18,6 +18,7 @@ import me.func.murder.interactive.InteractEvent
 import me.func.murder.listener.*
 import me.func.murder.lobbycontent.LobbyNPC
 import me.func.murder.lobbycontent.LobbyTop
+import me.func.murder.lobbycontent.Lootbox
 import me.func.murder.user.Stat
 import me.func.murder.user.User
 import me.func.murder.util.BowManager
@@ -105,7 +106,8 @@ class App : JavaPlugin() {
             GlobalListeners(),
             GoldListener(),
             ChatListener(),
-            InteractEvent()
+            InteractEvent(),
+            Lootbox()
         )
 
         // Регистрация админ команд
