@@ -5,7 +5,10 @@ import dev.implario.bukkit.item.item
 import me.func.murder.app
 import me.func.murder.donate.DonateHelper
 import me.func.murder.donate.DonatePosition
+import me.func.murder.donate.MoneyFormatter
 import me.func.murder.donate.impl.Corpse
+import me.func.murder.donate.impl.NameTag
+import me.func.murder.donate.impl.StepParticle
 import me.func.murder.user.User
 import me.func.murder.util.GoldRobber
 import me.func.murder.worldMeta
@@ -48,14 +51,14 @@ class LobbyNPC {
         .columns(9)
         .provider(object : InventoryProvider {
             override fun init(player: Player, contents: InventoryContents) {
-                contents.setLayout("XXXXPXXXS")
+                contents.setLayout("XLXKXPXXS")
 
                 val user = app.getUser(player)
                 val stat = user.stat
 
                 contents.add('S', ClickableItem.empty(item {
                     type = Material.PAPER
-                    text("§bСтатистика\n\n§7Убийств: §c${stat.kills}\n§7Побед: §b${stat.wins}\n§7Монет: §e${stat.money}\n§aСыграно ${stat.games} игр(ы)")
+                    text("§bСтатистика\n\n§7Убийств: §c${stat.kills}\n§7Побед: §b${stat.wins}\n${MoneyFormatter.texted(stat.money)}\n§aСыграно ${stat.games} игр(ы)")
                 }.build()))
 
                 contents.add('P', ClickableItem.of(item {
@@ -63,14 +66,43 @@ class LobbyNPC {
                     nbt("other", "g2")
                     text("§bМогилы\n\n§7Выберите могилу, которая\n§7появится на месте\n§7вашей смерти.")
                 }.build()) {
-                    subInventory(player) { player: Player, currentContent: InventoryContents ->
-                        currentContent.setLayout("XGGGGGXBX")
-                        Corpse.values().filter { it.ordinal > 0 }.forEach { corpse ->
-                            currentContent.add('G', ClickableItem.of(DonateHelper.modifiedItem(user, corpse)) {
-                                donateMenu(player, corpse, false)
-                            })
+                    subInventory(player, 1) { _: Player, currentContent: InventoryContents ->
+                        currentContent.setLayout("XIIIIIXBX")
+                        pasteItems(user, currentContent, Corpse.values().filter { it != Corpse.NONE }) {
+                            user.stat.activeCorpse = it as Corpse
                         }
-                        currentContent.add('B', ClickableItem.of(backItem) { player.performCommand("menu") })
+                    }
+                })
+                contents.add('K', ClickableItem.of(item {
+                    type = Material.CLAY_BALL
+                    nbt("other", "guild_members_add")
+                    text("§bЧастицы ходьбы\n\n§7Выберите тип частиц,\n§7которые будут появлять\n§7следом за вами.")
+                }.build()) {
+                    subInventory(player, 3) { _: Player, currentContent: InventoryContents ->
+                        currentContent.setLayout(
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
+                            "XXXXBXXXX"
+                        )
+                        pasteItems(user, currentContent, StepParticle.values().asIterable()) {
+                            user.stat.activeParticle = it as StepParticle
+                        }
+                    }
+                })
+                contents.add('L', ClickableItem.of(item {
+                    type = Material.CLAY_BALL
+                    nbt("other", "new_booster_2")
+                    text("§bПсевдонимы\n\n§7Выберите псевдоним,\n§7который появится в\n§7табе и над вами.")
+                }.build()) {
+                    subInventory(player, 3) { _: Player, currentContent: InventoryContents ->
+                        currentContent.setLayout(
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
+                            "XXXXBXXXX"
+                        )
+                        pasteItems(user, currentContent, NameTag.values().asIterable()) {
+                            user.stat.activeNameTag = it as NameTag
+                        }
                     }
                 })
                 contents.fillMask('X', ClickableItem.empty(ItemStack(Material.AIR)))
@@ -103,10 +135,24 @@ class LobbyNPC {
         }, "menu", "help")
     }
 
-    fun subInventory(player: Player, inventory: (Player, InventoryContents) -> Any) {
+    fun pasteItems(user: User, content: InventoryContents, item: Iterable<out DonatePosition>, fill: (DonatePosition) -> Unit) {
+        item.forEach { currentItem ->
+            content.add('I', ClickableItem.of(DonateHelper.modifiedItem(user, currentItem)) {
+                if (user.stat.donate.contains(currentItem)) {
+                    fill(currentItem)
+                    user.player!!.closeInventory()
+                } else {
+                    donateMenu(user.player!!, currentItem, false)
+                }
+            })
+        }
+        content.add('B', ClickableItem.of(backItem) { user.player!!.performCommand("menu") })
+    }
+
+    fun subInventory(player: Player, rows: Int, inventory: (Player, InventoryContents) -> Any) {
         ControlledInventory.builder()
             .title("MurderMystery")
-            .rows(1)
+            .rows(rows)
             .columns(9)
             .provider(object : InventoryProvider {
                 override fun init(player: Player, contents: InventoryContents) {
@@ -117,8 +163,8 @@ class LobbyNPC {
             .open(player)
     }
 
-    fun donateMenu(player: Player, donatePosition: DonatePosition, realMoney: Boolean) {
-        subInventory(player) { _, contents: InventoryContents ->
+    private fun donateMenu(player: Player, donatePosition: DonatePosition, realMoney: Boolean) {
+        subInventory(player, 1) { _, contents: InventoryContents ->
             contents.setLayout("XOXXXXGBX")
             contents.add('O', ClickableItem.empty(donatePosition.getIcon()))
             contents.add('G', ClickableItem.of(accessItem) {
@@ -135,7 +181,7 @@ class LobbyNPC {
                     } else {
                         user.stat.money -= donatePosition.getPrice()
                         donatePosition.give(user)
-                        GoldRobber.forceTake(user, donatePosition.getPrice())
+                        GoldRobber.forceTake(user, donatePosition.getPrice(), false)
                         player.sendMessage(Formatting.fine("Успешно!"))
                         player.closeInventory()
                     }

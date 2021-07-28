@@ -2,10 +2,15 @@ package me.func.murder.util
 
 import me.func.murder.user.User
 import org.bukkit.Material
+import ru.cristalix.core.item.Items
 
 object GoldRobber {
-    fun forceTake(user: User, count: Int) {
-        val newGold = gold.clone()
+
+    // Стак золотых слитков
+    val stackOfGold = Items.fromStack(gold).amount(64).displayName("§eВаши монеты").build()
+
+    fun forceTake(user: User, count: Int, inGameGold: Boolean) {
+        val newGold = if (inGameGold) gold.clone() else stackOfGold.clone()
         newGold.setAmount(count)
         user.player!!.inventory.removeItem(newGold)
         user.player!!.updateInventory()
@@ -17,7 +22,7 @@ object GoldRobber {
 
     fun take(user: User, count: Int, ifPresent: () -> Any) {
         if (has(user, count)) {
-            forceTake(user, count)
+            forceTake(user, count, true)
             ifPresent()
         }
     }

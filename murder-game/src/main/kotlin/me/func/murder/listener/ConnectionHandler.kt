@@ -7,6 +7,7 @@ import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
 import me.func.murder.music.Music
 import me.func.murder.music.MusicHelper
+import me.func.murder.util.GoldRobber
 import me.func.murder.util.gold
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
@@ -43,9 +44,6 @@ class ConnectionHandler : Listener {
     // Получении точки спавна
     private val spawn = worldMeta.getLabel("spawn").toCenterLocation()
 
-    // Стак золотых слитков
-    private val stackOfGold = Items.fromStack(gold).amount(64).displayName("§eВаши монеты").build()
-
     @EventHandler
     fun PlayerJoinEvent.handle() {
         player.inventory.clear()
@@ -78,11 +76,11 @@ class ConnectionHandler : Listener {
         while (goldCount > 64) {
             if (slot > 32)
                 break
-            player.inventory.setItem(slot, stackOfGold)
+            player.inventory.setItem(slot, GoldRobber.stackOfGold)
             goldCount -= 64
             slot++
         }
-        val goldClone = stackOfGold.clone()
+        val goldClone = GoldRobber.stackOfGold.clone()
         goldClone.amount = goldCount
         player.inventory.setItem(slot, goldClone)
 

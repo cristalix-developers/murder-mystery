@@ -1,6 +1,5 @@
 package me.func.murder.donate
 
-import clepto.bukkit.B
 import com.google.gson.*
 import me.func.murder.donate.impl.Corpse
 import me.func.murder.donate.impl.DeathImage
