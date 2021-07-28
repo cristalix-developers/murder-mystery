@@ -58,7 +58,7 @@ class Lootbox : Listener {
                     "XOOOOOOOX",
                 )
 
-                repeat(user.stat.lootbox) {
+                repeat(minOf(user.stat.lootbox, contents.size('O'))) {
                     contents.add('O', ClickableItem.of(lootboxItem) {
                         player.closeInventory()
                         if (user.stat.money < lootboxPrice) {
