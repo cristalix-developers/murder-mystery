@@ -1,6 +1,6 @@
 package me.func.murder.interactive
 
-import me.func.murder.worldMeta
+import me.func.commons.worldMeta
 import org.bukkit.Location
 import org.bukkit.event.player.PlayerInteractEvent
 import ru.cristalix.core.math.V3

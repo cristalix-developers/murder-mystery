@@ -1,19 +1,7 @@
-buildscript {
-  repositories {
-    maven {
-      url "https://plugins.gradle.org/m2/"
-    }
-  }
-  dependencies {
-    classpath "org.hidetake:gradle-ssh-plugin:2.10.1"
-  }
-}
-
 plugins {
     id 'dev.implario.mcgradle' version '1.0.4'
 }
 
-apply plugin: 'org.hidetake.ssh'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 
 bukkitPlugin {
@@ -63,33 +51,5 @@ dependencies {
 
     implementation 'ru.cristalix:boards-bukkit-api:3.0.0'
     implementation 'ru.cristalix:npcs-bukkit-api:3.0.5'
-}
-
-remotes {
-    webServer {
-        port = project.properties["DEPLOY_PORT"] as int
-        host = project.properties["DEPLOY_HOST"]
-        user = project.properties["DEPLOY_USER"]
-        identity = file(project.properties["DEPLOY_KEY_ROOT"])
-        passphrase = project.properties["DEPLOY_PASSPHRASE"]
-    }
-}
-
-ssh.settings {
-     knownHosts = allowAnyHosts
-}
-
-task upload() {
-    doLast {
-        ssh.run {
-            session(remotes.webServer) {
-                put from: jar.getArchiveFile().get().getAsFile(), into: "/home/func/forest/resources-bin/prod"
-                execute 'netstat -tulpn | grep :10568 | grep --perl-regexp -o \"\\d+(?=/java)\" | xargs kill -TERM'
-            }
-        }
-    }
-}
-
-afterEvaluate {
-    tasks.upload.dependsOn(tasks.jar)
+    implementation project(':murder-commons')
 }

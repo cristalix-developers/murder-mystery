@@ -1,9 +1,9 @@
 package me.func.murder.map
 
 import clepto.bukkit.B
+import me.func.commons.user.User
 import me.func.murder.interactive.BlockInteract
 import me.func.murder.interactive.Interactive
-import me.func.murder.user.User
 import org.bukkit.Material
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -66,6 +66,10 @@ enum class MapType(val title: String, val address: String, val data: MapData, va
                 val inDot = V3(-2.0, 126.0, -65.0)
                 val outDot = V3(-2.0, 109.0, -65.0)
 
+                override fun trigger(event: PlayerInteractEvent): Boolean {
+                    return super.trigger(event) && !event.player.isInsideVehicle
+                }
+
                 override fun interact(user: User) {
                     StandardsInteract.movePlayer(user, inDot, outDot, 8 * 20, V3(-3.0, 110.0, -61.0))
                 }
@@ -73,12 +77,20 @@ enum class MapType(val title: String, val address: String, val data: MapData, va
                 val inDot = V3(-2.0, 116.0, -65.0)
                 val outDot = V3(-2.0, 126.0, -65.0)
 
+                override fun trigger(event: PlayerInteractEvent): Boolean {
+                    return super.trigger(event) && !event.player.isInsideVehicle
+                }
+
                 override fun interact(user: User) {
                     StandardsInteract.movePlayer(user, inDot, outDot, 5 * 20, V3(-3.0, 126.0, -61.0))
                 }
             }, object : BlockInteract(V3(-3.0, 110.0, -61.0), 2, "Подняться") {
                 val inDot = V3(-2.0, 109.0, -65.0)
                 val outDot = V3(-2.0, 116.0, -65.0)
+
+                override fun trigger(event: PlayerInteractEvent): Boolean {
+                    return super.trigger(event) && !event.player.isInsideVehicle
+                }
 
                 override fun interact(user: User) {
                     StandardsInteract.movePlayer(user, inDot, outDot, 5 * 20, V3(-3.0, 116.0, -61.0))

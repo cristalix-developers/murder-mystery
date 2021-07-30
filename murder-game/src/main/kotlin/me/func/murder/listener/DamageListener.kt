@@ -2,12 +2,11 @@ package me.func.murder.listener
 
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
-import dev.implario.bukkit.item.item
+import me.func.commons.donate.impl.Corpse
+import me.func.commons.mod.ModHelper
+import me.func.commons.user.Role
+import me.func.commons.user.User
 import me.func.murder.*
-import me.func.murder.donate.impl.Corpse
-import me.func.murder.mod.ModHelper
-import me.func.murder.user.Role
-import me.func.murder.user.User
 import me.func.murder.util.StandHelper
 import me.func.murder.util.droppedBowManager
 import net.minecraft.server.v1_12_R1.EnumItemSlot
@@ -29,13 +28,14 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.EulerAngle
 import ru.cristalix.core.formatting.Formatting
+import ru.cristalix.core.util.UtilPlayer.damage
 
 
 class DamageListener : Listener {
 
     @EventHandler
     fun EntityDamageByEntityEvent.handle() {
-        cancelled = true
+        isCancelled = true
 
         if (activeStatus != Status.GAME)
             return
@@ -53,8 +53,8 @@ class DamageListener : Listener {
                 else -> return
             }
             // Проверки на роли
-            val userVictim = app.getUser(victim)
-            val userKiller = app.getUser(killer)
+            val userVictim = murder.getUser(victim)
+            val userKiller = murder.getUser(killer)
             if (userKiller == userVictim)
                 return
             if (userKiller.role == Role.MURDER || (userKiller.role == Role.MURDER && byArrow)) {
@@ -87,13 +87,13 @@ class DamageListener : Listener {
         if (activeStatus != Status.GAME)
             return
         // Если важная роль вышла из игры, то важно отметить
-        kill(app.getUser(player))
+        kill(murder.getUser(player))
     }
 
     @EventHandler
     fun ProjectileLaunchEvent.handle() {
         if (getEntity() is Arrow && getEntity().shooter is CraftPlayer) {
-            val user = app.getUser(getEntity().shooter as Player)
+            val user = murder.getUser(getEntity().shooter as Player)
             user.player!!.inventory.remove(Material.ARROW)
             if (user.role == Role.DETECTIVE) {
                 ModHelper.sendCooldown(user, "Перезарядка лука", 120)
@@ -110,8 +110,12 @@ class DamageListener : Listener {
             killDetective(victim)
         if (victim.role == Role.MURDER)
             killMurder(victim)
-        B.bc(Formatting.error("§c${victim.name} §fбыл убит."))
+        B.bc(Formatting.error("§c§m${victim.name}§f был убит."))
         ModHelper.sendTitle(victim, "Вы проиграли")
+
+        murder.getUser(player).sendPlayAgain("§cСмерть!")
+        player.playerListName = "§cМертв"
+
         player.gameMode = GameMode.SPECTATOR
         player.inventory.clear()
         victim.role = Role.NONE
@@ -125,7 +129,7 @@ class DamageListener : Listener {
             counter++
             location = location.clone().subtract(0.0, 0.15, 0.0)
             id = location.block.typeId
-        } while ((id == 0 || id == 171 || id == 96 || id == 167) && counter < 30)
+        } while ((id == 0 || id == 171 || id == 96 || id == 167) && counter < 20)
 
         if (victim.stat.activeCorpse != Corpse.NONE)
             StandHelper(location.clone().subtract(0.0, 1.5, 0.0))
@@ -142,7 +146,7 @@ class DamageListener : Listener {
 
     private fun killDetective(user: User) {
         // Сообщение о выпадении лука
-        ModHelper.sendGlobalTitle("Лук выпал")
+        ModHelper.sendGlobalTitle("§cЛук выпал")
         droppedBowManager.drop(user.player!!.location)
     }
 
@@ -150,8 +154,7 @@ class DamageListener : Listener {
         // Детектив/Мирный житель убивает с лука убийцу
         Bukkit.getOnlinePlayers().minus(user.player!!).forEach {
             winMessage = "§aМирные жители победили!"
-            ModHelper.sendTitle(app.getUser(it), "Победа мирных")
-            it.gameMode = GameMode.SPECTATOR
+            ModHelper.sendTitle(murder.getUser(it), "Победа мирных")
         }
         activeStatus = Status.END
     }
@@ -160,7 +163,7 @@ class DamageListener : Listener {
     fun PlayerInteractEvent.handle() {
         if (activeStatus != Status.GAME)
             return
-        val user = app.getUser(player)
+        val user = murder.getUser(player)
 
         // Если маньяк нажал на меч, то запустить его вперед
         if (user.role == Role.MURDER && action == Action.RIGHT_CLICK_AIR && material == Material.IRON_SWORD) {
@@ -217,7 +220,6 @@ class DamageListener : Listener {
     @EventHandler
     fun EntityDamageEvent.handle() {
         isCancelled = true
-        cancelled = true
 
         if (activeStatus == Status.GAME && cause == EntityDamageEvent.DamageCause.FIRE_TICK)
             isCancelled = false

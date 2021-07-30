@@ -1,7 +1,10 @@
 package me.func.murder.util
 
-import me.func.murder.*
-import me.func.murder.user.Role
+import me.func.commons.user.Role
+import me.func.murder.activeStatus
+import me.func.murder.murder
+import me.func.murder.timer
+import me.func.murder.winMessage
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 
@@ -16,7 +19,8 @@ object WinUtil {
         // Получение всех активных ролей
         val activeRoles = Bukkit.getOnlinePlayers().asSequence()
             .filter { it.gameMode != GameMode.SPECTATOR }
-            .map { app.getUser(it.uniqueId) }
+            .map { murder.getUser(it.uniqueId) }
+            .filterNotNull()
             .filter { it.role != Role.NONE }
             .map { it.role }
             .distinctBy { it }.toList()

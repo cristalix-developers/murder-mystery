@@ -1,6 +1,6 @@
 package me.func.murder.music
 
-import me.func.murder.user.User
+import me.func.commons.user.User
 import org.bukkit.Bukkit
 import ru.cristalix.core.display.IDisplayService
 import ru.cristalix.core.display.messages.RadioMessage

@@ -16,7 +16,7 @@ class ChatListener : Listener {
                 if (it.gameMode == GameMode.SPECTATOR)
                     it.sendMessage(player.name + " >§7 " + ChatColor.stripColor(message))
             }
-            cancel = true
+            isCancelled = true
             return
         }
     }

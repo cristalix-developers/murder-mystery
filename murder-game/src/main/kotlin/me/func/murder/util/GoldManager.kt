@@ -1,23 +1,16 @@
 package me.func.murder.util
 
 import clepto.bukkit.B
-import dev.implario.bukkit.item.item
-import me.func.murder.user.User
-import me.func.murder.worldMeta
+import me.func.commons.gold
+import me.func.commons.user.User
+import me.func.commons.worldMeta
 import org.bukkit.Location
 import org.bukkit.Material
-import org.bukkit.inventory.ItemStack
 import org.bukkit.util.Vector
-import ru.cristalix.core.item.Items
 
 lateinit var goldManager: GoldManager
 
-val gold: ItemStack = item {
-    type = Material.GOLD_INGOT
-    text("§eЗолото\n\n§7Соберите §e10 штук§7,\n§7и получите §bлук§7!\n§7Или покупайте действия\n§7на карте.")
-}.build()
-
-class GoldManager(private val places: List<Location>) {
+class GoldManager(var places: List<Location>) {
 
     init {
         goldManager = this
@@ -25,13 +18,9 @@ class GoldManager(private val places: List<Location>) {
 
     private val spawned = arrayListOf<Location>()
     private val vector = Vector(0.0, 0.4, 0.0)
-    // Стак золотых слитков
-    val stackOfGold = Items.fromStack(gold).amount(64).displayName("§eВаши монеты").build()
 
     fun dropGoldRandomly() {
-        val any = places.minus(spawned).filter { location ->
-            location.getNearbyEntities(4.0,4.0,4.0).map { it.type }.isEmpty()
-        }
+        val any = places.minus(spawned).filter { it -> it.getNearbyEntities(4.0,4.0,4.0).map { it.type }.isEmpty() }
 
         if (any.isEmpty())
             return
@@ -44,8 +33,8 @@ class GoldManager(private val places: List<Location>) {
         B.postpone(20 * 20) { spawned.remove(randomLocation) }
     }
 
-    fun forceTake(user: User, count: Int, inGameGold: Boolean) {
-        val newGold = if (inGameGold) gold.clone() else stackOfGold.clone()
+    private fun forceTake(user: User, count: Int) {
+        val newGold = gold.clone()
         newGold.setAmount(count)
         user.player!!.inventory.removeItem(newGold)
         user.player!!.updateInventory()
@@ -57,7 +46,7 @@ class GoldManager(private val places: List<Location>) {
 
     fun take(user: User, count: Int, ifPresent: () -> Any) {
         if (has(user, count)) {
-            forceTake(user, count, true)
+            forceTake(user, count)
             ifPresent()
         }
     }

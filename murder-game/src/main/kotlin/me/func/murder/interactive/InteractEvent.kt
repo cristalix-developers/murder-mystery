@@ -2,7 +2,7 @@ package me.func.murder.interactive
 
 import me.func.murder.Status
 import me.func.murder.activeStatus
-import me.func.murder.app
+import me.func.murder.murder
 import me.func.murder.map
 import me.func.murder.util.goldManager
 import org.bukkit.Sound
@@ -20,7 +20,7 @@ class InteractEvent : Listener {
         map.interactive.filterIsInstance<BlockInteract>()
             .filter { it.trigger(this) }
             .forEach {
-                val user = app.getUser(player)
+                val user = murder.getUser(player)
                 goldManager.take(user, it.gold) {
                     it.interact(user)
                     player.playSound(player.location, Sound.BLOCK_CLOTH_FALL, 1.1f, 1f)

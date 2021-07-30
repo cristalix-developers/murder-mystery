@@ -1,9 +1,9 @@
 package me.func.murder.listener
 
 import dev.implario.bukkit.item.item
-import me.func.murder.app
-import me.func.murder.user.Role
-import me.func.murder.util.gold
+import me.func.commons.gold
+import me.func.commons.user.Role
+import me.func.murder.murder
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
@@ -25,10 +25,12 @@ class GoldListener : Listener {
 
     @EventHandler
     fun PlayerAttemptPickupItemEvent.handle() {
+        if (item.itemStack.getType() != Material.GOLD_INGOT)
+            return
         val itemStack = player.inventory.getItem(8)
         if (itemStack != null) {
             player.inventory.addItem(gold)
-            val user = app.getUser(player)
+            val user = murder.getUser(player)
             user.giveMoney(1)
             if (itemStack.getAmount() == 10 && user.role != Role.DETECTIVE) {
                 player.inventory.remove(Material.GOLD_INGOT)

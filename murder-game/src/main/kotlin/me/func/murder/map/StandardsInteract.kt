@@ -2,13 +2,13 @@ package me.func.murder.map
 
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
+import me.func.commons.mod.ModHelper
+import me.func.commons.user.User
+import me.func.commons.worldMeta
 import me.func.murder.Status
 import me.func.murder.activeStatus
-import me.func.murder.mod.ModHelper
 import me.func.murder.music.Music
-import me.func.murder.user.User
 import me.func.murder.util.StandHelper
-import me.func.murder.worldMeta
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.Bukkit
@@ -49,7 +49,7 @@ object StandardsInteract {
 
         after.map { UtilV3.toLocation(it, worldMeta.world) }
             .forEach { location ->
-                location.block.setTypeAndDataFast(replace.id, 0)
+                location.block.type = replace
                 location.world.spawnParticle(org.bukkit.Particle.EXPLOSION_LARGE, location, 1)
                 Bukkit.getOnlinePlayers().forEach { player ->
                     player.playSound(
@@ -61,7 +61,7 @@ object StandardsInteract {
                 }
             }
         before.map { UtilV3.toLocation(it, worldMeta.world) }
-            .forEach { location -> location.block.setTypeAndDataFast(was.id, 0) }
+            .forEach { location -> location.block.type = was }
 
         return true
     }

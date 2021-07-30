@@ -1,8 +1,25 @@
 package me.func.murder
 
 import clepto.bukkit.B
-import me.func.murder.user.Role
+import me.func.commons.mod.ModHelper
+import me.func.commons.mod.ModTransfer
+import me.func.commons.realm
+import me.func.commons.slots
+import me.func.commons.user.Role
+import me.func.commons.worldMeta
+import me.func.murder.music.Music
+import me.func.murder.util.droppedBowManager
+import me.func.murder.util.goldManager
 import org.bukkit.Bukkit
+import org.bukkit.FireworkEffect
+import org.bukkit.GameMode
+import org.bukkit.entity.Firework
+import org.bukkit.entity.Spider
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
+import ru.cristalix.core.formatting.Formatting.fine
+import ru.cristalix.core.realm.RealmStatus.GAME_STARTED_CAN_JOIN
+import ru.cristalix.core.realm.RealmStatus.GAME_STARTED_RESTRICTED
 
 lateinit var murderName: String
 lateinit var detectiveName: String
@@ -12,41 +29,43 @@ lateinit var winMessage: String
 enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
     STARTING(30, { it ->
         // Если набор игроков начался, обновить статус реалма
-        if (it == 0)
-            realm.status = ru.cristalix.core.realm.RealmStatus.GAME_STARTED_CAN_JOIN
+        if (it == 40)
+            realm.status = GAME_STARTED_CAN_JOIN
 
         val players = Bukkit.getOnlinePlayers()
         // Обновление шкалы онлайна
         players.forEach {
-            me.func.murder.mod.ModTransfer()
+            ModTransfer()
                 .integer(slots)
                 .integer(players.size)
                 .boolean(true)
-                .send("update-online", app.getUser(it))
+                .send("update-online", murder.getUser(it))
         }
         var actualTime = it
 
         // Если время вышло и пора играть
         if (it / 20 == STARTING.lastSecond) {
             // Начать отсчет заново, так как мало игроков
-            if (players.size + 1 < slots)
+            if (players.size + 3 < slots)
                 actualTime = 1
             else {
                 // Обновление статуса реалма, чтобы нельзя было войти
-                me.func.murder.realm.status = ru.cristalix.core.realm.RealmStatus.GAME_STARTED_RESTRICTED
+                realm.status = GAME_STARTED_RESTRICTED
                 // Обнуление прошлого героя и добавления количества игр
                 heroName = ""
                 games++
                 // Телепортация игроков на игровые точки и очистка инвентаря
-                val places = me.func.murder.worldMeta.getLabels("start")
-                players.forEachIndexed { index, player ->
-                    player.teleport(places[index])
-                    player.inventory.clear()
-                    player.itemOnCursor = null
-                    player.openInventory.topInventory.clear()
+                val places = worldMeta.getLabels("start")
+                B.postpone(10) {
+                    players.forEachIndexed { index, player ->
+                        player.teleport(places[index])
+                        player.inventory.clear()
+                        player.itemOnCursor = null
+                        player.openInventory.topInventory.clear()
+                    }
                 }
                 // Список игроков Murder
-                val users = players.map { app.getUser(it) }
+                val users = players.map { murder.getUser(it) }
                 // Выдача активных ролей
                 val accountService = ru.cristalix.core.account.IAccountService.get()
                 val murder = users.maxByOrNull { it.stat.villagerStreak }!!
@@ -65,47 +84,37 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     }
                 }
                 // Показать карту
-                me.func.murder.mod.ModHelper.loadMap(map)
+                me.func.murder.util.LocalModHelper.loadMap(map)
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
-                val manager = Bukkit.getScoreboardManager()
-                val board = manager.newScoreboard
                 users.forEach { user ->
                     val player = user.player!!
-                    val team = board.registerNewTeam(user.session.userId.substring(0, 14))
-                    if (user.stat.activeNameTag != me.func.murder.donate.impl.NameTag.NONE) {
-                        val customName = user.stat.activeNameTag.getTitle()
-                        player.playerListName = customName
-                        player.displayName = customName
-                        team.displayName = customName
+                    if (user.stat.activeNameTag != me.func.commons.donate.impl.NameTag.NONE) {
+                        val nameTag = user.stat.activeNameTag
+                        player.playerListName = nameTag.getRare().with(nameTag.getTitle())
+                    } else {
+                        player.playerListName = "§7§oСкрыто"
                     }
-                    team.nameTagVisibility = org.bukkit.scoreboard.NameTagVisibility.HIDE_FOR_OTHER_TEAMS
-                    team.setOption(
-                        org.bukkit.scoreboard.Team.Option.COLLISION_RULE,
-                        org.bukkit.scoreboard.Team.OptionStatus.NEVER
-                    )
-                    team.addEntry(user.name)
-                    player.scoreboard = board
-                    me.func.murder.mod.ModHelper.sendTitle(user, "Роль: ${user.role.title}")
+                    ModHelper.sendTitle(user, "Роль: ${user.role.title}")
                     // Выполнение ролийных особенностей
                     B.postpone(10 * 20) {
                         user.role.start?.invoke(user)
                     }
                     // Отправить информацию о начале игры клиенту
-                    me.func.murder.mod.ModTransfer()
+                    ModTransfer()
                         .string(user.role.shortTitle)
                         .send("murder-start", user)
 
-                    me.func.murder.mod.ModHelper.update()
+                    ModHelper.update()
                     // Сменить музыку
-                    me.func.murder.music.Music.OUTLAST.play(user)
+                    Music.OUTLAST.play(user)
                 }
                 // Заспавнить перевернутых пауков
                 worldMeta.getLabels("spider").forEach {
                     val spider =
-                        it.world.spawnEntity(it, org.bukkit.entity.EntityType.SPIDER) as org.bukkit.entity.Spider
+                        it.world.spawnEntity(it, org.bukkit.entity.EntityType.SPIDER) as Spider
                     spider.customName = "Grumm"
                     spider.isCustomNameVisible = false
-                    spider.setMetadata("trash", org.bukkit.metadata.FixedMetadataValue(app, true))
+                    spider.setMetadata("trash", org.bukkit.metadata.FixedMetadataValue(me.func.murder.murder, true))
                 }
 
                 activeStatus = GAME
@@ -121,29 +130,34 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         // Обновление шкалы времени
         if (time % 20 == 0) {
             Bukkit.getOnlinePlayers().forEach {
-                me.func.murder.mod.ModTransfer()
+                ModTransfer()
                     .integer(GAME.lastSecond)
                     .integer(time)
                     .boolean(false)
-                    .send("update-online", app.getUser(it))
+                    .send("update-online", murder.getUser(it))
             }
         }
         // Каждые 10 секунд, генерировать золото в случайном месте
         if ((time / 20) % 10 == 0)
-            me.func.murder.util.goldManager.dropGoldRandomly()
-        me.func.murder.util.droppedBowManager.rotateIfPresent(time)
-        // Если осталось менее двух минут, выдать скорость мардеру, и подсветить всех на 5 секунд
-        val glowing = org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.GLOWING, 100, 1, false, false)
-        if (time == (GAME.lastSecond - 60 * 2) * 20) {
+            goldManager.dropGoldRandomly()
+        droppedBowManager.rotateIfPresent(time)
+        // Если осталось менее двух минут, выдать скорость мардеру,
+        // и подсветить всех на 5 секунд, если меньше 25 сек. выдать свечение
+        val glowing = PotionEffect(PotionEffectType.GLOWING, 100, 1, false, false)
+        if (time == (GAME.lastSecond - 120) * 20) {
             Bukkit.getOnlinePlayers().forEach { player ->
-                val user = app.getUser(player)
+                val user = murder.getUser(player)
+                player.addPotionEffect(glowing)
+                ModHelper.sendTitle(user, "㥏 Скоро рассвет")
                 if (user.role == Role.MURDER) {
                     player.walkSpeed = 0.25f
                     return@forEach
                 }
-                player.addPotionEffect(glowing)
-                me.func.murder.mod.ModHelper.sendTitle(user, "㥏 Скоро рассвет")
             }
+        } else if (time == (GAME.lastSecond - 25) * 20) {
+            Bukkit.getOnlinePlayers()
+                .filter { it.gameMode != GameMode.SPECTATOR }
+                .forEach { it.isGlowing = true }
         }
         // Проверка на победу
         if (me.func.murder.util.WinUtil.check4win()) {
@@ -155,23 +169,22 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         if (GAME.lastSecond * 20 + 10 == time) {
             // Выдача побед выжившим и выдача всем доп. игр
             Bukkit.getOnlinePlayers().forEach {
-                val user = app.getUser(it)
-                if (it.gameMode != org.bukkit.GameMode.SPECTATOR) {
+                val user = murder.getUser(it)
+                if (it.gameMode != GameMode.SPECTATOR) {
                     user.stat.wins++
-                    if (Math.random() < 0.2) {
+                    if (Math.random() < 0.11) {
                         user.stat.lootbox++
-                        B.bc(ru.cristalix.core.formatting.Formatting.fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
+                        B.bc(fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
                     }
-                    val firework =
-                        user.player?.world!!.spawn(user.player!!.location, org.bukkit.entity.Firework::class.java)
+                    val firework = it.world!!.spawn(it.location, Firework::class.java)
                     val meta = firework.fireworkMeta
                     meta.addEffect(
-                        org.bukkit.FireworkEffect.builder()
+                        FireworkEffect.builder()
                             .flicker(true)
                             .trail(true)
-                            .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
-                            .with(org.bukkit.FireworkEffect.Type.BALL)
-                            .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
+                            .with(FireworkEffect.Type.BALL_LARGE)
+                            .with(FireworkEffect.Type.BALL)
+                            .with(FireworkEffect.Type.BALL_LARGE)
                             .withColor(org.bukkit.Color.YELLOW)
                             .withColor(org.bukkit.Color.GREEN)
                             .withColor(org.bukkit.Color.WHITE)
@@ -181,22 +194,34 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     firework.fireworkMeta = meta
                 }
                 user.stat.games++
-                me.func.murder.music.Music.VILLAGER_WIN.play(user)
+                Music.VILLAGER_WIN.play(user)
             }
 
             B.bc("")
             B.bc("§c§lКОНЕЦ! $winMessage")
             B.bc("    §cМаньяк $murderName")
             B.bc("    §bДетектив $detectiveName")
-            if (heroName.isNotEmpty())
+            if (heroName.isNotEmpty() && detectiveName != heroName)
                 B.bc("    §aГерой $heroName")
             B.bc("")
             // Объявление о закрытии сервера
-            B.bc(ru.cristalix.core.formatting.Formatting.fine("Перезагрузка сервера..."))
+            B.bc(fine("Перезагрузка сервера..."))
+            // Кик всех игроков с сервера
+            Bukkit.getOnlinePlayers().forEach {
+                ru.cristalix.core.transfer.ITransferService.get().transfer(it.uniqueId, me.func.commons.realm.realmId)
+            }
+            clepto.cristalix.Cristalix.transfer(
+                org.bukkit.Bukkit.getOnlinePlayers().map { it.uniqueId },
+                ru.cristalix.core.realm.RealmId.of(me.func.murder.LOBBY_SERVER)
+            )
+            // Очистка мусорных сущностей
+            me.func.commons.worldMeta.world.entities.filter { it.hasMetadata("trash") }
+                .forEach { it.remove() }
+            me.func.murder.util.droppedBowManager.clear()
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
-                app.restart()
+                murder.restart()
                 -1
             }
             time < (END.lastSecond - 10) * 20 -> (END.lastSecond - 10) * 20
