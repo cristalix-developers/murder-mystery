@@ -48,7 +48,7 @@ val gold: ItemStack = item {
     type = Material.GOLD_INGOT
     text("§eЗолото\n\n§7Соберите §e10 штук§7,\n§7и получите §bлук§7!\n§7Или покупайте действия\n§7на карте.")
 }.build()
-var version = 177
+var version = 178
 
 class MurderInstance(plugin: JavaPlugin, byPlayer: (Player) -> User, byUuid: (UUID) -> User, meta: WorldMeta, currentSlot: Int) {
     
@@ -69,7 +69,7 @@ class MurderInstance(plugin: JavaPlugin, byPlayer: (Player) -> User, byUuid: (UU
         realm.status = RealmStatus.WAITING_FOR_PLAYERS
         realm.maxPlayers = currentSlot
         realm.readableName = "Мардер #${realm.realmId.id} v.$version"
-        realm.groupName = "Мардер #${realm.realmId.id} v.$version"
+        realm.groupName = "MurderMystery"
 
         // Подключение к сервису статистики
         kensuke = BukkitKensuke.setup(app)

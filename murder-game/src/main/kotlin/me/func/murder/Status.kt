@@ -208,16 +208,16 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             B.bc(fine("Перезагрузка сервера..."))
             // Кик всех игроков с сервера
             Bukkit.getOnlinePlayers().forEach {
-                ru.cristalix.core.transfer.ITransferService.get().transfer(it.uniqueId, me.func.commons.realm.realmId)
+                ru.cristalix.core.transfer.ITransferService.get().transfer(it.uniqueId, realm.realmId)
             }
             clepto.cristalix.Cristalix.transfer(
-                org.bukkit.Bukkit.getOnlinePlayers().map { it.uniqueId },
-                ru.cristalix.core.realm.RealmId.of(me.func.murder.LOBBY_SERVER)
+                Bukkit.getOnlinePlayers().map { it.uniqueId },
+                ru.cristalix.core.realm.RealmId.of(LOBBY_SERVER)
             )
             // Очистка мусорных сущностей
-            me.func.commons.worldMeta.world.entities.filter { it.hasMetadata("trash") }
+            worldMeta.world.entities.filter { it.hasMetadata("trash") }
                 .forEach { it.remove() }
-            me.func.murder.util.droppedBowManager.clear()
+            droppedBowManager.clear()
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {

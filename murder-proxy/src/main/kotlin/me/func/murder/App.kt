@@ -2,6 +2,7 @@ package me.func.murder
 
 import clepto.bukkit.B
 import clepto.cristalix.WorldMeta
+import dev.implario.bukkit.item.item
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.commons.*
@@ -11,12 +12,15 @@ import me.func.commons.content.TopManager
 import me.func.commons.listener.GlobalListeners
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
+import org.bukkit.Material
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
 import ru.cristalix.core.formatting.Formatting
@@ -37,12 +41,19 @@ lateinit var murder: App
 
 class App : JavaPlugin(), Listener {
 
+    private lateinit var cosmeticItem: ItemStack
+
     override fun onEnable() {
         B.plugin = this
         murder = this
         Platforms.set(PlatformDarkPaper())
         B.events(this, GlobalListeners(), Lootbox())
         MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load("hall"), 200)
+        cosmeticItem = item {
+            type = Material.CLAY_BALL
+            text("§aКосметика")
+            nbt("other", "clothes")
+        }.build()
 
         // Конфигурация реалма
         realm.isLobbyServer = true
@@ -91,8 +102,17 @@ class App : JavaPlugin(), Listener {
     }
 
     @EventHandler
+    fun PlayerInteractEvent.handle() {
+        if (item != null)
+            player.performCommand("menu")
+    }
+
+    @EventHandler
     fun PlayerJoinEvent.handle() {
         B.postpone(25) { getUser(player).sendPlayAgain("§aПопробовать!") }
+
+        player.inventory.setItem(4, cosmeticItem)
+
         if (Math.random() < 0.5)
             player.sendMessage(Formatting.fine("Рекомендуем сделать §eминимальную яркость §fи §bвключить звуки§f для полного погружения."))
     }

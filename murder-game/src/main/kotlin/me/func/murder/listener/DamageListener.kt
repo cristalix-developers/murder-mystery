@@ -55,8 +55,11 @@ class DamageListener : Listener {
             // Проверки на роли
             val userVictim = murder.getUser(victim)
             val userKiller = murder.getUser(killer)
-            if (userKiller == userVictim)
+            if (userKiller == userVictim) {
+                if (byArrow)
+                    damager.remove()
                 return
+            }
             if (userKiller.role == Role.MURDER || (userKiller.role == Role.MURDER && byArrow)) {
                 if (killer.itemInHand.getType() != Material.IRON_SWORD && damage != 10.0)
                     return

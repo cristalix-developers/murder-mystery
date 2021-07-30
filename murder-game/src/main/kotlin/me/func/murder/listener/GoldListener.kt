@@ -35,7 +35,10 @@ class GoldListener : Listener {
             if (itemStack.getAmount() == 10 && user.role != Role.DETECTIVE) {
                 player.inventory.remove(Material.GOLD_INGOT)
                 player.inventory.setItem(if (user.role == Role.MURDER) 2 else 1, bow)
-                player.inventory.setItem(20, arrow)
+                if (player.inventory.contains(Material.ARROW))
+                    player.inventory.addItem(arrow)
+                else
+                    player.inventory.setItem(20, arrow)
             }
         } else
             player.inventory.setItem(8, gold)
