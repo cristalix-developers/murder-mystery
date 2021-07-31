@@ -1,7 +1,7 @@
 package me.func.murder
 
 import clepto.bukkit.B
-import clepto.cristalix.WorldMeta
+import clepto.cristalix.Cristalix
 import dev.implario.bukkit.item.item
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
@@ -13,6 +13,7 @@ import me.func.commons.listener.GlobalListeners
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
 import org.bukkit.Material
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -22,19 +23,11 @@ import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
-import ru.cristalix.core.CoreApi
 import ru.cristalix.core.formatting.Formatting
-import ru.cristalix.core.network.ISocketClient
-import ru.cristalix.core.party.IPartyService
-import ru.cristalix.core.party.PartyService
-import ru.cristalix.core.realm.IRealmService
-import ru.cristalix.core.realm.RealmStatus
-import ru.cristalix.core.transfer.ITransferService
-import ru.cristalix.core.transfer.TransferService
+import ru.cristalix.core.realm.RealmId
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
-import java.awt.SystemColor.info
 import java.util.*
 
 lateinit var murder: App
@@ -42,6 +35,8 @@ lateinit var murder: App
 class App : JavaPlugin(), Listener {
 
     private lateinit var cosmeticItem: ItemStack
+    private lateinit var startItem: ItemStack
+    private lateinit var backItem: ItemStack
 
     override fun onEnable() {
         B.plugin = this
@@ -51,8 +46,21 @@ class App : JavaPlugin(), Listener {
         MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load("hall"), 200)
         cosmeticItem = item {
             type = Material.CLAY_BALL
-            text("§aКосметика")
+            text("§aПерсонаж")
             nbt("other", "clothes")
+            nbt("click", "menu")
+        }.build()
+        startItem = item {
+            type = Material.CLAY_BALL
+            text("§bИграть")
+            nbt("other", "guild_members")
+            nbt("click", "next")
+        }.build()
+        backItem = item {
+            type = Material.CLAY_BALL
+            text("§cВыйти")
+            nbt("other", "cancel")
+            nbt("click", "leave")
         }.build()
 
         // Конфигурация реалма
@@ -86,6 +94,12 @@ class App : JavaPlugin(), Listener {
                     fixDoubleClick = it
                 }.build()
         )
+        // Команда выхода в хаб
+        val hub = RealmId.of("HUB-1")
+        B.regCommand({ player, _ ->
+            Cristalix.transfer(listOf(player.uniqueId), hub)
+            null
+        }, "leave")
     }
 
     private fun getUser(player: Player): User {
@@ -103,17 +117,22 @@ class App : JavaPlugin(), Listener {
 
     @EventHandler
     fun PlayerInteractEvent.handle() {
-        if (item != null)
-            player.performCommand("menu")
+        if (item == null)
+            return
+        val nmsItem = CraftItemStack.asNMSCopy(item)
+        if (nmsItem.hasTag() && nmsItem.tag.hasKeyOfType("click", 8))
+            player.performCommand(nmsItem.tag.getString("click"))
     }
 
     @EventHandler
     fun PlayerJoinEvent.handle() {
         B.postpone(25) { getUser(player).sendPlayAgain("§aПопробовать!") }
 
+        player.inventory.setItem(0, startItem)
         player.inventory.setItem(4, cosmeticItem)
+        player.inventory.setItem(8, backItem)
 
-        if (Math.random() < 0.5)
+        if (Math.random() < 0.4)
             player.sendMessage(Formatting.fine("Рекомендуем сделать §eминимальную яркость §fи §bвключить звуки§f для полного погружения."))
     }
 }

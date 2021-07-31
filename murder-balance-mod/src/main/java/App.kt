@@ -1,4 +1,8 @@
 import dev.xdark.clientapi.event.network.PluginMessage
+import dev.xdark.clientapi.event.render.ArmorRender
+import dev.xdark.clientapi.event.render.ExpBarRender
+import dev.xdark.clientapi.event.render.HealthRender
+import dev.xdark.clientapi.event.render.HungerRender
 import ru.cristalix.clientapi.KotlinMod
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.utility.BOTTOM_RIGHT
@@ -8,6 +12,11 @@ class App : KotlinMod() {
 
     override fun onEnable() {
         UIEngine.initialize(this)
+
+        UIEngine.registerHandler(HealthRender::class.java) { isCancelled = true }
+        UIEngine.registerHandler(ExpBarRender::class.java) { isCancelled = true }
+        UIEngine.registerHandler(HungerRender::class.java) { isCancelled = true }
+        UIEngine.registerHandler(ArmorRender::class.java) { isCancelled = true }
 
         val balanceText = text {
             content = "§aЗагрузка..."

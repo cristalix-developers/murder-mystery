@@ -50,7 +50,7 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
     fun sendPlayAgain(prefix: String) {
         player!!.spigot().sendMessage(
-            *ComponentBuilder("\n$prefix §fИграть на Cristalix §dMurderMystey §e§lКЛИК\n")
+            *ComponentBuilder("\n$prefix §fИграть на Cristalix §dMurderMystery §e§lКЛИК\n")
                 .event(ClickEvent(ClickEvent.Action.RUN_COMMAND, "/next"))
                 .create()
         )

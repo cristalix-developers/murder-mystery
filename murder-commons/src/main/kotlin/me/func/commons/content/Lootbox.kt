@@ -109,7 +109,8 @@ class Lootbox : Listener {
     @EventHandler
     fun InventoryOpenEvent.handle() {
         if (inventory.type == InventoryType.ENDER_CHEST) {
-            B.postpone(1) { lootbox.open(player as Player) }
+            isCancelled = true
+            lootbox.open(player as Player)
         }
     }
 

@@ -104,7 +104,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         .string(user.role.shortTitle)
                         .send("murder-start", user)
 
-                    ModHelper.update()
+                    ModHelper.updateOnline()
                     // Сменить музыку
                     Music.OUTLAST.play(user)
                 }
@@ -204,16 +204,15 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             if (heroName.isNotEmpty() && detectiveName != heroName)
                 B.bc("    §aГерой $heroName")
             B.bc("")
-            // Объявление о закрытии сервера
-            B.bc(fine("Перезагрузка сервера..."))
-            // Кик всех игроков с сервера
-            Bukkit.getOnlinePlayers().forEach {
-                ru.cristalix.core.transfer.ITransferService.get().transfer(it.uniqueId, realm.realmId)
+            B.postpone(20 * 7) {
+                // Объявление о закрытии сервера
+                clepto.bukkit.B.bc(ru.cristalix.core.formatting.Formatting.fine("Перезагрузка сервера..."))
+                // Кик всех игроков с сервера
+                clepto.cristalix.Cristalix.transfer(
+                    org.bukkit.Bukkit.getOnlinePlayers().map { it.uniqueId },
+                    ru.cristalix.core.realm.RealmId.of(me.func.murder.LOBBY_SERVER)
+                )
             }
-            clepto.cristalix.Cristalix.transfer(
-                Bukkit.getOnlinePlayers().map { it.uniqueId },
-                ru.cristalix.core.realm.RealmId.of(LOBBY_SERVER)
-            )
             // Очистка мусорных сущностей
             worldMeta.world.entities.filter { it.hasMetadata("trash") }
                 .forEach { it.remove() }

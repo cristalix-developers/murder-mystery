@@ -1,12 +1,10 @@
 package me.func.commons.mod
 
-import clepto.bukkit.B
 import me.func.commons.getByPlayer
 import me.func.commons.user.Role
 import me.func.commons.user.User
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
-import sun.audio.AudioPlayer.player
 import java.util.*
 
 object ModHelper {
@@ -33,7 +31,7 @@ object ModHelper {
             .send("corpse", to)
     }
 
-    fun update() {
+    fun updateOnline() {
         val users = Bukkit.getOnlinePlayers().map { getByPlayer(it) }
         val detectiveAlive = users.any { it.role == Role.DETECTIVE && it.player!!.gameMode != GameMode.SPECTATOR }
         val alive = users.filter { it.player!!.gameMode != GameMode.SPECTATOR }.size

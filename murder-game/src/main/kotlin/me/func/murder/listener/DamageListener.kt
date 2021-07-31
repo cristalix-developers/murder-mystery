@@ -28,7 +28,6 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.EulerAngle
 import ru.cristalix.core.formatting.Formatting
-import ru.cristalix.core.util.UtilPlayer.damage
 
 
 class DamageListener : Listener {
@@ -96,6 +95,7 @@ class DamageListener : Listener {
     @EventHandler
     fun ProjectileLaunchEvent.handle() {
         if (getEntity() is Arrow && getEntity().shooter is CraftPlayer) {
+            (getEntity() as Arrow).pickupStatus = Arrow.PickupStatus.DISALLOWED
             val user = murder.getUser(getEntity().shooter as Player)
             user.player!!.inventory.remove(Material.ARROW)
             if (user.role == Role.DETECTIVE) {
@@ -123,7 +123,7 @@ class DamageListener : Listener {
         player.inventory.clear()
         victim.role = Role.NONE
         ModHelper.makeCorpse(victim)
-        ModHelper.update()
+        ModHelper.updateOnline()
 
         var location = player.location.clone()
         var id: Int

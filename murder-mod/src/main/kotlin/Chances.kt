@@ -139,10 +139,6 @@ class Chances {
         box.enabled = false
 
         UIEngine.registerHandler(HotbarRender::class.java) { isCancelled = box.enabled }
-        UIEngine.registerHandler(HealthRender::class.java) { isCancelled = true }
-        UIEngine.registerHandler(ExpBarRender::class.java) { isCancelled = true }
-        UIEngine.registerHandler(HungerRender::class.java) { isCancelled = true }
-        UIEngine.registerHandler(ArmorRender::class.java) { isCancelled = true }
 
         UIEngine.registerHandler(NameTemplateRender::class.java) {
             if (!box.enabled && entity !is EntityArmorStand)
@@ -211,12 +207,19 @@ class Chances {
                     align = BOTTOM_RIGHT
                     offset.y -= MAP_SIZE + 51
                     offset.x -= 25
-                    size = V3(MAP_SIZE, 25.0, 0.0)
+                    size = V3(MAP_SIZE, 36.0, 0.0)
                     color = Color(0, 0, 0, 0.62)
                     addChild(text {
-                        origin = CENTER
-                        align = CENTER
-                        content = "§fмирных живо §216\n§fвы $role"
+                        origin = TOP
+                        align = TOP
+                        content = "§fмирных живо §216"
+                        offset.y += 6
+                        shadow = true
+                    }, text {
+                        origin = BOTTOM
+                        align = BOTTOM
+                        offset.y -= 6
+                        content = "§fвы $role"
                         shadow = true
                     })
                 }
@@ -224,7 +227,8 @@ class Chances {
             } else if (channel == "murder:update") {
                 val detective = data.readBoolean()
                 val online = data.readInt()
-                (roleAndOnline.children[0] as TextElement).content = "§fмирных живо §2$online\n§fвы $role"
+                (roleAndOnline.children[0] as TextElement).content = "§fмирных живо §2$online"
+                (roleAndOnline.children[1] as TextElement).content = "§fвы $role"
                 (detectiveAlive.children[0] as TextElement).content =
                     if (detective) "§bДетектив жив" else "§cДетектив мертв"
             } else if (channel == "update-online") {

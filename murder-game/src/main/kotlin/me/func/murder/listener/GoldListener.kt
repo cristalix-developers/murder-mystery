@@ -9,6 +9,8 @@ import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent
+import org.bukkit.event.player.PlayerPickupArrowEvent
+import org.bukkit.event.player.PlayerPickupItemEvent
 
 class GoldListener : Listener {
 
@@ -24,9 +26,18 @@ class GoldListener : Listener {
     }.build()
 
     @EventHandler
+    fun PlayerPickupArrowEvent.handle() {
+        arrow.remove()
+        isCancelled = true
+    }
+
+    @EventHandler
     fun PlayerAttemptPickupItemEvent.handle() {
-        if (item.itemStack.getType() != Material.GOLD_INGOT)
+        if (item.itemStack.getType() != Material.GOLD_INGOT) {
+            item.remove()
+            isCancelled = true
             return
+        }
         val itemStack = player.inventory.getItem(8)
         if (itemStack != null) {
             player.inventory.addItem(gold)
