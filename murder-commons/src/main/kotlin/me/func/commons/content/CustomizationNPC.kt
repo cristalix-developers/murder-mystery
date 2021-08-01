@@ -2,15 +2,20 @@ package me.func.commons.content
 
 import clepto.bukkit.B
 import dev.implario.bukkit.item.item
+import jdk.nashorn.internal.objects.NativeArray.forEach
+import me.func.commons.achievement.Achievement
 import me.func.commons.app
 import me.func.commons.donate.DonateHelper
 import me.func.commons.donate.DonatePosition
 import me.func.commons.donate.MoneyFormatter
 import me.func.commons.donate.impl.*
 import me.func.commons.getByPlayer
+import me.func.commons.realm
 import me.func.commons.user.User
+import me.func.commons.util.ParticleHelper
 import me.func.commons.worldMeta
 import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.enchantments.Enchantment
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -23,9 +28,11 @@ import ru.cristalix.core.inventory.InventoryProvider
 import ru.cristalix.core.network.ISocketClient
 import ru.cristalix.core.network.packages.MoneyTransactionRequestPackage
 import ru.cristalix.core.network.packages.MoneyTransactionResponsePackage
+import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
+import java.awt.SystemColor.text
 import java.util.function.Consumer
 
 class CustomizationNPC {
@@ -45,11 +52,18 @@ class CustomizationNPC {
 
     private val menu = ControlledInventory.builder()
         .title("MurderMystery")
-        .rows(1)
+        .rows(6)
         .columns(9)
         .provider(object : InventoryProvider {
             override fun init(player: Player, contents: InventoryContents) {
-                contents.setLayout("XLKPCIXSX")
+                contents.setLayout(
+                    "XXXXSXXXX",
+                    "XLKPCIOFX",
+                    "XXXXXXXXX",
+                    "XHHHHHHHX",
+                    "XHHHHHHHX",
+                    "XXXXQXXXX",
+                )
 
                 val user = getByPlayer(player)
                 val stat = user.stat
@@ -57,7 +71,15 @@ class CustomizationNPC {
                 contents.add('S', ClickableItem.empty(item {
                     type = Material.CLAY_BALL
                     nbt("other", "quest_week")
-                    text("§bСтатистика\n\n§7Убийств: §c${stat.kills}\n§7Побед: §b${stat.wins}\n${MoneyFormatter.texted(stat.money)}\n§aСыграно ${stat.games} игр(ы)")
+                    text("§bСтатистика\n\n" +
+                            "§7Убийств: §c${stat.kills}\n" +
+                            "§7Сыграно: §f${stat.games} §7игр(ы)\n" +
+                            "§7Победы: §b${stat.wins}\n" +
+                            "§7Лутбоксов открыто: §f${stat.lootboxOpenned}\n" +
+                            "§7Лутбоксов: §b${stat.lootbox}\n" +
+                            "§7Награды: §f${stat.achievement.size}§7/${Achievement.values().size}\n\n" +
+                            "${MoneyFormatter.texted(stat.money)}\n" +
+                            "§bНаиграно ${(stat.timePlayedTotal / 1000 / 360).toInt() / 10.0} часов")
                 }.build()))
 
                 contents.add('P', ClickableItem.of(item {
@@ -84,7 +106,7 @@ class CustomizationNPC {
                             "XXXXBXXXX"
                         )
                         pasteItems(user, false, currentContent, StepParticle.values().asIterable()) {
-                            user.stat.activeParticle = it as StepParticle
+                            stat.activeParticle = it as StepParticle
                         }
                     }
                 })
@@ -100,7 +122,7 @@ class CustomizationNPC {
                             "XXXXBXXXX"
                         )
                         pasteItems(user, false, currentContent, NameTag.values().asIterable()) {
-                            user.stat.activeNameTag = it as NameTag
+                            stat.activeNameTag = it as NameTag
                         }
                     }
                 })
@@ -115,9 +137,71 @@ class CustomizationNPC {
                     }
                 })
                 val chest = LootboxUnit.getIcon()
-                contents.add('I', ClickableItem.of(chest) {
+                contents.add('O', ClickableItem.of(chest) {
                     donateMenu(player, LootboxUnit, false)
                 })
+                contents.add('I', ClickableItem.of(item {
+                    type = Material.IRON_SPADE
+                    nbt("simulators", "luck_shovel")
+                    text("§bСообщения убийства\n\n§7Выберите сообщение,\n§7которое будет написано\n§7с 35% шансом, когда\n§7вы убьете кого-то.")
+                }.build()) {
+                    subInventory(player, 3) { _: Player, currentContent: InventoryContents ->
+                        currentContent.setLayout(
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
+                            "XXXXBXXXX"
+                        )
+                        pasteItems(user, false, currentContent, KillMessage.values().asIterable()) {
+                            stat.activeKillMessage = it as KillMessage
+                        }
+                    }
+                })
+                val musicOn = stat.music
+                contents.add('F', ClickableItem.of(item {
+                    if (user.stat.music) {
+                        type = Material.CLAY_BALL
+                        nbt("simulators", "winter_disc")
+                        text("§cВыключить музыку")
+                    } else {
+                        type = Material.RECORD_3
+                        text("§aВключить музыку")
+                    }
+                }.build()) {
+                    stat.music = !musicOn
+                    player.closeInventory()
+                    player.sendMessage(Formatting.fine(if (musicOn) "Музыка выключена." else "Музыка снова включена."))
+                })
+                Achievement.values()
+                    .sortedBy { !it.predicate(user) }
+                    .sortedBy { stat.achievement.contains(it) }
+                    .forEach { achievement ->
+                    val playerHas = stat.achievement.contains(achievement)
+                    val canGet = achievement.predicate(user)
+                    contents.add('H', ClickableItem.of(item {
+                            type = Material.CLAY_BALL
+                            if (playerHas) {
+                                nbt("other", "new_booster_0")
+                                text("§aНаграда получена\n§7${achievement.title}")
+                            } else {
+                                nbt("other", "new_booster_1")
+                                if (canGet && !playerHas) {
+                                    enchant(Enchantment.DAMAGE_ALL, 1)
+                                    text("§b${achievement.title}\n\n${achievement.lore}\n\n§aНажмите чтобы забрать награду!")
+                                } else {
+                                    text("§b${achievement.title}\n\n${achievement.lore}")
+                                }
+                            }
+                    }.build()) {
+                        if (!canGet || playerHas)
+                            return@of
+                        player.closeInventory()
+                        player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1f)
+                        achievement.reward(user)
+                        user.stat.achievement.add(achievement)
+                        player.sendMessage(Formatting.fine("Вы успешно получили награду!"))
+                    })
+                }
+                contents.add('Q', ClickableItem.of(backItem) { player.closeInventory() })
                 contents.fillMask('X', ClickableItem.empty(ItemStack(Material.AIR)))
             }
         }).build()
@@ -139,6 +223,13 @@ class CustomizationNPC {
                 .onClick { it.performCommand("menu") }
                 .build()
         )
+
+        // Создание подсветки NPC
+        B.repeat(5) {
+            if (realm.status == RealmStatus.GAME_STARTED_RESTRICTED)
+                return@repeat
+            ParticleHelper.happyVillager(npcLabel)
+        }
 
         // Команда для открытия меню
         B.regCommand({ player, _ ->

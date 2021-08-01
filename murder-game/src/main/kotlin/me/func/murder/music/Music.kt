@@ -1,6 +1,7 @@
 package me.func.murder.music
 
 import me.func.commons.user.User
+import me.func.murder.murder
 import org.bukkit.Bukkit
 import ru.cristalix.core.display.IDisplayService
 import ru.cristalix.core.display.messages.RadioMessage
@@ -25,12 +26,16 @@ enum class Music(private val url: String) {
 
 object MusicHelper {
     fun play(user: User, url: String) {
+        if (!user.stat.music)
+            return
         stop(user)
         IDisplayService.get().sendRadio(user.player!!.uniqueId, RadioMessage(true, url))
     }
 
     fun playAll(url: String) {
-        IDisplayService.get().sendRadio(Bukkit.getOnlinePlayers().map { it.uniqueId }, RadioMessage(true, url))
+        IDisplayService.get().sendRadio(Bukkit.getOnlinePlayers().filter {
+            murder.getUser(it).stat.music
+        }.map { it.uniqueId }, RadioMessage(true, url))
     }
 
     fun stop(user: User) {

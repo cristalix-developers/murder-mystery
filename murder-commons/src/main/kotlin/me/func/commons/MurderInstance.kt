@@ -13,6 +13,7 @@ import me.func.commons.donate.DonateAdapter
 import me.func.commons.donate.DonatePosition
 import me.func.commons.user.Stat
 import me.func.commons.user.User
+import me.func.commons.util.ParticleHelper
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -37,6 +38,7 @@ lateinit var getByUuid: (UUID) -> User
 lateinit var kensuke: Kensuke
 lateinit var worldMeta: WorldMeta
 lateinit var realm: RealmInfo
+
 var slots by Delegates.notNull<Int>()
 val statScope = Scope("murder-new", Stat::class.java)
 var userManager = BukkitUserManager(
@@ -48,7 +50,11 @@ val gold: ItemStack = item {
     type = Material.GOLD_INGOT
     text("§eЗолото\n\n§7Соберите §e10 штук§7,\n§7и получите §bлук§7!\n§7Или покупайте действия\n§7на карте.")
 }.build()
-var version = 181
+val arrow: ItemStack = item {
+    type = Material.ARROW
+    text("§bСтрела")
+}.build()
+var version = 199
 
 class MurderInstance(plugin: JavaPlugin, byPlayer: (Player) -> User, byUuid: (UUID) -> User, meta: WorldMeta, currentSlot: Int) {
     
@@ -82,6 +88,15 @@ class MurderInstance(plugin: JavaPlugin, byPlayer: (Player) -> User, byUuid: (UU
 
         getByPlayer = byPlayer
         getByUuid = byUuid
+
+        val lootbox = worldMeta.getLabel("lootbox").toCenterLocation().clone().subtract(0.0, 3.0, 0.0)
+        var tick = 0
+        B.repeat(1) {
+            if (realm.status == RealmStatus.GAME_STARTED_RESTRICTED)
+                return@repeat
+            ParticleHelper.acceptTickBowDropped(lootbox, tick)
+            tick++
+        }
 
         val nextGame = PlayerBalancer("MUR", slots - 4)
         B.regCommand({ player: Player, _ ->

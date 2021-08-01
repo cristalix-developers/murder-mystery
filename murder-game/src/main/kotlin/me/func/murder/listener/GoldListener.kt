@@ -1,6 +1,7 @@
 package me.func.murder.listener
 
 import dev.implario.bukkit.item.item
+import me.func.commons.arrow
 import me.func.commons.gold
 import me.func.commons.user.Role
 import me.func.murder.murder
@@ -18,11 +19,6 @@ class GoldListener : Listener {
         type = Material.BOW
         text("§eЛук")
         nbt("Unbreakable", 1)
-    }.build()
-
-    private val arrow = item {
-        type = Material.ARROW
-        text("§bСтрела")
     }.build()
 
     @EventHandler

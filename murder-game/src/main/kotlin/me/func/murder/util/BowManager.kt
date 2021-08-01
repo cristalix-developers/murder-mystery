@@ -3,7 +3,7 @@ package me.func.murder.util
 import clepto.bukkit.B
 import me.func.commons.mod.ModHelper
 import me.func.commons.user.Role
-import me.func.commons.worldMeta
+import me.func.commons.util.ParticleHelper
 import me.func.murder.murder
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import org.bukkit.Bukkit
@@ -43,21 +43,7 @@ class BowManager {
             val pose = droppedBow!!.headPose
             pose.y += Math.toRadians(360.0 / (20 * 3)) // Полный оборот за 3 секунды
             droppedBow!!.headPose = pose
-            // Создание частиц возле лука
-            val radius = 1.2 // Радиус окружности
-            val omega = 1.0 // Скорость вращения
-            val amount = 2 // Количество частиц
-            for (counter in 0..amount) {
-                worldMeta.world.spawnParticle(
-                    org.bukkit.Particle.SPELL_WITCH,
-                    droppedBow!!.location.clone().add(
-                        kotlin.math.sin(time / 2 / kotlin.math.PI * omega * counter) * radius,
-                        1.6 + kotlin.math.sin(time / kotlin.math.PI / 5),
-                        kotlin.math.cos(time / 2 / kotlin.math.PI * omega * counter) * radius
-                    ),
-                    1
-                )
-            }
+            ParticleHelper.acceptTickBowDropped(droppedBow!!.location, time)
             // Сначала вращать, а потом пытаться подобрать
             tryPickUp()
         }

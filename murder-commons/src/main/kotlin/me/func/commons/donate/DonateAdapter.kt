@@ -1,10 +1,7 @@
 package me.func.commons.donate
 
 import com.google.gson.*
-import me.func.commons.donate.impl.Corpse
-import me.func.commons.donate.impl.DeathImage
-import me.func.commons.donate.impl.NameTag
-import me.func.commons.donate.impl.StepParticle
+import me.func.commons.donate.impl.*
 import java.lang.reflect.Type
 
 class DonateAdapter : JsonDeserializer<DonatePosition>, JsonSerializer<DonatePosition> {
@@ -24,6 +21,7 @@ class DonateAdapter : JsonDeserializer<DonatePosition>, JsonSerializer<DonatePos
             "NameTag" -> NameTag.valueOf(value)
             "StepParticle" -> StepParticle.valueOf(value)
             "Corpse" -> Corpse.valueOf(value)
+            "KillMessage" -> KillMessage.valueOf(value)
             else -> throw IllegalArgumentException("Cannot deserialize data CLASS: $primitive, DATA: $value")
         }
     }

@@ -123,18 +123,20 @@ object StandardsInteract {
         ModHelper.sendGlobalTitle("㟣 §eЭлектро-сбой")
         Music.LIGHT_OFF.playAll()
         B.postpone(12 * 20) { Music.OUTLAST.playAll() }
-        val blindness = PotionEffect(PotionEffectType.BLINDNESS, 45, 1, true, false)
+        val blindness = PotionEffect(PotionEffectType.BLINDNESS, 85, 1, true, false)
         Bukkit.getOnlinePlayers().forEach { it.addPotionEffect(blindness) }
 
         fun changePower(on: Boolean) {
-            lamps.forEach {
+            lamps.filter {
+                Math.random() < 0.25
+            }.forEach {
                 it.setTypeAndDataFast((if (on) Material.REDSTONE_LAMP_ON else Material.REDSTONE_LAMP_OFF).id, 0)
                 it.location.getNearbyPlayers(14.0)
-                    .forEach { player -> player.playSound(it.location, Sound.ENTITY_SPLASH_POTION_BREAK, 0.08f, 0f) }
+                    .forEach { player -> player.playSound(it.location, Sound.ENTITY_SPLASH_POTION_BREAK, 0.05f, 0f) }
             }
         }
 
-        Cycle.run(7, 100) {
+        Cycle.run(7, 130) {
             if (activeStatus != Status.GAME) {
                 changePower(true)
                 Cycle.exit()

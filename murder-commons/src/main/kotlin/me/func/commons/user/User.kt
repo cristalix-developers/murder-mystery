@@ -2,10 +2,7 @@ package me.func.commons.user
 
 import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
-import me.func.commons.donate.impl.Corpse
-import me.func.commons.donate.impl.DeathImage
-import me.func.commons.donate.impl.NameTag
-import me.func.commons.donate.impl.StepParticle
+import me.func.commons.donate.impl.*
 import me.func.commons.mod.ModHelper
 import me.func.commons.mod.ModTransfer
 import net.md_5.bungee.api.chat.ClickEvent
@@ -66,19 +63,26 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
     init {
         if (stat == null) {
-            this.stat = Stat(UUID.fromString(session.userId), 0, 0, 0, 0, 0, 2, arrayListOf(
+            this.stat = Stat(UUID.fromString(session.userId), 0, 0, 0, 0, 0, 0, 2, true, 1,
+                arrayListOf(), arrayListOf(
+                KillMessage.NONE,
                 StepParticle.NONE,
                 DeathImage.NONE,
                 NameTag.NONE,
                 Corpse.NONE,
             ),
+                KillMessage.NONE,
                 StepParticle.NONE,
                 DeathImage.NONE,
                 NameTag.NONE,
                 Corpse.NONE,
+                0,
+                0,
                 ""
             )
         } else {
+            if (stat.activeKillMessage == null)
+                stat.activeKillMessage = KillMessage.NONE
             if (stat.activeParticle == null)
                 stat.activeParticle = StepParticle.NONE
             if (stat.activeDeathImage == null)
@@ -87,8 +91,17 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
                 stat.activeNameTag = NameTag.NONE
             if (stat.activeCorpse == null)
                 stat.activeCorpse = Corpse.NONE
+            if (stat.music == null)
+                stat.music = true
+            if (stat.lootboxOpenned == null)
+                stat.lootboxOpenned = 0
+            if (stat.moneyBooster == null)
+                stat.moneyBooster = 1
+            if (stat.achievement == null || stat.achievement.isEmpty())
+                stat.achievement = arrayListOf()
             if (stat.donate == null || stat.donate.isEmpty())
                 stat.donate = arrayListOf(
+                    KillMessage.NONE,
                     StepParticle.NONE,
                     DeathImage.NONE,
                     NameTag.NONE,

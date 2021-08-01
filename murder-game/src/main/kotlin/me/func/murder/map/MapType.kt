@@ -5,9 +5,14 @@ import me.func.commons.user.User
 import me.func.murder.interactive.BlockInteract
 import me.func.murder.interactive.Interactive
 import org.bukkit.Material
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
+import org.bukkit.entity.ArmorStand
+import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import ru.cristalix.core.math.V3
+import ru.cristalix.core.util.UtilEntity
 
 enum class MapType(val title: String, val address: String, val data: MapData, val interactive: List<Interactive<out PlayerEvent>>) {
     OUTLAST(
@@ -100,5 +105,19 @@ enum class MapType(val title: String, val address: String, val data: MapData, va
                     StandardsInteract.breakLamps()
                 }
             })
-    )
+    );
+
+    fun loadDetails(entities: Array<Entity>) {
+        entities.filterIsInstance<ArmorStand>()
+            .filter { it.helmet != null && it.helmet.getType() == Material.CLAY_BALL }
+            .forEach {
+                val type = CraftItemStack.asNMSCopy(it.helmet)
+                if (type.hasTag() && type.tag.hasKeyOfType("murder", 8)) {
+                    when (type.tag.getString("murder")) {
+                        "kreslo" -> UtilEntity.setScale(it, 1.2, 1.4, 1.2)
+                        "divan" -> UtilEntity.setScale(it, 1.2, 1.4, 1.4)
+                    }
+                }
+            }
+    }
 }

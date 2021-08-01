@@ -54,6 +54,8 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 // Обнуление прошлого героя и добавления количества игр
                 heroName = ""
                 games++
+                // Создание каталок
+                worldMeta.getLabels("gurney").map { me.func.murder.map.Gurney.create(it) }
                 // Телепортация игроков на игровые точки и очистка инвентаря
                 val places = worldMeta.getLabels("start")
                 B.postpone(10) {
@@ -88,12 +90,9 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
                 users.forEach { user ->
                     val player = user.player!!
-                    if (user.stat.activeNameTag != me.func.commons.donate.impl.NameTag.NONE) {
-                        val nameTag = user.stat.activeNameTag
-                        player.playerListName = nameTag.getRare().with(nameTag.getTitle())
-                    } else {
-                        player.playerListName = "§7§oСкрыто"
-                    }
+                    player.displayName = ""
+                    me.func.murder.listener.tab.setTabView(player.uniqueId, me.func.murder.listener.tabView)
+                    me.func.murder.listener.tab.update(player)
                     ModHelper.sendTitle(user, "Роль: ${user.role.title}")
                     // Выполнение ролийных особенностей
                     B.postpone(10 * 20) {
@@ -142,7 +141,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             goldManager.dropGoldRandomly()
         droppedBowManager.rotateIfPresent(time)
         // Если осталось менее двух минут, выдать скорость мардеру,
-        // и подсветить всех на 5 секунд, если меньше 25 сек. выдать свечение
+        // и подсветить всех на 5 секунд, если меньше 30 сек. выдать свечение
         val glowing = PotionEffect(PotionEffectType.GLOWING, 100, 1, false, false)
         if (time == (GAME.lastSecond - 120) * 20) {
             Bukkit.getOnlinePlayers().forEach { player ->
@@ -154,7 +153,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     return@forEach
                 }
             }
-        } else if (time == (GAME.lastSecond - 25) * 20) {
+        } else if (time == (GAME.lastSecond - 30) * 20) {
             Bukkit.getOnlinePlayers()
                 .filter { it.gameMode != GameMode.SPECTATOR }
                 .forEach { it.isGlowing = true }
@@ -204,13 +203,11 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             if (heroName.isNotEmpty() && detectiveName != heroName)
                 B.bc("    §aГерой $heroName")
             B.bc("")
-            B.postpone(20 * 7) {
-                // Объявление о закрытии сервера
-                clepto.bukkit.B.bc(ru.cristalix.core.formatting.Formatting.fine("Перезагрузка сервера..."))
+            B.postpone(20 * 8) {
                 // Кик всех игроков с сервера
                 clepto.cristalix.Cristalix.transfer(
-                    org.bukkit.Bukkit.getOnlinePlayers().map { it.uniqueId },
-                    ru.cristalix.core.realm.RealmId.of(me.func.murder.LOBBY_SERVER)
+                    Bukkit.getOnlinePlayers().map { it.uniqueId },
+                    ru.cristalix.core.realm.RealmId.of(LOBBY_SERVER)
                 )
             }
             // Очистка мусорных сущностей

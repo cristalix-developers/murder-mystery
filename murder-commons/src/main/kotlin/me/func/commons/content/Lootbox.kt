@@ -4,6 +4,7 @@ import clepto.bukkit.B
 import dev.implario.bukkit.item.item
 import me.func.commons.donate.DonatePosition
 import me.func.commons.donate.impl.Corpse
+import me.func.commons.donate.impl.KillMessage
 import me.func.commons.donate.impl.NameTag
 import me.func.commons.donate.impl.StepParticle
 import me.func.commons.getByPlayer
@@ -30,14 +31,15 @@ class Lootbox : Listener {
     private val dropList = Corpse.values().map { it }
         .plus(NameTag.values())
         .plus(StepParticle.values())
+        .plus(KillMessage.values())
         .filter { it != Corpse.NONE && it != NameTag.NONE && it != StepParticle.NONE }
 
-    private val lootboxPrice = 196
+    private val lootboxPrice = 192
 
     private val lootboxItem = item {
         type = Material.CLAY_BALL
         nbt("other", "enderchest1")
-        text("§bЛутбокс\n\n§7Откройте и получите\n§7псевдоним, частицы ходьбы\n§7или скин могилы!\n\n§e > §f㜰 §aОткрыть сейчас за §e$lootboxPrice золота")
+        text("§bЛутбокс\n\n§7Откройте и получите\n§7псевдоним, частицы ходьбы\n§7или скин могилы!\n\n§e > §f㜰 §aОткрыть сейчас за\n${me.func.commons.donate.MoneyFormatter.texted(lootboxPrice)}")
     }.build()
 
     private val lootbox = ControlledInventory.builder()
@@ -65,6 +67,7 @@ class Lootbox : Listener {
                         }
                         user.minusMoney(lootboxPrice)
                         user.stat.lootbox--
+                        user.stat.lootboxOpenned++
 
                         val drop = dropList.random() as DonatePosition
                         val moneyDrop = (Math.random() * 20 + 10).toInt()

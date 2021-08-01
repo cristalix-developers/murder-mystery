@@ -2,7 +2,9 @@ package me.func.murder.listener
 
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
+import me.func.commons.arrow
 import me.func.commons.donate.impl.Corpse
+import me.func.commons.donate.impl.KillMessage
 import me.func.commons.mod.ModHelper
 import me.func.commons.user.Role
 import me.func.commons.user.User
@@ -25,9 +27,7 @@ import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.util.EulerAngle
-import ru.cristalix.core.formatting.Formatting
 
 
 class DamageListener : Listener {
@@ -65,10 +65,10 @@ class DamageListener : Listener {
                 // Убийца убивает с меча или с лука
                 userKiller.giveMoney(2)
                 userKiller.stat.kills++
-                kill(userVictim)
+                kill(userVictim, userKiller)
                 val sword = killer.inventory.getItem(1)
                 killer.inventory.setItem(1, null)
-                ModHelper.sendCooldown(userKiller, "Возвращение меча", 50)
+                ModHelper.sendCooldown(userKiller, "Возвращение орудия", 60)
                 B.postpone(50) { killer.inventory.setItem(1, sword) }
                 return
             } else if (byArrow) {
@@ -76,8 +76,8 @@ class DamageListener : Listener {
                     heroName = userKiller.name
                     userKiller.giveMoney(5)
                 } else
-                    kill(userKiller)
-                kill(userVictim)
+                    kill(userKiller, userKiller)
+                kill(userVictim, userKiller)
             } else
                 return
         }
@@ -89,7 +89,7 @@ class DamageListener : Listener {
         if (activeStatus != Status.GAME)
             return
         // Если важная роль вышла из игры, то важно отметить
-        kill(murder.getUser(player))
+        kill(murder.getUser(player), null)
     }
 
     @EventHandler
@@ -97,15 +97,15 @@ class DamageListener : Listener {
         if (getEntity() is Arrow && getEntity().shooter is CraftPlayer) {
             (getEntity() as Arrow).pickupStatus = Arrow.PickupStatus.DISALLOWED
             val user = murder.getUser(getEntity().shooter as Player)
-            user.player!!.inventory.remove(Material.ARROW)
+            user.player!!.inventory.removeItem(arrow)
             if (user.role == Role.DETECTIVE) {
-                ModHelper.sendCooldown(user, "Перезарядка лука", 120)
-                B.postpone(120) { user.player!!.inventory.setItem(20, ItemStack(Material.ARROW)) }
+                ModHelper.sendCooldown(user, "Перезарядка лука", 110)
+                B.postpone(100) { user.player!!.inventory.setItem(20, arrow) }
             }
         }
     }
 
-    private fun kill(victim: User) {
+    private fun kill(victim: User, killer: User?) {
         val player = victim.player!!
         if (player.gameMode == GameMode.SPECTATOR)
             return
@@ -113,11 +113,16 @@ class DamageListener : Listener {
             killDetective(victim)
         if (victim.role == Role.MURDER)
             killMurder(victim)
-        B.bc(Formatting.error("§c§m${victim.name}§f был убит."))
+
+        if (killer != null && Math.random() < 0.35) {
+            B.bc(killer.stat.activeKillMessage.texted(victim.name))
+        } else {
+            B.bc(KillMessage.NONE.texted(victim.name))
+        }
+
         ModHelper.sendTitle(victim, "Вы проиграли")
 
         murder.getUser(player).sendPlayAgain("§cСмерть!")
-        player.playerListName = "§cМертв"
 
         player.gameMode = GameMode.SPECTATOR
         player.inventory.clear()
@@ -191,9 +196,11 @@ class DamageListener : Listener {
 
             val vector = player.eyeLocation.direction.normalize()
 
-            ModHelper.sendCooldown(user, "Возвращение меча", 6 * 20)
-            Cycle.run(1, 20 * 6) { iteration ->
-                if (iteration == 20 * 6 - 1) {
+            val giveBackTime = 5 * 20
+
+            ModHelper.sendCooldown(user, "Возвращение орудия", giveBackTime + 10)
+            Cycle.run(1, giveBackTime) { iteration ->
+                if (iteration == giveBackTime - 1) {
                     player.inventory.setItem(1, sword.itemInHand)
                     sword.remove()
                 }

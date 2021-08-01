@@ -27,10 +27,10 @@ class GoldManager(var places: List<Location>) {
 
         val randomLocation = any.random()
 
-        // Генерация золота и подбрасывание его вверх, куодаун 20 секунд
+        // Генерация золота и подбрасывание его вверх, кулдаун 25 секунд
         dropGold(randomLocation)
         spawned.add(randomLocation)
-        B.postpone(20 * 20) { spawned.remove(randomLocation) }
+        B.postpone(20 * 25) { spawned.remove(randomLocation) }
     }
 
     private fun forceTake(user: User, count: Int) {

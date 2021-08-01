@@ -20,6 +20,7 @@ enum class Role(val title: String, val shortTitle: String, val start: ((User) ->
         it.player!!.inventory.setItem(1, item {
             type = Material.IRON_SWORD
             text("§cОрудие убийства")
+            nbt("murder", "sherts")
         }.build())
         me.func.commons.mod.ModHelper.sendGlobalTitle("Маньяк получил оружие")
     }),
