@@ -24,13 +24,13 @@ object StarterPack : DonatePosition {
         return item {
             type = Material.CLAY_BALL
             nbt("other", "unique")
-            text("§bСтартовый набор\n\n§7Вы получите §b5 лутбоксов\n§7и §e960 монет§7.\n\n§7Купить за §b299 кристаликов")
+            text("§bСтартовый набор\n\n§7Вы получите §b3 лутбокса\n§7и §e500 монет§7.\n\n§7Купить за §b99 кристаликов")
         }.build()
     }
 
     override fun give(user: User) {
-        user.stat.lootbox += 10
-        user.giveMoney(960)
+        user.stat.lootbox += 3
+        user.giveMoney(500)
     }
 
     override fun isActive(user: User): Boolean {
