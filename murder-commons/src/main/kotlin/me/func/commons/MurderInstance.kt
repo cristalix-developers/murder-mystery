@@ -11,6 +11,7 @@ import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import me.func.commons.donate.DonateAdapter
 import me.func.commons.donate.DonatePosition
+import me.func.commons.map.MapType
 import me.func.commons.user.Stat
 import me.func.commons.user.User
 import me.func.commons.util.ParticleHelper
@@ -54,13 +55,18 @@ val arrow: ItemStack = item {
     type = Material.ARROW
     text("§bСтрела")
 }.build()
-var version = 199
+var version = 203
 
-class MurderInstance(plugin: JavaPlugin, byPlayer: (Player) -> User, byUuid: (UUID) -> User, meta: WorldMeta, currentSlot: Int) {
-    
+class MurderInstance(
+    plugin: JavaPlugin,
+    byPlayer: (Player) -> User,
+    byUuid: (UUID) -> User,
+    meta: WorldMeta,
+    currentSlot: Int
+) {
+
     init {
         app = plugin
-
         worldMeta = meta
 
         // Регистрация сервисов
@@ -99,8 +105,14 @@ class MurderInstance(plugin: JavaPlugin, byPlayer: (Player) -> User, byUuid: (UU
         }
 
         val nextGame = PlayerBalancer("MUR", slots - 4)
-        B.regCommand({ player: Player, _ ->
-            nextGame.accept(player)
+        B.regCommand({ player: Player, args ->
+            nextGame.accept(
+                player, try {
+                    MapType.valueOf(args[0])
+                } catch (exception: Exception) {
+                    MapType.OUTLAST
+                }
+            )
             null
         }, "next")
     }

@@ -9,7 +9,7 @@ import me.func.commons.mod.ModHelper
 import me.func.commons.user.Role
 import me.func.commons.user.User
 import me.func.murder.*
-import me.func.murder.util.StandHelper
+import me.func.commons.util.StandHelper
 import me.func.murder.util.droppedBowManager
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
@@ -122,12 +122,11 @@ class DamageListener : Listener {
 
         ModHelper.sendTitle(victim, "Вы проиграли")
 
-        murder.getUser(player).sendPlayAgain("§cСмерть!")
+        murder.getUser(player).sendPlayAgain("§cСмерть!", map)
 
         player.gameMode = GameMode.SPECTATOR
         player.inventory.clear()
         victim.role = Role.NONE
-        ModHelper.makeCorpse(victim)
         ModHelper.updateOnline()
 
         var location = player.location.clone()
@@ -146,6 +145,8 @@ class DamageListener : Listener {
                 .gravity(false)
                 .slot(EnumItemSlot.HEAD, victim.stat.activeCorpse.getIcon())
                 .markTrash()
+        else
+            ModHelper.makeCorpse(victim)
 
         Bukkit.getOnlinePlayers().forEach {
             it.playSound(it.location, Sound.ENTITY_PLAYER_DEATH, 1f, 1f)

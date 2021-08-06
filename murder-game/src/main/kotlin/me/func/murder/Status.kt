@@ -69,15 +69,14 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 // Список игроков Murder
                 val users = players.map { murder.getUser(it) }
                 // Выдача активных ролей
-                val accountService = ru.cristalix.core.account.IAccountService.get()
                 val murder = users.maxByOrNull { it.stat.villagerStreak }!!
                 murder.role = Role.MURDER
                 murder.stat.villagerStreak = 0
-                murderName = accountService.getNameByUuid(murder.stat.id).get()
+                murderName = murder.player!!.name
                 val detective = users.minus(murder).maxByOrNull { it.stat.villagerStreak }!!
                 detective.role = Role.DETECTIVE
                 detective.stat.villagerStreak = 0
-                detectiveName = accountService.getNameByUuid(detective.stat.id).get()
+                detectiveName = detective.player!!.name
                 // Выдача мирных жителей
                 users.forEach {
                     if (it.role != Role.MURDER && it.role != Role.DETECTIVE) {
@@ -90,7 +89,10 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
                 users.forEach { user ->
                     val player = user.player!!
-                    player.displayName = ""
+                    val nameTag = user.stat.activeNameTag
+                    player.playerListName =
+                        if (nameTag == me.func.commons.donate.impl.NameTag.NONE) " " else nameTag.getRare()
+                            .with(nameTag.getTitle())
                     me.func.murder.listener.tab.setTabView(player.uniqueId, me.func.murder.listener.tabView)
                     me.func.murder.listener.tab.update(player)
                     ModHelper.sendTitle(user, "Роль: ${user.role.title}")

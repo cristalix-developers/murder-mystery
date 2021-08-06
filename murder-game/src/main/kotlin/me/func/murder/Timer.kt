@@ -16,7 +16,7 @@ class Timer : BukkitRunnable() {
                 .forEach {
                     val particle = murder.getUser(it).stat.activeParticle
                     if (particle != StepParticle.NONE)
-                        it.world.spawnParticle(particle.type, it.location, 1)
+                        it.world.spawnParticle(particle.type, it.location.clone().add(0.0, 0.2, 0.0), 1)
                 }
         }
 

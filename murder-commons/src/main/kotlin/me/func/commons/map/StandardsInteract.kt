@@ -1,14 +1,12 @@
-package me.func.murder.map
+package me.func.commons.map
 
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
 import me.func.commons.mod.ModHelper
 import me.func.commons.user.User
+import me.func.commons.util.StandHelper
 import me.func.commons.worldMeta
-import me.func.murder.Status
-import me.func.murder.activeStatus
 import me.func.murder.music.Music
-import me.func.murder.util.StandHelper
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.Bukkit
@@ -98,10 +96,12 @@ object StandardsInteract {
         centralPlate.addPassenger(user.player)
         val dVector = Vector(to.x - from.x, to.y - from.y, to.z - from.z).multiply(1f / ticks)
         Cycle.run(1, ticks) { tick ->
+            if (centralPlate.passenger == null)
+                centralPlate.addPassenger(user.player)
             if (tick == ticks - 1) {
                 list.forEach { it.remove() }
                 list.clear()
-                B.postpone(1) { user.player!!.teleport(UtilV3.toLocation(outDot, world)) }
+                B.postpone(2) { user.player!!.teleport(UtilV3.toLocation(outDot, world)) }
                 user.player!!.playSound(user.player!!.location, Sound.BLOCK_ANVIL_STEP, 0.4f, 1f)
                 user.animationLock = false
                 Cycle.exit()
@@ -111,8 +111,6 @@ object StandardsInteract {
             list.forEach { plate ->
                 (plate as CraftArmorStand).handle.move(EnumMoveType.SELF, dVector.x, dVector.y, dVector.z)
             }
-            if (centralPlate.passenger == null)
-                centralPlate.addPassenger(user.player)
         }
     }
 
@@ -137,7 +135,7 @@ object StandardsInteract {
         }
 
         Cycle.run(7, 130) {
-            if (activeStatus != Status.GAME) {
+            if (Bukkit.getOnlinePlayers().isEmpty()) {
                 changePower(true)
                 Cycle.exit()
                 return@run

@@ -1,6 +1,6 @@
-package me.func.murder.util
+package me.func.commons.util
 
-import me.func.murder.murder
+import me.func.commons.app
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import org.bukkit.Location
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand
@@ -45,7 +45,7 @@ class StandHelper(location: Location) {
     }
 
     fun fixedData(key: String, value: Any): StandHelper {
-        stand.setMetadata(key, FixedMetadataValue(murder, value))
+        stand.setMetadata(key, FixedMetadataValue(app, value))
         return this
     }
 

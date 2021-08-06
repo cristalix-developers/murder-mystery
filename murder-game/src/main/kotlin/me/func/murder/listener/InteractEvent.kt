@@ -1,5 +1,6 @@
-package me.func.murder.interactive
+package me.func.murder.listener
 
+import me.func.commons.map.interactive.BlockInteract
 import me.func.murder.Status
 import me.func.murder.activeStatus
 import me.func.murder.murder

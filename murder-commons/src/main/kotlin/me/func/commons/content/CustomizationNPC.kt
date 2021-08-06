@@ -57,11 +57,11 @@ class CustomizationNPC {
         .provider(object : InventoryProvider {
             override fun init(player: Player, contents: InventoryContents) {
                 contents.setLayout(
-                    "XXXXSXXXX",
+                    "XXXXXXXXX",
                     "XLKPCIOFX",
                     "XXXXXXXXX",
-                    "XHHHHHHHX",
-                    "XHHHHHHHX",
+                    "XXHXSXDXX",
+                    "XXXXXXXXX",
                     "XXXXQXXXX",
                 )
 
@@ -136,8 +136,7 @@ class CustomizationNPC {
                         pasteItems(user, true, currentContent, MoneyKit.values().filter { it != MoneyKit.NONE }) {}
                     }
                 })
-                val chest = LootboxUnit.getIcon()
-                contents.add('O', ClickableItem.of(chest) {
+                contents.add('O', ClickableItem.of(LootboxUnit.getIcon()) {
                     donateMenu(player, LootboxUnit, false)
                 })
                 contents.add('I', ClickableItem.of(item {
@@ -171,36 +170,61 @@ class CustomizationNPC {
                     player.closeInventory()
                     player.sendMessage(Formatting.fine(if (musicOn) "Музыка выключена." else "Музыка снова включена."))
                 })
-                Achievement.values()
-                    .sortedBy { !it.predicate(user) }
-                    .sortedBy { stat.achievement.contains(it) }
-                    .forEach { achievement ->
-                    val playerHas = stat.achievement.contains(achievement)
-                    val canGet = achievement.predicate(user)
-                    contents.add('H', ClickableItem.of(item {
-                            type = Material.CLAY_BALL
-                            if (playerHas) {
-                                nbt("other", "new_booster_0")
-                                text("§aНаграда получена\n§7${achievement.title}")
-                            } else {
-                                nbt("other", "new_booster_1")
-                                if (canGet && !playerHas) {
-                                    enchant(Enchantment.DAMAGE_ALL, 1)
-                                    text("§b${achievement.title}\n\n${achievement.lore}\n\n§aНажмите чтобы забрать награду!")
-                                } else {
-                                    text("§b${achievement.title}\n\n${achievement.lore}")
-                                }
+
+                contents.add('D', ClickableItem.of(StarterPack.getIcon()) {
+                    donateMenu(player, StarterPack, true)
+                })
+
+                val countHaveAchievement =
+                    Achievement.values().count { it.predicate(user) && !stat.achievement.contains(it) }
+                contents.add('H', ClickableItem.of(item {
+                    type = Material.CLAY_BALL
+                    nbt("other", "new_booster_1")
+                    if (countHaveAchievement > 0)
+                        text("§bДостижения §eНОВОЕ!\n\n§aВы можете собрать $countHaveAchievement наград!")
+                    else
+                        text("§bДостижения\n\n§7Посмотреть список достижений.")
+                }.build()) {
+                    subInventory(player, 5) { _: Player, currentContent: InventoryContents ->
+                        currentContent.setLayout(
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
+                            "XXXXBXXXX"
+                        )
+                        Achievement.values()
+                            .sortedBy { !it.predicate(user) }
+                            .sortedBy { stat.achievement.contains(it) }
+                            .forEach { achievement ->
+                                val playerHas = stat.achievement.contains(achievement)
+                                val canGet = achievement.predicate(user)
+                                currentContent.add('I', ClickableItem.of(item {
+                                    type = Material.CLAY_BALL
+                                    if (playerHas) {
+                                        nbt("other", "new_booster_0")
+                                        text("§aНаграда получена\n§7${achievement.title}")
+                                    } else {
+                                        nbt("other", "new_booster_1")
+                                        if (canGet && !playerHas) {
+                                            enchant(Enchantment.DAMAGE_ALL, 1)
+                                            text("§b${achievement.title}\n\n${achievement.lore}\n\n§aНажмите чтобы забрать награду!")
+                                        } else {
+                                            text("§b${achievement.title}\n\n${achievement.lore}")
+                                        }
+                                    }
+                                }.build()) {
+                                    if (!canGet || playerHas)
+                                        return@of
+                                    player.closeInventory()
+                                    player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1f)
+                                    achievement.reward(user)
+                                    user.stat.achievement.add(achievement)
+                                    player.sendMessage(Formatting.fine("Вы успешно получили награду!"))
+                                })
                             }
-                    }.build()) {
-                        if (!canGet || playerHas)
-                            return@of
-                        player.closeInventory()
-                        player.playSound(player.location, Sound.ENTITY_PLAYER_LEVELUP, 0.5f, 1f)
-                        achievement.reward(user)
-                        user.stat.achievement.add(achievement)
-                        player.sendMessage(Formatting.fine("Вы успешно получили награду!"))
-                    })
-                }
+                    }
+                })
                 contents.add('Q', ClickableItem.of(backItem) { player.closeInventory() })
                 contents.fillMask('X', ClickableItem.empty(ItemStack(Material.AIR)))
             }
@@ -214,7 +238,7 @@ class CustomizationNPC {
         npcLabel.setPitch(npcArgs[1].toFloat())
         Npcs.spawn(
             Npc.builder()
-                .location(npcLabel)
+                .location(npcLabel.add(0.5, 0.0, 0.5))
                 .name("§d§lMurder§f§lMystery")
                 .behaviour(NpcBehaviour.STARE_AT_PLAYER)
                 .skinUrl("https://webdata.c7x.dev/textures/skin/307264a1-2c69-11e8-b5ea-1cb72caa35fd")
@@ -249,7 +273,6 @@ class CustomizationNPC {
                 }
             })
         }
-        content.add('B', ClickableItem.of(backItem) { user.player!!.performCommand("menu") })
     }
 
     fun subInventory(player: Player, rows: Int, inventory: (Player, InventoryContents) -> Any) {
@@ -261,6 +284,7 @@ class CustomizationNPC {
                 override fun init(player: Player, contents: InventoryContents) {
                     inventory(player, contents)
                     contents.fillMask('X', ClickableItem.empty(ItemStack(Material.AIR)))
+                    contents.add('B', ClickableItem.of(backItem) { player.performCommand("menu") })
                 }
             }).build()
             .open(player)
@@ -289,7 +313,6 @@ class CustomizationNPC {
                     }
                 }
             })
-            contents.add('B', ClickableItem.of(backItem) { player.performCommand("menu") })
         }
     }
 

@@ -17,10 +17,10 @@ object WinUtil {
             return true
         }
         // Получение всех активных ролей
-        val activeRoles = Bukkit.getOnlinePlayers().asSequence()
+        val activeRoles = Bukkit.getOnlinePlayers()
+            .asSequence()
             .filter { it.gameMode != GameMode.SPECTATOR }
             .map { murder.getUser(it.uniqueId) }
-            .filterNotNull()
             .filter { it.role != Role.NONE }
             .map { it.role }
             .distinctBy { it }.toList()

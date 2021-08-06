@@ -3,7 +3,7 @@ package me.func.murder.map
 import dev.implario.bukkit.item.item
 import me.func.commons.app
 import me.func.commons.worldMeta
-import me.func.murder.util.StandHelper
+import me.func.commons.util.StandHelper
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import org.bukkit.Location
 import org.bukkit.Material

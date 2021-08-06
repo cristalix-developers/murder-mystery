@@ -1,4 +1,6 @@
-package me.func.murder.map
+package me.func.commons.map
+
+import org.apache.logging.log4j.Marker
 
 data class MapData(
     val title: String,

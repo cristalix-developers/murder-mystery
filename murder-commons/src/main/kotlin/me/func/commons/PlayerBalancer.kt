@@ -1,5 +1,6 @@
 package me.func.commons
 
+import me.func.commons.map.MapType
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.entity.Player
@@ -12,26 +13,21 @@ import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.ITransferService
 import java.util.*
 import java.util.concurrent.ExecutionException
+import java.util.function.BiConsumer
 import java.util.function.Consumer
 
-class PlayerBalancer(private val server: String, private val maxPlayers: Int) : Consumer<Player> {
-
-    @Throws(ExecutionException::class, InterruptedException::class)
-    private fun sendToServer(player: Player) {
-        play(player)
-    }
+class PlayerBalancer(private val server: String, private val maxPlayers: Int) : BiConsumer<Player, MapType> {
 
     @Throws(InterruptedException::class, ExecutionException::class)
-    private fun play(player: Player) {
+    private fun play(player: Player, mapType: MapType) {
         val party: Optional<*> = IPartyService.get().getPartyByMember(player.uniqueId).get()
         if (party.isPresent) {
             val party1 = party.get() as PartySnapshot
             if (party1.leader == player.uniqueId) {
-                val realm = getRealm(server, party1.members.size)
+                val realm = getRealm(server, party1.members.size, mapType)
                 if (realm.isPresent) {
                     val realmInfo = IRealmService.get().getRealmById(realm.get())
-                    if (realmInfo.currentPlayers + party1.members.size <= realmInfo
-                            .maxPlayers
+                    if (realmInfo.currentPlayers + party1.members.size <= realmInfo.maxPlayers
                     ) {
                         for (uuid in party1.members) {
                             ITransferService.get().transfer(uuid, realm.get())
@@ -55,7 +51,7 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
                 )
             }
         } else {
-            val realmId = getRealm(server, 1)
+            val realmId = getRealm(server, 1, mapType)
             if (realmId.isPresent) {
                 ITransferService.get().transfer(player.uniqueId, realmId.get())
             } else {
@@ -67,12 +63,13 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
         }
     }
 
-    private fun getRealm(realm: String, mintoJoin: Int): Optional<RealmId> {
+    private fun getRealm(realm: String, mintoJoin: Int, mapType: MapType): Optional<RealmId> {
         var maxRealm: RealmInfo? = null
         var minRealm: RealmInfo? = null
         for (realmInfo in IRealmService.get().getRealmsOfType(realm)) {
             if (realmInfo.status != RealmStatus.GAME_STARTED_CAN_JOIN
                 || realmInfo.currentPlayers + mintoJoin > realmInfo.maxPlayers
+                || realmInfo.realmId.id % 10 != mapType.realmMod
             ) {
                 continue
             }
@@ -93,9 +90,9 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
         return if (maxRealm != null) Optional.of(maxRealm.realmId) else Optional.empty()
     }
 
-    override fun accept(player: Player) {
+    override fun accept(player: Player, mapType: MapType) {
         try {
-            sendToServer(player)
+            play(player, mapType)
         } catch (e: ExecutionException) {
             e.printStackTrace()
         } catch (e: InterruptedException) {

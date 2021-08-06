@@ -32,14 +32,20 @@ class Lootbox : Listener {
         .plus(NameTag.values())
         .plus(StepParticle.values())
         .plus(KillMessage.values())
-        .filter { it != Corpse.NONE && it != NameTag.NONE && it != StepParticle.NONE }
+        .filter { it != KillMessage.NONE && it != Corpse.NONE && it != NameTag.NONE && it != StepParticle.NONE }
 
     private val lootboxPrice = 192
 
     private val lootboxItem = item {
         type = Material.CLAY_BALL
         nbt("other", "enderchest1")
-        text("§bЛутбокс\n\n§7Откройте и получите\n§7псевдоним, частицы ходьбы\n§7или скин могилы!\n\n§e > §f㜰 §aОткрыть сейчас за\n${me.func.commons.donate.MoneyFormatter.texted(lootboxPrice)}")
+        text(
+            "§bЛутбокс\n\n§7Откройте и получите\n§7псевдоним, частицы ходьбы\n§7или скин могилы!\n\n§e > §f㜰 §aОткрыть сейчас за\n${
+                me.func.commons.donate.MoneyFormatter.texted(
+                    lootboxPrice
+                )
+            }"
+        )
     }.build()
 
     private val lootbox = ControlledInventory.builder()
@@ -83,8 +89,9 @@ class Lootbox : Listener {
                             .send("lootbox", user)
 
                         if (user.stat.donate.contains(drop)) {
-                            player.sendMessage(Formatting.fine("§aДубликат! §fЗаменен на §e32 золота§f."))
-                            user.giveMoney(32)
+                            val giveBack = (drop.getRare().ordinal + 1) * 48
+                            player.sendMessage(Formatting.fine("§aДубликат! §fЗаменен на §e$giveBack монет§f."))
+                            user.giveMoney(giveBack)
                         } else {
                             user.stat.donate.add(drop)
                         }

@@ -1,7 +1,7 @@
-package me.func.murder.interactive
+package me.func.commons.map.interactive
 
 import me.func.commons.user.User
-import me.func.murder.util.StandHelper
+import me.func.commons.util.StandHelper
 import org.bukkit.Location
 import org.bukkit.event.player.PlayerEvent
 

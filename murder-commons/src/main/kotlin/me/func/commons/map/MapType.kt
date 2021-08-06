@@ -1,22 +1,21 @@
-package me.func.murder.map
+package me.func.commons.map
 
 import clepto.bukkit.B
+import me.func.commons.map.interactive.BlockInteract
+import me.func.commons.map.interactive.Interactive
 import me.func.commons.user.User
-import me.func.murder.interactive.BlockInteract
-import me.func.murder.interactive.Interactive
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
-import org.bukkit.entity.LivingEntity
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import ru.cristalix.core.math.V3
 import ru.cristalix.core.util.UtilEntity
 
-enum class MapType(val title: String, val address: String, val data: MapData, val interactive: List<Interactive<out PlayerEvent>>) {
+enum class MapType(val title: String, val realmMod: Int, val address: String, val npcSkin: String, val data: MapData, val interactive: List<Interactive<out PlayerEvent>>) {
     OUTLAST(
-        "Аутласт", "hall", MapData(
+        "Аутласт", 2, "hall", "6f3f4a2e-7f84-11e9-8374-1cb72caa35fd", MapData(
             "OUTLAST",
             43.0, -16.0,
             "mcpatcher/cit/others/colors/a.png",
@@ -105,7 +104,14 @@ enum class MapType(val title: String, val address: String, val data: MapData, va
                     StandardsInteract.breakLamps()
                 }
             })
-    );
+    ), FIELD("Ферма", 3, "field", "303c1f40-2c69-11e8-b5ea-1cb72caa35fd", MapData(
+        "FIELD",
+        43.0, -16.0,
+        "mcpatcher/cit/others/colors/a.png",
+        "1.png",
+        128.0,
+        arrayListOf()
+    ), listOf());
 
     fun loadDetails(entities: Array<Entity>) {
         entities.filterIsInstance<ArmorStand>()

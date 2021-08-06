@@ -55,7 +55,7 @@ enum class Achievement(
                 "§f + 5 §bЛутбоксов",
         { it.stat.timePlayedTotal / 1000 / 3600 >= 200 },
         { user ->
-            kotlin.repeat(5) { user.stat.lootbox++ }
+            repeat(5) { user.stat.lootbox++ }
             user.giveMoney(1024)
         }),
     KILLER("Убийца всего живого", "§7Убить 10`000 игроков\n§f + §e4096 монет", { it.stat.kills >= 10000 }, {
@@ -67,5 +67,27 @@ enum class Achievement(
     TWENTY_FIVE_GAMES("Эксперт", "§7Сыграть 25 игр\n§f + §e192 монеты\n§f + 1 §bЛутбокс", { it.stat.games >= 25 }, {
         it.giveMoney(192)
         it.stat.lootbox++
-    }),
+    }), FIVE_HOURS("Знаток", "§7Наиграть 5 часов\n§f + §e192 монеты\n§f + 1 §bЛутбокс", { it.stat.timePlayedTotal / 1000 / 3600 >= 5 }, {
+        it.giveMoney(192)
+        it.stat.lootbox++
+    }), FIVE_HUNDRED_GAMES("Невозможно", "§7Наиграть 500 часов\n§f + §e19`200 монет\n§f + 100 §bЛутбоксов", { it.stat.timePlayedTotal / 1000 / 3600 >= 500 }, { user ->
+        user.giveMoney(19200)
+        repeat(100) { user.stat.lootbox++ }
+    }), TWENTY_HUNDRED("Серийный маньяк", "§7Убить 250 человек\n§f + §e192 монеты\n§f + 1 §bЛутбокс", { it.stat.kills >= 250 }, {
+        it.giveMoney(192)
+        it.stat.lootbox++
+    }), GAMER_PRO("Про игрок", "§7Сыграть 1000 игр\n§f + §e192 монеты\n§f + 1 §bЛутбокс", { it.stat.games >= 1000 }, {
+        it.giveMoney(192)
+        it.stat.lootbox++
+    }), GAMER("Игрок", "§7Сыграть 100 игр\n§f + §e64 монеты", { it.stat.games >= 100 }, {
+        it.giveMoney(64)
+    }), LOOTER("Счастливчик", "§7Открыть 10 лутбоксов\n§f + 1 §bЛутбокс", { it.stat.lootboxOpenned >= 10 }, {
+        it.stat.lootbox++
+    }), RICH("Богач", "§7Накопить 1`000 монет\n§f + 1 §bЛутбокс", { it.stat.money >= 1000 }, {
+        it.stat.lootbox++
+    }), VERY_RICH("Миллиардер", "§7Накопить 10`000 монет\n§f + 1 §bЛутбокс", { it.stat.money >= 10000 }, {
+        it.stat.lootbox++
+    }), MUSIC("Погруженный", "§7Включить музыку\n§f + §e10 монет", { it.stat.music }, {
+        it.giveMoney(10)
+    })
 }

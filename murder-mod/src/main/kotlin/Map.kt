@@ -2,6 +2,7 @@ import com.google.gson.Gson
 import dev.xdark.clientapi.event.lifecycle.GameLoop
 import dev.xdark.clientapi.event.network.PluginMessage
 import dev.xdark.clientapi.event.render.GuiOverlayRender
+import dev.xdark.clientapi.event.render.RenderTickPre
 import dev.xdark.feder.NetUtil
 import org.lwjgl.opengl.GL11
 import ru.cristalix.uiengine.UIEngine
@@ -28,7 +29,7 @@ class Map {
             }
         }
 
-        UIEngine.registerHandler(GameLoop::class.java) {
+        UIEngine.registerHandler(RenderTickPre::class.java) {
             if (!started)
                 return@registerHandler
             if (mapData.title == "OUTLAST") {
@@ -53,7 +54,7 @@ class Map {
             }
         }
 
-        UIEngine.registerHandler(GuiOverlayRender::class.java) {
+        UIEngine.registerHandler(RenderTickPre::class.java) {
             if (!started)
                 return@registerHandler
             val player = clientApi.minecraft().player

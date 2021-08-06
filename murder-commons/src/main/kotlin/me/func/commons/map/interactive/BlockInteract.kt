@@ -1,4 +1,4 @@
-package me.func.murder.interactive
+package me.func.commons.map.interactive
 
 import me.func.commons.worldMeta
 import org.bukkit.Location

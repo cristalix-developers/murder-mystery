@@ -10,25 +10,38 @@ import me.func.commons.content.CustomizationNPC
 import me.func.commons.content.Lootbox
 import me.func.commons.content.TopManager
 import me.func.commons.listener.GlobalListeners
+import me.func.commons.map.MapType
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
+import me.func.murder.music.Music
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.block.BlockPhysicsEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
+import ru.cristalix.core.CoreApi
+import ru.cristalix.core.display.data.DataDrawData
+import ru.cristalix.core.display.data.StringDrawData
 import ru.cristalix.core.formatting.Formatting
+import ru.cristalix.core.math.V2
+import ru.cristalix.core.math.V3
 import ru.cristalix.core.realm.RealmId
+import ru.cristalix.core.render.BukkitRenderService
+import ru.cristalix.core.render.IRenderService
+import ru.cristalix.core.render.VisibilityTarget
+import ru.cristalix.core.render.WorldRenderData
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
 import java.util.*
+
 
 lateinit var murder: App
 
@@ -43,7 +56,8 @@ class App : JavaPlugin(), Listener {
         murder = this
         Platforms.set(PlatformDarkPaper())
         B.events(this, GlobalListeners(), Lootbox())
-        MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load("hall"), 200)
+        MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load("lobby"), 200)
+        CoreApi.get().registerService(IRenderService::class.java, BukkitRenderService(getServer()))
         cosmeticItem = item {
             type = Material.CLAY_BALL
             text("§aПерсонаж")
@@ -75,25 +89,50 @@ class App : JavaPlugin(), Listener {
         val balancer = PlayerBalancer("MUR", 16)
         var fixDoubleClick: Player? = null
 
-        val npcLabel = worldMeta.getLabel("play")
-        val npcArgs = npcLabel.tag.split(" ")
-        npcLabel.setYaw(npcArgs[0].toFloat())
-        npcLabel.setPitch(npcArgs[1].toFloat())
-        Npcs.spawn(
-            Npc.builder()
-                .location(npcLabel.clone().subtract(0.0, 0.4, 0.0))
-                .name("§f >> §b§lИГРАТЬ §f<<")
-                .behaviour(NpcBehaviour.STARE_AT_PLAYER)
-                .skinUrl("https://webdata.c7x.dev/textures/skin/6f3f4a2e-7f84-11e9-8374-1cb72caa35fd")
-                .skinDigest("6f3f4a2e-7f84-11e9-8374-1cb72caa35fd")
-                .type(EntityType.PLAYER)
-                .onClick {
-                    if (fixDoubleClick != null && fixDoubleClick == it)
-                        return@onClick
-                    balancer.accept(it)
-                    fixDoubleClick = it
-                }.build()
-        )
+        worldMeta.getLabels("play").forEach { npcLabel ->
+            val npcArgs = npcLabel.tag.split(" ")
+            val map = MapType.valueOf(npcArgs[0].toUpperCase())
+            npcLabel.setYaw(npcArgs[1].toFloat())
+            npcLabel.setPitch(npcArgs[2].toFloat())
+            Npcs.spawn(
+                Npc.builder()
+                    .location(npcLabel.clone().add(0.5, -0.4, 0.5))
+                    .name("§f >> §b§lИГРАТЬ §f<<")
+                    .behaviour(NpcBehaviour.STARE_AT_PLAYER)
+                    .skinUrl("https://webdata.c7x.dev/textures/skin/${map.npcSkin}")
+                    .skinDigest(map.npcSkin)
+                    .type(EntityType.PLAYER)
+                    .onClick {
+                        if (fixDoubleClick != null && fixDoubleClick == it)
+                            return@onClick
+                        balancer.accept(it, map)
+                        fixDoubleClick = it
+                    }.build()
+            )
+            val textDataName = UUID.randomUUID().toString()
+            IRenderService.get().createGlobalWorldRenderData(
+                worldMeta.world.uid,
+                textDataName,
+                WorldRenderData.builder().visibilityTarget(VisibilityTarget.BLACKLIST).name(textDataName).dataDrawData(
+                    DataDrawData.builder()
+                        .strings(
+                            listOf(
+                                StringDrawData.builder().align(1).scale(2).position(V2(115.0, 0.0))
+                                    .string(if (map == MapType.OUTLAST) "㗬㗬㗬" else "§e(тест)")
+                                    .build(),
+                                StringDrawData.builder().align(1).scale(3).position(V2(115.0, 40.0))
+                                    .string("§b" + map.title).build()
+                            )
+                        ).dimensions(V2(0.0, 0.0))
+                        .scale(2.0)
+                        .position(V3(npcLabel.x - 2, npcLabel.y + 4, npcLabel.z))
+                        .rotation(0)
+                        .build()
+                ).build()
+            )
+            IRenderService.get().setRenderVisible(worldMeta.world.uid, textDataName, true)
+        }
+
         // Команда выхода в хаб
         val hub = RealmId.of("HUB-1")
         B.regCommand({ player, _ ->
@@ -116,6 +155,11 @@ class App : JavaPlugin(), Listener {
     }
 
     @EventHandler
+    fun BlockPhysicsEvent.handle() {
+        isCancelled = true
+    }
+
+    @EventHandler
     fun PlayerInteractEvent.handle() {
         if (item == null)
             return
@@ -126,7 +170,11 @@ class App : JavaPlugin(), Listener {
 
     @EventHandler
     fun PlayerJoinEvent.handle() {
-        B.postpone(25) { getUser(player).sendPlayAgain("§aПопробовать!") }
+        B.postpone(25) {
+            val user = getUser(player)
+            Music.LOBBY.play(user)
+            user.sendPlayAgain("§aПопробовать!", MapType.OUTLAST)
+        }
 
         player.inventory.setItem(0, startItem)
         player.inventory.setItem(4, cosmeticItem)

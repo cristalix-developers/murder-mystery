@@ -3,6 +3,7 @@ package me.func.commons.user
 import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
 import me.func.commons.donate.impl.*
+import me.func.commons.map.MapType
 import me.func.commons.mod.ModHelper
 import me.func.commons.mod.ModTransfer
 import net.md_5.bungee.api.chat.ClickEvent
@@ -45,10 +46,10 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
         changeMoney(-money)
     }
 
-    fun sendPlayAgain(prefix: String) {
+    fun sendPlayAgain(prefix: String, map: MapType) {
         player!!.spigot().sendMessage(
             *ComponentBuilder("\n$prefix §fИграть на Cristalix §dMurderMystery §e§lКЛИК\n")
-                .event(ClickEvent(ClickEvent.Action.RUN_COMMAND, "/next"))
+                .event(ClickEvent(ClickEvent.Action.RUN_COMMAND, "/next " + map.name))
                 .create()
         )
     }

@@ -45,8 +45,15 @@ class GlobalListeners : Listener {
 
     @EventHandler
     fun PlayerJoinEvent.handle() {
-        if (spawn == null)
-            spawn = worldMeta.getLabel("spawn").toCenterLocation()
+        if (spawn == null) {
+            val dot = worldMeta.getLabel("spawn")
+            val args = dot.tag.split(" ")
+            if (args.size > 1) {
+                dot.setYaw(args[0].toFloat())
+                dot.setPitch(args[1].toFloat())
+            }
+            spawn = dot.add(0.5, 0.0, 0.5)
+        }
         val user = getByPlayer(player)
         // Отправка модов
         B.postpone(1) {

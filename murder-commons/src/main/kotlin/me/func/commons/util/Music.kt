@@ -1,7 +1,8 @@
 package me.func.murder.music
 
+import me.func.commons.app
+import me.func.commons.getByPlayer
 import me.func.commons.user.User
-import me.func.murder.murder
 import org.bukkit.Bukkit
 import ru.cristalix.core.display.IDisplayService
 import ru.cristalix.core.display.messages.RadioMessage
@@ -34,7 +35,7 @@ object MusicHelper {
 
     fun playAll(url: String) {
         IDisplayService.get().sendRadio(Bukkit.getOnlinePlayers().filter {
-            murder.getUser(it).stat.music
+            getByPlayer(it).stat.music
         }.map { it.uniqueId }, RadioMessage(true, url))
     }
 
