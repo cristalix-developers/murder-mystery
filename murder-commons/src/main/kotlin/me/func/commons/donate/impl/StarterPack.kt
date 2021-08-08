@@ -13,7 +13,7 @@ object StarterPack : DonatePosition {
     }
 
     override fun getPrice(): Int {
-        return 299
+        return 99
     }
 
     override fun getRare(): Rare {

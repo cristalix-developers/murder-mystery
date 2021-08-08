@@ -38,11 +38,12 @@ class App : JavaPlugin() {
     override fun onEnable() {
         B.plugin = this
         murder = this
+        EntityDataParameters.register()
+        Platforms.set(PlatformDarkPaper())
+
         val realmId = IRealmService.get().currentRealmInfo.realmId.id
         map = MapType.values().first { realmId % 10 == it.realmMod }
 
-        EntityDataParameters.register()
-        Platforms.set(PlatformDarkPaper())
         MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load(map.address), 16)
 
         // Загрузка карты

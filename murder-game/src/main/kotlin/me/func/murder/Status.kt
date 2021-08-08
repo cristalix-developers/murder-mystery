@@ -7,7 +7,7 @@ import me.func.commons.realm
 import me.func.commons.slots
 import me.func.commons.user.Role
 import me.func.commons.worldMeta
-import me.func.murder.music.Music
+import me.func.commons.util.Music
 import me.func.murder.util.droppedBowManager
 import me.func.murder.util.goldManager
 import org.bukkit.Bukkit
@@ -107,7 +107,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
 
                     ModHelper.updateOnline()
                     // Сменить музыку
-                    Music.OUTLAST.play(user)
+                    map.music.play(user)
                 }
                 // Заспавнить перевернутых пауков
                 worldMeta.getLabels("spider").forEach {

@@ -6,7 +6,7 @@ import me.func.commons.mod.ModHelper
 import me.func.commons.user.User
 import me.func.commons.util.StandHelper
 import me.func.commons.worldMeta
-import me.func.murder.music.Music
+import me.func.commons.util.Music
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.Bukkit

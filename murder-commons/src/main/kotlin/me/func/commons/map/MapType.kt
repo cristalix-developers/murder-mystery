@@ -1,21 +1,34 @@
 package me.func.commons.map
 
 import clepto.bukkit.B
+import clepto.bukkit.Cycle
+import dev.implario.bukkit.item.item
 import me.func.commons.map.interactive.BlockInteract
 import me.func.commons.map.interactive.Interactive
 import me.func.commons.user.User
+import me.func.commons.util.Music
+import me.func.commons.worldMeta
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.codehaus.groovy.ast.tools.GeneralUtils.block
 import ru.cristalix.core.math.V3
 import ru.cristalix.core.util.UtilEntity
 
-enum class MapType(val title: String, val realmMod: Int, val address: String, val npcSkin: String, val data: MapData, val interactive: List<Interactive<out PlayerEvent>>) {
+enum class MapType(
+    val title: String,
+    val realmMod: Int,
+    val music: Music,
+    val address: String,
+    val npcSkin: String,
+    val data: MapData,
+    val interactive: List<Interactive<out PlayerEvent>>
+) {
     OUTLAST(
-        "Аутласт", 2, "hall", "6f3f4a2e-7f84-11e9-8374-1cb72caa35fd", MapData(
+        "Аутласт", 2, Music.OUTLAST, "hall", "6f3f4a2e-7f84-11e9-8374-1cb72caa35fd", MapData(
             "OUTLAST",
             43.0, -16.0,
             "mcpatcher/cit/others/colors/a.png",
@@ -104,14 +117,80 @@ enum class MapType(val title: String, val realmMod: Int, val address: String, va
                     StandardsInteract.breakLamps()
                 }
             })
-    ), FIELD("Ферма", 3, "field", "303c1f40-2c69-11e8-b5ea-1cb72caa35fd", MapData(
-        "FIELD",
-        43.0, -16.0,
-        "mcpatcher/cit/others/colors/a.png",
-        "1.png",
-        128.0,
-        arrayListOf()
-    ), listOf());
+    ),
+    FIELD(
+        "Ферма НЛО", 3, Music.FIELD, "field", "303c1f40-2c69-11e8-b5ea-1cb72caa35fd", MapData(
+            "FIELD",
+            43.0, -16.0,
+            "mcpatcher/cit/others/colors/a.png",
+            "1.png",
+            128.0,
+            arrayListOf()
+        ), listOf(object : BlockInteract(V3(-26.0, 92.0, 8.0), 4, "Взять шприц") {
+            val syringe = item {
+                type = Material.CLAY_BALL
+                text("§dКислотный шприц\n\n§7Примените его на игроке\n§7и ему станет плохо.")
+                nbt("murder", "shpric")
+                nbt("interact", "shpric")
+            }.build()
+
+            override fun trigger(event: PlayerInteractEvent): Boolean {
+                return super.trigger(event) && !event.player.inventory.contains(syringe)
+            }
+
+            override fun interact(user: User) {
+                user.player!!.inventory.setItem(3, syringe)
+            }
+        }, object : BlockInteract(V3(1.0, 101.0, -7.0), 5, "Сломать мост") {
+            var broken = false
+            val breakList = listOf(
+                V3(2.0, 100.0, -7.0),
+                V3(1.0, 100.0, -7.0),
+                V3(1.0, 100.0, -6.0),
+                V3(0.0, 100.0, -6.0),
+                V3(0.0, 100.0, -7.0),
+                V3(-1.0, 100.0, -7.0)
+            )
+            val setBack = mutableListOf<Pair<Int, Byte>>()
+
+            override fun trigger(event: PlayerInteractEvent): Boolean {
+                return super.trigger(event) && !broken
+            }
+
+            override fun interact(user: User) {
+                broken = true
+                breakList.map { ru.cristalix.core.util.UtilV3.toLocation(it, worldMeta.world) }
+                    .forEach {
+                        val block = it.block.type
+                        setBack.add(block.id to it.block.data)
+                        it.block.setTypeAndDataFast(0, 0)
+                        it.world.spawnFallingBlock(it, block, 1)
+                    }
+                // Когда игра закончится вернуть все как было
+                Cycle.run(20 * 30, 25) {
+                    if (org.bukkit.Bukkit.getOnlinePlayers().isEmpty()) {
+                        broken = false
+                        breakList.map { ru.cristalix.core.util.UtilV3.toLocation(it, worldMeta.world) }
+                            .forEachIndexed { index, location ->
+                                val currentBlock = setBack[index]
+                                location.block.setTypeAndDataFast(currentBlock.first, currentBlock.second)
+                                location.set(location.x, 91.0, location.z).block.setTypeAndDataFast(0, 0)
+                            }
+                        setBack.clear()
+                        Cycle.exit()
+                    }
+                }
+            }
+        }, object : BlockInteract(V3(-9.0, 91.0, 18.0), 9, "Призыв пришельцев") {
+            override fun trigger(event: PlayerInteractEvent): Boolean {
+                return super.trigger(event) &&
+            }
+
+            override fun interact(user: User) {
+
+            }
+        })
+    );
 
     fun loadDetails(entities: Array<Entity>) {
         entities.filterIsInstance<ArmorStand>()

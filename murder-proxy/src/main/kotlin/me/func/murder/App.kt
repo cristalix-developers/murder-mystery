@@ -13,7 +13,7 @@ import me.func.commons.listener.GlobalListeners
 import me.func.commons.map.MapType
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
-import me.func.murder.music.Music
+import me.func.commons.util.Music
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.EntityType

@@ -1,6 +1,5 @@
-package me.func.murder.music
+package me.func.commons.util
 
-import me.func.commons.app
 import me.func.commons.getByPlayer
 import me.func.commons.user.User
 import org.bukkit.Bukkit
@@ -11,6 +10,7 @@ enum class Music(private val url: String) {
 
     LIGHT_OFF("https://implario.dev/murder/electro-break.mp3"),
     OUTLAST("https://implario.dev/murder/game.mp3"),
+    FIELD("https://implario.dev/murder/field.mp3"),
     LOBBY("https://implario.dev/murder/waiting.mp3"),
     VILLAGER_WIN("https://implario.dev/murder/win.mp3")
     ;

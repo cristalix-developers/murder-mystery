@@ -6,7 +6,7 @@ import me.func.commons.user.User
 import me.func.murder.Status
 import me.func.murder.activeStatus
 import me.func.murder.murder
-import me.func.murder.music.MusicHelper
+import me.func.commons.util.MusicHelper
 import me.func.murder.util.goldManager
 import org.bukkit.Bukkit
 import ru.cristalix.core.formatting.Formatting

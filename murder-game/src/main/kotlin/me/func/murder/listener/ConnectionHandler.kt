@@ -11,8 +11,8 @@ import me.func.murder.Status
 import me.func.murder.activeStatus
 import me.func.murder.map
 import me.func.murder.murder
-import me.func.murder.music.Music
-import me.func.murder.music.MusicHelper
+import me.func.commons.util.Music
+import me.func.commons.util.MusicHelper
 import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
