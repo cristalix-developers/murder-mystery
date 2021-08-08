@@ -9,6 +9,9 @@ subprojects {
             url 'https://repo.implario.dev/public/'
         }
         maven {
+            url 'https://repo.anfanik.me/public/'
+        }
+        maven {
             url 'https://repo.implario.dev/cristalix/'
             credentials {
                 username project.properties["IMPLARIO_REPO_USER"]

@@ -54,31 +54,57 @@ bundler {
     author 'func'
 }
 
+//remotes {
+//    webServer {
+//        port = project.properties["DEPLOY_PORT"] as int
+//        host = project.properties["DEPLOY_HOST"]
+//        user = project.properties["DEPLOY_USER"]
+//        identity = file(project.properties["DEPLOY_KEY_ROOT"])
+//        passphrase = project.properties["DEPLOY_PASSPHRASE"]
+//    }
+//}
+//
+//ssh.settings {
+//     knownHosts = allowAnyHosts
+//}
+
+//task upload() {
+//    doLast {
+//        ssh.run {
+//            session(remotes.webServer) {
+//                put from: jar.getArchiveFile().get().getAsFile().path.replace("-raw", "-bundle"), into: "/home/func/forest/resources-bin/prod/mods"
+//                execute 'netstat -tulpn | grep :10111 | grep --perl-regexp -o \"\\d+(?=/java)\" | xargs kill -TERM'
+//            }
+//        }
+//    }
+//}
+
+//afterEvaluate {
+//    tasks.upload.dependsOn(tasks.bundle)
+//}
+
+
+
 remotes {
     webServer {
-        port = project.properties["DEPLOY_PORT"] as int
-        host = project.properties["DEPLOY_HOST"]
-        user = project.properties["DEPLOY_USER"]
-        identity = file(project.properties["DEPLOY_KEY_ROOT"])
-        passphrase = project.properties["DEPLOY_PASSPHRASE"]
+        host = 'mokou.dedi.c7x.dev'
+        user = 'lakaithree'
+        identity = file('/Users/delfikpro/.ssh/id_rsa')
     }
 }
 
-ssh.settings {
-     knownHosts = allowAnyHosts
-}
-
 task upload() {
+
     doLast {
         ssh.run {
             session(remotes.webServer) {
-                put from: jar.getArchiveFile().get().getAsFile().path.replace("-raw", "-bundle"), into: "/home/func/forest/resources-bin/prod/mods"
-                execute 'netstat -tulpn | grep :10111 | grep --perl-regexp -o \"\\d+(?=/java)\" | xargs kill -TERM'
+                put from: jar.archiveFile.get().asFile.path.replace("-raw", "-bundle"), into: "/home/lakaithree/forest/realms/TEST-TEST-1/mods"
+//                execute 'netstat -tulpn | grep :6036 | grep --perl-regexp -o \"\\d+(?=/java)\" | xargs kill -TERM'
             }
         }
     }
 }
 
-afterEvaluate {
-    tasks.upload.dependsOn(tasks.bundle)
-}
+    afterEvaluate {
+tasks.upload.dependsOn(tasks.bundle)
+    }

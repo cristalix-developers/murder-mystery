@@ -64,3 +64,7 @@ class StandHelper(location: Location) {
     }
 
 }
+
+fun ArmorStand.setSlot(slot: EnumItemSlot, item: ItemStack) {
+    (this as CraftArmorStand).handle.setSlot(slot, CraftItemStack.asNMSCopy(item))
+}

@@ -5,18 +5,25 @@ import clepto.bukkit.Cycle
 import dev.implario.bukkit.item.item
 import me.func.commons.map.interactive.BlockInteract
 import me.func.commons.map.interactive.Interactive
+import me.func.commons.mod.ModHelper
 import me.func.commons.user.User
 import me.func.commons.util.Music
+import me.func.commons.util.StandHelper
 import me.func.commons.worldMeta
+import net.minecraft.server.v1_12_R1.EnumItemSlot
+import net.minecraft.server.v1_12_R1.EnumItemSlot.*
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.Entity
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.inventory.ItemStack
 import org.codehaus.groovy.ast.tools.GeneralUtils.block
 import ru.cristalix.core.math.V3
 import ru.cristalix.core.util.UtilEntity
+import ru.cristalix.core.util.UtilV3
 
 enum class MapType(
     val title: String,
@@ -182,12 +189,64 @@ enum class MapType(
                 }
             }
         }, object : BlockInteract(V3(-9.0, 91.0, 18.0), 9, "Призыв пришельцев") {
+            var isActive = false
+            val spawn = V3(-9.0, 120.0, 18.0)
+
             override fun trigger(event: PlayerInteractEvent): Boolean {
-                return super.trigger(event) &&
+                return super.trigger(event) && !isActive
             }
 
             override fun interact(user: User) {
+                isActive = true
 
+                val commander = StandHelper(UtilV3.toLocation(spawn, worldMeta.world))
+                    .gravity(false)
+                    .slot(HEAD, ItemStack(Material.IRON_BLOCK))
+                    .marker(true)
+                    .invisible(true)
+                    .markTrash()
+                    .build()
+                val children = mutableListOf<ArmorStand>()
+                val amount = 12
+                val radius = .8
+
+                repeat(amount) {
+                    val center = commander.location.clone()
+                    val radians = java.lang.Math.toRadians(360.0 / amount * it)
+                    val currentLocation =
+                        center.clone().add(kotlin.math.sin(radians) * radius, 0.0, kotlin.math.cos(radians) * radius)
+
+                    currentLocation.yaw =
+                        kotlin.math.atan2(center.x - currentLocation.x, center.z - currentLocation.z).toFloat()
+                    children.add(
+                        me.func.commons.util.StandHelper(currentLocation)
+                            .gravity(false)
+                            .slot(HEAD, ItemStack(org.bukkit.Material.IRON_PLATE))
+                            .marker(true)
+                            .markTrash()
+                            .build()
+                    )
+                }
+                children.add(commander)
+
+                val victim = Bukkit.getOnlinePlayers()
+                    .filter { it.gameMode != org.bukkit.GameMode.SPECTATOR }
+                    .random()
+
+                ModHelper.sendGlobalTitle("㥗 §aПришествие!")
+
+
+                Cycle.run(4, 5 * 20 * 15) {
+                    val dVector = victim.location.toVector().subtract(commander.velocity)
+
+                    if (dVector.lengthSquared() < 36) {
+                        // пойман за руку дешевка
+                    } else {
+                        children.map { (it as org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand).handle }.forEach {
+                            it.move(net.minecraft.server.v1_12_R1.EnumMoveType.SELF, dVector.x, dVector.y, dVector.z)
+                        }
+                    }
+                }
             }
         })
     );
