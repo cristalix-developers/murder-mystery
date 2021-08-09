@@ -10,7 +10,6 @@ import me.func.commons.user.User
 import me.func.commons.util.Music
 import me.func.commons.util.StandHelper
 import me.func.commons.worldMeta
-import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumItemSlot.*
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -20,7 +19,6 @@ import org.bukkit.entity.Entity
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
-import org.codehaus.groovy.ast.tools.GeneralUtils.block
 import ru.cristalix.core.math.V3
 import ru.cristalix.core.util.UtilEntity
 import ru.cristalix.core.util.UtilV3
@@ -128,10 +126,10 @@ enum class MapType(
     FIELD(
         "Ферма НЛО", 3, Music.FIELD, "field", "303c1f40-2c69-11e8-b5ea-1cb72caa35fd", MapData(
             "FIELD",
-            43.0, -16.0,
-            "mcpatcher/cit/others/colors/a.png",
-            "1.png",
-            128.0,
+            43.0, 71.0,
+            "mcpatcher/cit/others/mod items/gem_ruby.png",
+            "field.png",
+            256.0,
             arrayListOf()
         ), listOf(object : BlockInteract(V3(-26.0, 92.0, 8.0), 4, "Взять шприц") {
             val syringe = item {
@@ -166,7 +164,7 @@ enum class MapType(
 
             override fun interact(user: User) {
                 broken = true
-                breakList.map { ru.cristalix.core.util.UtilV3.toLocation(it, worldMeta.world) }
+                breakList.map { UtilV3.toLocation(it, worldMeta.world) }
                     .forEach {
                         val block = it.block.type
                         setBack.add(block.id to it.block.data)
@@ -175,9 +173,9 @@ enum class MapType(
                     }
                 // Когда игра закончится вернуть все как было
                 Cycle.run(20 * 30, 25) {
-                    if (org.bukkit.Bukkit.getOnlinePlayers().isEmpty()) {
+                    if (Bukkit.getOnlinePlayers().isEmpty()) {
                         broken = false
-                        breakList.map { ru.cristalix.core.util.UtilV3.toLocation(it, worldMeta.world) }
+                        breakList.map { UtilV3.toLocation(it, worldMeta.world) }
                             .forEachIndexed { index, location ->
                                 val currentBlock = setBack[index]
                                 location.block.setTypeAndDataFast(currentBlock.first, currentBlock.second)
@@ -206,44 +204,101 @@ enum class MapType(
                     .invisible(true)
                     .markTrash()
                     .build()
+                UtilEntity.setScale(commander, 4.0, 4.0, 4.0)
                 val children = mutableListOf<ArmorStand>()
-                val amount = 12
-                val radius = .8
+                val amount = 9
+                val radius = 2.7
+                val center = commander.location.clone()
 
                 repeat(amount) {
-                    val center = commander.location.clone()
-                    val radians = java.lang.Math.toRadians(360.0 / amount * it)
+                    val radians = Math.toRadians(360.0 / amount * it)
                     val currentLocation =
-                        center.clone().add(kotlin.math.sin(radians) * radius, 0.0, kotlin.math.cos(radians) * radius)
+                        center.clone().add(kotlin.math.sin(radians) * radius, -.7, kotlin.math.cos(radians) * radius)
 
-                    currentLocation.yaw =
-                        kotlin.math.atan2(center.x - currentLocation.x, center.z - currentLocation.z).toFloat()
-                    children.add(
-                        me.func.commons.util.StandHelper(currentLocation)
-                            .gravity(false)
-                            .slot(HEAD, ItemStack(org.bukkit.Material.IRON_PLATE))
-                            .marker(true)
-                            .markTrash()
-                            .build()
-                    )
+                    val stand = StandHelper(currentLocation)
+                        .gravity(false)
+                        .slot(
+                            HEAD,
+                            ItemStack(Material.IRON_PLATE)
+                        )
+                        .marker(true)
+                        .invisible(true)
+                        .markTrash()
+                        .build()
+                    val pose = stand.headPose
+                    pose.y = -radians
+                    stand.headPose = pose
+                    children.add(stand)
                 }
-                children.add(commander)
+                children.forEach { UtilEntity.setScale(it, 5.0, 5.0, 5.0) }
 
                 val victim = Bukkit.getOnlinePlayers()
                     .filter { it.gameMode != org.bukkit.GameMode.SPECTATOR }
                     .random()
+                var isKilling = false
 
                 ModHelper.sendGlobalTitle("㥗 §aПришествие!")
 
+                val speed = 14
 
-                Cycle.run(4, 5 * 20 * 15) {
-                    val dVector = victim.location.toVector().subtract(commander.velocity)
+                Cycle.run(1, 20 * 30) {
+                    if (victim.gameMode == org.bukkit.GameMode.SPECTATOR) {
+                        isKilling = false
+                        isActive = false
+                        clepto.bukkit.Cycle.exit()
+                    }
 
-                    if (dVector.lengthSquared() < 36) {
-                        // пойман за руку дешевка
-                    } else {
-                        children.map { (it as org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand).handle }.forEach {
-                            it.move(net.minecraft.server.v1_12_R1.EnumMoveType.SELF, dVector.x, dVector.y, dVector.z)
+                    val pose = commander.headPose
+                    pose.y += Math.toRadians(7.0)
+                    commander.headPose = pose
+
+                    if (!isKilling) {
+                        (commander as org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand).handle.move(
+                            net.minecraft.server.v1_12_R1.EnumMoveType.SELF,
+                            (victim.location.x - commander.location.x) / speed,
+                            (victim.location.y - commander.location.y + 4.5) / speed,
+                            (victim.location.z - commander.location.z) / speed
+                        )
+
+                        children.forEachIndexed { index, stand ->
+                            val rad = Math.toRadians(360.0 / amount * index)
+                            (stand as org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand).handle.move(
+                                net.minecraft.server.v1_12_R1.EnumMoveType.SELF,
+                                (victim.location.x - stand.location.x - kotlin.math.sin(rad) * radius) / speed,
+                                (victim.location.y - stand.location.y + 4.3) / speed,
+                                (victim.location.z - stand.location.z - kotlin.math.cos(rad) * radius) / speed
+                            )
+                            val standPose = stand.headPose
+                            standPose.y = -rad
+                            stand.headPose = standPose
+                        }
+                    }
+
+                    if (isActive && !isKilling && commander.location.distanceSquared(victim.location) < 23) {
+                        isKilling = true
+                        victim.addPotionEffect(
+                            org.bukkit.potion.PotionEffect(
+                                org.bukkit.potion.PotionEffectType.LEVITATION,
+                                9 * 20,
+                                0
+                            )
+                        )
+                        victim.location.pitch = -90f
+
+                        repeat(300) {
+                            worldMeta.world.spawnParticle(
+                                org.bukkit.Particle.VILLAGER_HAPPY,
+                                commander.location.x - kotlin.math.sin(Math.toRadians(it * 10.0)) * it / 120.0,
+                                commander.location.y - it / 35.0 + 2.9,
+                                commander.location.z - kotlin.math.cos(Math.toRadians(it * 10.0)) * it / 120.0,
+                                1
+                            )
+                        }
+
+                        B.postpone(8 * 20) {
+                            victim.damage(0.0051)
+                            isKilling = false
+                            isActive = false
                         }
                     }
                 }

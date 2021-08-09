@@ -8,8 +8,8 @@ import me.func.commons.donate.impl.KillMessage
 import me.func.commons.mod.ModHelper
 import me.func.commons.user.Role
 import me.func.commons.user.User
-import me.func.murder.*
 import me.func.commons.util.StandHelper
+import me.func.murder.*
 import me.func.murder.util.droppedBowManager
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
@@ -232,7 +232,10 @@ class DamageListener : Listener {
     fun EntityDamageEvent.handle() {
         isCancelled = true
 
-        if (activeStatus == Status.GAME && cause == EntityDamageEvent.DamageCause.FIRE_TICK)
-            isCancelled = false
+        if (activeStatus == Status.GAME && damage < 0.01) {
+            if (entity is CraftPlayer) {
+                kill(murder.getUser(entity as CraftPlayer), null)
+            }
+        }
     }
 }

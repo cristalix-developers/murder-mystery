@@ -1,7 +1,5 @@
 import com.google.gson.Gson
-import dev.xdark.clientapi.event.lifecycle.GameLoop
 import dev.xdark.clientapi.event.network.PluginMessage
-import dev.xdark.clientapi.event.render.GuiOverlayRender
 import dev.xdark.clientapi.event.render.RenderTickPre
 import dev.xdark.feder.NetUtil
 import org.lwjgl.opengl.GL11
@@ -51,6 +49,15 @@ class Map {
                     mapData.maxZ = -16.0
                 }
                 minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
+            } else {
+                loadTextures(
+                    load(
+                        mapData.mapTexturePath,
+                        "088231085F83D889062812" + mapData.title[0].toUpperCase()
+                    )
+                ).thenRun {
+                    minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
+                }
             }
         }
 
@@ -133,8 +140,8 @@ class Map {
             val playerTexture = mapData.playerTexturePath.replace("minecraft:", "")
             val location = clientApi.resourceManager().getLocation("minecraft", playerTexture)
             addChild(rectangle {
-                size.x = 8.0
-                size.y = 8.0
+                size.x = 4.0
+                size.y = 4.0
                 textureLocation = location
                 textureFrom = V2(8.0 / 8, 8.0 / 8)
                 textureSize = V2(8.0 / 8, 8.0 / 8)

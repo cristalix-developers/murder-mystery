@@ -2,9 +2,7 @@ package me.func.commons.content
 
 import clepto.bukkit.B
 import dev.implario.bukkit.item.item
-import jdk.nashorn.internal.objects.NativeArray.forEach
 import me.func.commons.achievement.Achievement
-import me.func.commons.app
 import me.func.commons.donate.DonateHelper
 import me.func.commons.donate.DonatePosition
 import me.func.commons.donate.MoneyFormatter
@@ -32,7 +30,6 @@ import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
-import java.awt.SystemColor.text
 import java.util.function.Consumer
 
 class CustomizationNPC {

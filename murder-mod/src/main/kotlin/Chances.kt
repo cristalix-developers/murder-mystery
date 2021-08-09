@@ -151,7 +151,7 @@ class Chances {
                 (detective.children[0] as TextElement).content = "§bДетектив " + data.readInt() + "%"
                 // Мигание названием карты в начале
                 val text = (topMessage.children[1] as TextElement)
-                text.content = "Аутласт 㗡"
+                text.content = "Музыка 㗡"
                 val signals = 6
                 for (i in 1..signals) {
                     UIEngine.overlayContext.schedule(i * 2) {
@@ -179,6 +179,7 @@ class Chances {
                     load("1.png", "088121088F83D8890128127"),
                     load("-1.png", "081221088F83D8890128127"),
                     load("2.png", "088231088F83D8890128127"),
+                    load("field.png", "088231085F83D8890628127"),
                 ).thenRun {
                     Map()
                 }
