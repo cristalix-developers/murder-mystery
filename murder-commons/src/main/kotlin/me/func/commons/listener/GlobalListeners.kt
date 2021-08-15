@@ -3,7 +3,6 @@ package me.func.commons.listener
 import clepto.bukkit.B
 import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent
 import io.netty.buffer.Unpooled
-import me.func.commons.app
 import me.func.commons.getByPlayer
 import me.func.commons.mod.ModHelper
 import me.func.commons.worldMeta
@@ -29,7 +28,7 @@ import java.util.*
 class GlobalListeners : Listener {
 
     // Получении точки спавна
-    private var spawn: Location?= null
+    private var spawn: Location? = null
 
     // Прогрузка файлов модов
     private var modList = try {
@@ -54,9 +53,12 @@ class GlobalListeners : Listener {
             }
             spawn = dot.add(0.5, 0.0, 0.5)
         }
-        val user = getByPlayer(player)
+
         // Отправка модов
         B.postpone(1) {
+            val user = getByPlayer(player)
+
+            player.teleport(spawn)
             modList.forEach {
                 user.sendPacket(
                     PacketPlayOutCustomPayload(
@@ -65,11 +67,6 @@ class GlobalListeners : Listener {
                     )
                 )
             }
-        }
-        B.postpone(3) {
-            player.teleport(spawn)
-        }
-        B.postpone(5) {
             ModHelper.updateBalance(user)
         }
     }
