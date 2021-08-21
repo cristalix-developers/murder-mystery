@@ -77,6 +77,7 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
                 DeathImage.NONE,
                 NameTag.NONE,
                 Corpse.NONE,
+                ArrowParticle.NONE,
                 0,
                 0,
                 ""
@@ -108,6 +109,8 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
                     NameTag.NONE,
                     Corpse.NONE,
                 )
+            if (stat.activeParticle == null)
+                stat.arrowParticle = ArrowParticle.NONE
             this.stat = stat
         }
         this.session = session

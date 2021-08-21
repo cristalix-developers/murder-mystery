@@ -56,16 +56,32 @@ class CustomizationNPC {
                 contents.setLayout(
                     "XXXXXXXXX",
                     "XLKPCIOFX",
+                    "XXZXXXCXX",
                     "XXXXXXXXX",
                     "XXHXSXDXX",
-                    "XXXXXXXXX",
                     "XXXXQXXXX",
                 )
 
                 val user = getByPlayer(player)
                 val stat = user.stat
 
-                contents.add('S', ClickableItem.empty(item {
+                contents.add('S', ClickableItem.of(item {
+                    type = Material.ARROW
+                    text("§bЭффекты выстрела\n\n§7Выберите эффект, который\n§7останется после выстрела.")
+                }.build()) {
+                    subInventory(player, 1) { _: Player, currentContent: InventoryContents ->
+                        currentContent.setLayout(
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
+                            "XXXXBXXXX"
+                        )
+                        pasteItems(user, false, currentContent, ArrowParticle.values().filter { it != ArrowParticle.NONE }) {
+                            user.stat.arrowParticle = it as ArrowParticle
+                        }
+                    }
+                })
+
+                contents.add('Z', ClickableItem.empty(item {
                     type = Material.CLAY_BALL
                     nbt("other", "quest_week")
                     text("§bСтатистика\n\n" +

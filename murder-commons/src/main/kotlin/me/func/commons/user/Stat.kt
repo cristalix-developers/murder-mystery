@@ -27,6 +27,7 @@ data class Stat(
     var activeDeathImage: DeathImage,
     var activeNameTag: NameTag,
     var activeCorpse: Corpse,
+    var arrowParticle: ArrowParticle,
 
     var timePlayedTotal: Long,
     var lastEnter: Long,

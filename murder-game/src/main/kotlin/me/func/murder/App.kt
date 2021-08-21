@@ -16,9 +16,11 @@ import me.func.murder.command.AdminCommand
 import me.func.murder.listener.InteractEvent
 import me.func.murder.listener.*
 import me.func.commons.map.MapType
+import me.func.murder.util.ArrowEffect
 import me.func.murder.util.BowManager
 import me.func.murder.util.GoldManager
 import org.bukkit.Bukkit
+import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.datasync.EntityDataParameters
@@ -79,6 +81,9 @@ class App : JavaPlugin() {
         TopManager()
         Npcs.init(this)
         CustomizationNPC()
+
+        // Рисую эффект выстрела
+        ArrowEffect().arrowEffect(this)
     }
 
     fun restart() {
