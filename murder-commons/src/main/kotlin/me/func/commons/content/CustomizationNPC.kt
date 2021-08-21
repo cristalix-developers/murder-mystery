@@ -56,7 +56,7 @@ class CustomizationNPC {
                 contents.setLayout(
                     "XXXXXXXXX",
                     "XLKPCIOFX",
-                    "XXZXXXCXX",
+                    "XXQXXXWXX",
                     "XXXXXXXXX",
                     "XXHXSXDXX",
                     "XXXXQXXXX",
@@ -65,23 +65,42 @@ class CustomizationNPC {
                 val user = getByPlayer(player)
                 val stat = user.stat
 
-                contents.add('S', ClickableItem.of(item {
+                contents.add('Q', ClickableItem.of(item {
                     type = Material.ARROW
                     text("§bЭффекты выстрела\n\n§7Выберите эффект, который\n§7останется после выстрела.")
                 }.build()) {
-                    subInventory(player, 1) { _: Player, currentContent: InventoryContents ->
+                    subInventory(player, 3) { _: Player, currentContent: InventoryContents ->
                         currentContent.setLayout(
                             "XIIIIIIIX",
                             "XIIIIIIIX",
                             "XXXXBXXXX"
                         )
-                        pasteItems(user, false, currentContent, ArrowParticle.values().filter { it != ArrowParticle.NONE }) {
+                        pasteItems(user, false, currentContent, ArrowParticle.values().asIterable()) {
                             user.stat.arrowParticle = it as ArrowParticle
                         }
                     }
                 })
 
-                contents.add('Z', ClickableItem.empty(item {
+                contents.add('W', ClickableItem.of(item {
+                    type = Material.SKULL_ITEM
+                    data = 3
+                    text("§bМаски\n\n§7Выберите маску, которая\n§7скроет вашу личность.")
+                }.build()) {
+                    subInventory(player, 4) { _: Player, currentContent: InventoryContents ->
+                        currentContent.setLayout(
+                            "XXXXXXXXX",
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
+                            "XXXXBXXXX"
+                        )
+                        pasteItems(user, false, currentContent, Mask.values().asIterable()) {
+                            user.stat.mask = it as Mask
+                            user.stat.mask.setMask(user)
+                        }
+                    }
+                })
+
+                contents.add('S', ClickableItem.empty(item {
                     type = Material.CLAY_BALL
                     nbt("other", "quest_week")
                     text("§bСтатистика\n\n" +
