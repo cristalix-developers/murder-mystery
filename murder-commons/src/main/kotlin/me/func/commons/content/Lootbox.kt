@@ -31,7 +31,7 @@ class Lootbox : Listener {
         .plus(KillMessage.values())
         .plus(ArrowParticle.values())
         .plus(Mask.values())
-        .filter { it != KillMessage.NONE && it != Corpse.NONE && it != NameTag.NONE && it != StepParticle.NONE }
+        .filter { it != KillMessage.NONE && it != Corpse.NONE && it != NameTag.NONE && it != StepParticle.NONE && it != ArrowParticle.NONE && it != Mask.NONE }
 
     private val lootboxPrice = 192
 
