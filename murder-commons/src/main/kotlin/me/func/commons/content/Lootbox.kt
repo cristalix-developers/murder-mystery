@@ -3,10 +3,7 @@ package me.func.commons.content
 import clepto.bukkit.B
 import dev.implario.bukkit.item.item
 import me.func.commons.donate.DonatePosition
-import me.func.commons.donate.impl.Corpse
-import me.func.commons.donate.impl.KillMessage
-import me.func.commons.donate.impl.NameTag
-import me.func.commons.donate.impl.StepParticle
+import me.func.commons.donate.impl.*
 import me.func.commons.getByPlayer
 import me.func.commons.gold
 import me.func.commons.mod.ModTransfer
@@ -32,6 +29,8 @@ class Lootbox : Listener {
         .plus(NameTag.values())
         .plus(StepParticle.values())
         .plus(KillMessage.values())
+        .plus(ArrowParticle.values())
+        .plus(Mask.values())
         .filter { it != KillMessage.NONE && it != Corpse.NONE && it != NameTag.NONE && it != StepParticle.NONE }
 
     private val lootboxPrice = 192
