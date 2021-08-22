@@ -39,7 +39,7 @@ class Lootbox : Listener {
         type = Material.CLAY_BALL
         nbt("other", "enderchest1")
         text(
-            "§bЛутбокс\n\n§7Откройте и получите\n§7псевдоним, частицы ходьбы\n§7или скин могилы!\n\n§e > §f㜰 §aОткрыть сейчас за\n${
+            "§bЛутбокс\n\n§7Откройте и получите\n§7псевдоним, частицы ходьбы\n§7следы от стрелы, маски\n§7или скин могилы!\n\n§e > §f㜰 §aОткрыть сейчас за\n${
                 me.func.commons.donate.MoneyFormatter.texted(
                     lootboxPrice
                 )
