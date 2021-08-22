@@ -86,9 +86,11 @@ class CustomizationNPC {
                     data = 3
                     text("§bМаски\n\n§7Выберите маску, которая\n§7скроет вашу личность.")
                 }.build()) {
-                    subInventory(player, 4) { _: Player, currentContent: InventoryContents ->
+                    subInventory(player, 6) { _: Player, currentContent: InventoryContents ->
                         currentContent.setLayout(
                             "XXXXXXXXX",
+                            "XIIIIIIIX",
+                            "XIIIIIIIX",
                             "XIIIIIIIX",
                             "XIIIIIIIX",
                             "XXXXBXXXX"
