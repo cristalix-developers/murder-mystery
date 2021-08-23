@@ -10,7 +10,7 @@ import me.func.commons.user.User
 import me.func.commons.util.Music
 import me.func.commons.util.StandHelper
 import me.func.commons.worldMeta
-import net.minecraft.server.v1_12_R1.EnumItemSlot.*
+import net.minecraft.server.v1_12_R1.EnumItemSlot.HEAD
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
@@ -304,7 +304,18 @@ enum class MapType(
                 }
             }
         })
-    );
+    ),
+    PORT(
+        "Порт", 4, Music.OUTLAST, "Port", "6f3f4a2e-7f84-11e9-8374-1cb72caa35fd",
+        MapData(
+            "OUTLAST",
+            43.0, -16.0,
+            "mcpatcher/cit/others/colors/a.png",
+            "1.png",
+            128.0,
+            arrayListOf()
+        ), arrayListOf()
+    ), ;
 
     fun loadDetails(entities: Array<Entity>) {
         entities.filterIsInstance<ArmorStand>()

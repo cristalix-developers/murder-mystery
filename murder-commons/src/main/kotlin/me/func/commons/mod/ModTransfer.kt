@@ -2,11 +2,11 @@ package me.func.commons.mod
 
 import io.netty.buffer.Unpooled
 import me.func.commons.user.User
-import net.minecraft.server.v1_12_R1.ItemStack
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
+import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
+import org.bukkit.inventory.ItemStack
 import ru.cristalix.core.GlobalSerializers
-
 
 /**
  * @author func 02.01.2021
@@ -24,8 +24,13 @@ class ModTransfer {
         return this
     }
 
-    fun item(item: ItemStack?): ModTransfer {
+    fun item(item: net.minecraft.server.v1_12_R1.ItemStack): ModTransfer {
         serializer.writeItem(item)
+        return this
+    }
+
+    fun item(item: ItemStack): ModTransfer {
+        serializer.writeItem(CraftItemStack.asNMSCopy(item))
         return this
     }
 

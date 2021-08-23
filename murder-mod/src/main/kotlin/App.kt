@@ -22,6 +22,7 @@ class App : KotlinMod() {
     override fun onEnable() {
         UIEngine.initialize(this)
         Chances()
+        RewardManager()
 
         registerHandler<PluginMessage> {
             if (channel == "murder:money") {
