@@ -64,14 +64,17 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
     init {
         if (stat == null) {
-            this.stat = Stat(UUID.fromString(session.userId), 0, 0, 0, 0, 0, 0, 2, true, 1,
+            this.stat = Stat(
+                UUID.fromString(session.userId), 0, 0, 0, 0, 0, 0, 2, true, 1,
                 arrayListOf(), arrayListOf(
-                KillMessage.NONE,
-                StepParticle.NONE,
-                DeathImage.NONE,
-                NameTag.NONE,
-                Corpse.NONE,
-            ),
+                    KillMessage.NONE,
+                    StepParticle.NONE,
+                    DeathImage.NONE,
+                    NameTag.NONE,
+                    Corpse.NONE,
+                    ArrowParticle.NONE,
+                    Mask.NONE,
+                ),
                 KillMessage.NONE,
                 StepParticle.NONE,
                 DeathImage.NONE,

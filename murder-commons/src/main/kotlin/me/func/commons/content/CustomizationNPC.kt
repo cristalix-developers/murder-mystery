@@ -55,10 +55,10 @@ class CustomizationNPC {
             override fun init(player: Player, contents: InventoryContents) {
                 contents.setLayout(
                     "XXXXXXXXX",
-                    "XLKPCIOFX",
-                    "XXQXXXWXX",
+                    "XSXCXDXHX",
                     "XXXXXXXXX",
-                    "XXHXSXDXX",
+                    "XLKPWIQFX",
+                    "XXXXOXXXX",
                     "XXXXQXXXX",
                 )
 
@@ -66,8 +66,9 @@ class CustomizationNPC {
                 val stat = user.stat
 
                 contents.add('Q', ClickableItem.of(item {
-                    type = Material.ARROW
-                    text("§bЭффекты выстрела\n\n§7Выберите эффект, который\n§7останется после выстрела.")
+                    type = Material.CLAY_BALL
+                    nbt("marioparty", "bowspleef")
+                    text("§bЭффекты выстрела НОВОЕ!\n\n§7Выберите эффект, который\n§7останется после выстрела.")
                 }.build()) {
                     subInventory(player, 3) { _: Player, currentContent: InventoryContents ->
                         currentContent.setLayout(
@@ -82,9 +83,9 @@ class CustomizationNPC {
                 })
 
                 contents.add('W', ClickableItem.of(item {
-                    type = Material.SKULL_ITEM
-                    data = 3
-                    text("§bМаски\n\n§7Выберите маску, которая\n§7скроет вашу личность.")
+                    type = Material.CLAY_BALL
+                    nbt("brawl", "jessie")
+                    text("§bМаски НОВОЕ!\n\n§7Выберите маску, которая\n§7скроет вашу личность.")
                 }.build()) {
                     subInventory(player, 6) { _: Player, currentContent: InventoryContents ->
                         currentContent.setLayout(
@@ -162,6 +163,8 @@ class CustomizationNPC {
                 })
                 contents.add('C', ClickableItem.of(item {
                     type = Material.CLAY_BALL
+                    enchant(Enchantment.LUCK, 0)
+                    nbt("HideFlags", 63)
                     nbt("other", "new_lvl_rare_close")
                     text("§bМонеты\n\n§7Приобретите монеты,\n§7и ни в чем себе\n§7не отказывайте.")
                 }.build()) {
