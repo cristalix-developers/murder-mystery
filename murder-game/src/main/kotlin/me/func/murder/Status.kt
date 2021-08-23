@@ -64,6 +64,8 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         player.inventory.clear()
                         player.itemOnCursor = null
                         player.openInventory.topInventory.clear()
+                        val user = me.func.murder.murder.getUser(player)
+                        user.stat.mask.setMask(user)
                     }
                 }
                 // Список игроков Murder

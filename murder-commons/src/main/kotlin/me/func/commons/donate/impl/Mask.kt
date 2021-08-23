@@ -37,29 +37,11 @@ enum class Mask(private val title: String, private val price: Int, private val r
         Rare.COMMON,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzRjZTNkMTAwZGQ5NTNiODk2ZTFjOTQ0MGExMjI5N2YzMDExMGEzODg5YzQ5Y2UxOWNmOGI4YzA2MDRmY2M5ZSJ9fX0="
     ),
-    HAZMAT_SUIT(
-        "Защитный комплект",
-        192,
-        Rare.COMMON,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGRjY2VhZDIyZDZhZGJmZjc2NGNhMzE1ZTIxOWJiNWYyZjQ1N2NiNWM0MzAyN2ViY2Y1NzZhN2Y2NzZkNjMifX19"
-    ),
     GAS_MASK(
         "Маска с противогазом",
         192,
         Rare.COMMON,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTFkNDNmZTM5MGJjMjA3MjZjNmU5ZGRjNGQ4NDU4YjU4ZGMwNGU4ZmU4OGFmOGJlYTFhMjU2OTY1ODc2MmM5MyJ9fX0="
-    ),
-    GUY_FAWKES(
-        "Маска Гая Фокса",
-        768,
-        Rare.RARE,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzRiODIxNzJjZjNlMzQ1MmQ3MDg2MWRlZGM1YjZhYjE2ODgxZGRjNGJjMjMzMTNiODljYTA3MTYzNDYyYzc5In19fQ=="
-    ),
-    SAW(
-        "Пила",
-        768,
-        Rare.RARE,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ3MDg4MWY3ZmYzODg5ZTI1ODU2NjIxYTU5MmU0MGM5OGRiNjBhODNjOTc2MGFiODAxNjdhNDUxODczMjc1NSJ9fX0="
     ),
     DALLAS(
         "Даллас",
@@ -73,17 +55,29 @@ enum class Mask(private val title: String, private val price: Int, private val r
         Rare.RARE,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNDgzOTJiODg1MjRjNTdjMjk3MTc1N2QwMTcwYjllMDFjZWNhYThhNmUxZThjYmVkY2VmMTIwOGJlMDQxNzhlNCJ9fX0="
     ),
-    DEMON(
-        "Демон",
-        768,
-        Rare.RARE,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDI5NzViNjdjMTlmOWJhMjM0NGY4ZWVlOTU2YzUwMTVhZDYzZDllODhhZDQ4ODJhZTc5MzY5Mzc0ZmIzOTc1In19fQ=="
-    ),
     CHAINS(
         "Чейнс",
         768,
         Rare.RARE,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjIyOWE5MjhjYzQzZmUwN2YwYzFmNDg2MzIwYTU5YjY2NWE1MWJjYmRjYjY1MGUzYTFhZDk3MjE1Mzg3MjVhZCJ9fX0="
+    ),
+    FOXI(
+        "Фокси",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzdhN2M5YTM5M2I4YmRmYjQ0YTc5MWU2OTA5M2Y2NGZiNTY4ZThmZTZjZjQ2M2ZlZGQ4ZmVmZDMxN2Q2ZDMyIn19fQ=="
+    ),
+    CHICA(
+        "Чика",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzE0YWRmYzNkY2NlNmViMmM0NzE4NjUzZThhYTJjY2Y1ODVhM2MyYzczYmU0YjBhZGE5NjdlZTM2YmE3NTVlIn19fQ=="
+    ),
+    BONNIE(
+        "Бонни",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU1ZmZiMTEwZmZhNzg4NWNjMDM3MDVhNGQxYzczNGQ3NTM2MDYzY2EwYmZhYTA1Nzc1NDViYmE4ZDA1YzdiMiJ9fX0="
     ),
     DIVER_HELMET(
         "Водолазный шлем",
@@ -91,41 +85,53 @@ enum class Mask(private val title: String, private val price: Int, private val r
         Rare.RARE,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzE5YzE2NzFiMDQ1ZTg0MDEyMmMyNzQxMWI3YzhiYTNlZDZjNTUxOGE3NjRjY2Q0M2Q1M2FiOWE1OWU5ODY4YSJ9fX0="
     ),
+    RAPHAEL(
+        "Рафаэль",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzU5Yzc3NjQzN2U5OTRhYWNmYWI2MWNkYjVkZmQ2ZTdiOTNiZDkyZjUxMzUzMzk4ZjRhYmNmNzU2ZmEifX19"
+    ),
+    MICHELANGELO(
+        "Микеланджело",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjJlYjVlNTRiZTU2YzE0NGNkZjQzNGUyOWMxNTdiMTk4Zjk0YTkxNzZiYWU4OGRkNjVmMDgxODA1MzQyIn19fQ=="
+    ),
+    LEONARDO(
+        "Леонардо",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWYzMjJjMzY3Y2JhZjI5OTYxNzlkZWQzOGM0Zjk2MmQ1NjljMmNmYzY3MTkwNjQ0N2NmMzRhMDNiNjQ5ZWM1In19fQ=="
+    ),
+    DONATELLO(
+        "Донателло",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODI5Y2NlYWEyNWJhZTdjMWU1YWIyOWM5ZjU4YjJlMTE1NWMxZTJkNTNmZWU5ODVlNzY0MTI5YzA1Njk4In19fQ=="
+    ),
     SCREAM(
         "Крик",
         768,
         Rare.RARE,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzIxOTYxNjQyZDk4Y2I4MDFhMTc2MDhiYTRhMjMyOTc3YjQ2MmVmNjY3OWI5NzhjOWJiNjQ5NWQxNTE2MjczIn19fQ=="
     ),
-    NINJA(
-        "Ниндзя",
-        768,
+    CREWMATE_ORANGE(
+        "Амогус оранжевый",
+        1024,
         Rare.RARE,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTQzZmQyNjdiOGVkN2U4Y2JlY2RmZjdlMDdlNTM4MThjMDA5ZjQzYThjNTQ2NGNjMWNkOTI2ZDQxMTc1N2ZhYyJ9fX0="
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzE5YjE4MzNjMDg2YzQ4ZmI0ZmVmZTIzYjZhY2Q4MWRhMzU5MGI2MWVlZDQwZjM5NmRiZGY3YWE2ODE1OTBhOSJ9fX0="
     ),
-    RAPHAEL(
-        "Рафаэль",
-        2048,
-        Rare.LEGENDARY,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzU5Yzc3NjQzN2U5OTRhYWNmYWI2MWNkYjVkZmQ2ZTdiOTNiZDkyZjUxMzUzMzk4ZjRhYmNmNzU2ZmEifX19"
+    CREWMATE_WHITE(
+        "Амогус белый",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjI0ZGFhODQ5ZmZkMmVlODc4MjkzNDljNzQzNDY1MzIxNTRhOTU3MmVhZTBkZmVkMmJiMjgzMWYxYmQwOTdiIn19fQ=="
     ),
-    MICHELANGELO(
-        "Микеланджело",
-        2048,
-        Rare.LEGENDARY,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjJlYjVlNTRiZTU2YzE0NGNkZjQzNGUyOWMxNTdiMTk4Zjk0YTkxNzZiYWU4OGRkNjVmMDgxODA1MzQyIn19fQ=="
-    ),
-    LEONARDO(
-        "Леонардо",
-        2048,
-        Rare.LEGENDARY,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZWYzMjJjMzY3Y2JhZjI5OTYxNzlkZWQzOGM0Zjk2MmQ1NjljMmNmYzY3MTkwNjQ0N2NmMzRhMDNiNjQ5ZWM1In19fQ=="
-    ),
-    DONATELLO(
-        "Донателло",
-        2048,
-        Rare.LEGENDARY,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvODI5Y2NlYWEyNWJhZTdjMWU1YWIyOWM5ZjU4YjJlMTE1NWMxZTJkNTNmZWU5ODVlNzY0MTI5YzA1Njk4In19fQ=="
+    CREWMATE_YELLOW(
+        "Амогус жёлтый",
+        1024,
+        Rare.RARE,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMmQ0NjczOGU2Y2VkYTY1MmU5ZTdiNzYxNzcwY2ZkMGE4Y2FkZDU1NGNmODdmMjAyZDFlMWU4N2U3YWYyZWRiYyJ9fX0="
     ),
     JASON(
         "Джейсон",
@@ -133,35 +139,11 @@ enum class Mask(private val title: String, private val price: Int, private val r
         Rare.LEGENDARY,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmUzOWZhM2FlZmY2NzE2Njc1NzFkNjU0MWY2ODVjY2Q2YzljNDE4NWY1ZDNhNWFmNTg3MmVjOTg3OWEyMDQ0In19fQ=="
     ),
-    EVIL_CLOWN(
-        "Злой клоун",
-        2048,
-        Rare.LEGENDARY,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzY1MTI1YzJkYTAwNmYyYjJkOWZlY2M2NjRmMjgzZjEyNDNiYzhkOGM3NTBmYjk2NDc2ZWJhZjY5ODgyYWMzYyJ9fX0="
-    ),
     EMOJI(
         "Эмодзи",
         2048,
         Rare.LEGENDARY,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZGU0ZTk5NGVhY2Y5MGI2MGVlODdiMTBjNTBhY2I4MGRkMWRhZjllZTZmMmM2M2E3OWIwMTE1NGIxNmRjZjBjZiJ9fX0="
-    ),
-    FOXI(
-        "Фокси",
-        2048,
-        Rare.LEGENDARY,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzdhN2M5YTM5M2I4YmRmYjQ0YTc5MWU2OTA5M2Y2NGZiNTY4ZThmZTZjZjQ2M2ZlZGQ4ZmVmZDMxN2Q2ZDMyIn19fQ=="
-    ),
-    CHICA(
-        "Чика",
-        2048,
-        Rare.LEGENDARY,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzE0YWRmYzNkY2NlNmViMmM0NzE4NjUzZThhYTJjY2Y1ODVhM2MyYzczYmU0YjBhZGE5NjdlZTM2YmE3NTVlIn19fQ=="
-    ),
-    BONNIE(
-        "Бонни",
-        2048,
-        Rare.LEGENDARY,
-        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWU1ZmZiMTEwZmZhNzg4NWNjMDM3MDVhNGQxYzczNGQ3NTM2MDYzY2EwYmZhYTA1Nzc1NDViYmE4ZDA1YzdiMiJ9fX0="
     ),
     FREDDY(
         "Фредди",
@@ -174,6 +156,72 @@ enum class Mask(private val title: String, private val price: Int, private val r
         2048,
         Rare.LEGENDARY,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDRmYmI4Y2ZkZjJlZWRmZjBkMTRhZDJjZDkxOWQzZDRmYTEyZTNlZDBmOTk2NzAwOGEzZTM5MzliNDMyMzc3MSJ9fX0="
+    ),
+    CREWMATE_RED(
+        "Амогус красный",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGM0ZDQ0YTBmZmUwMjM0OWU5OWRhMDYyOTIxMzA2MzExM2U2YmIzYWZjMjU5ZjQ2NjE4YzkwZWRjZTgzMDc4NiJ9fX0="
+    ),
+    CREWMATE_PURPLE(
+        "Амогус фиолетовый",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmE4ZWNjM2IzNmU5OWExNmY3NTgyMjA3ZGRkMzc1NjA4NGMwMmIwZmIwYjBhMTllNGQzYThkMjA2NzQwN2Y3ZSJ9fX0="
+    ),
+    CREWMATE_PINK(
+        "Амогус розовый",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTJiMDUwODgwM2MwOTA4OGI3MWQ5NWViZTU3YTM0NWY3NzU0NzMzZDBjOWEyN2Y4YzE0Y2FlY2U1NWY1MjBmZiJ9fX0="
+    ),
+    CREWMATE_LIME(
+        "Амогус лаймовый",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTJlODgzY2QyODdjMTg1NWFmNmE3ZmEyNzZhNzEyNDc3Y2NkMDJiMWRmNGU4NjYzZDFhN2EwYzc1MDM3ZGMxZCJ9fX0="
+    ),
+    SAW(
+        "Пила",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ3MDg4MWY3ZmYzODg5ZTI1ODU2NjIxYTU5MmU0MGM5OGRiNjBhODNjOTc2MGFiODAxNjdhNDUxODczMjc1NSJ9fX0="
+    ),
+    AHRI(
+        "Ари",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjhiYTBlMjQzNzg1MDY2YzYzNWUwYjMzZjdlMmE1NzRiZTE4MGZlMTg5ZDRlZjk5NTM4NWI5MzJkM2NjYTc1OCJ9fX0="
+    ),
+    TIK_TOK(
+        "ТикТок",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmNmMjEwNWJiNzM3NjM4ODMzMDMzZGQ4MjQ0MDcxZTc1ODcwZTJlMTFjMjYxN2U1NDJlODkyNGZiMmI5MDE4MCJ9fX0="
+    ),
+    ANONIMUS(
+        "Анонимус",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvN2I4MDlhYzk5ODNjZTJlMjYxOTY1OTQ5NGU5NWE5OTRmYTZjOTEzNGY1OTFiOGE1NmY3NGU4NjZkMjk0YSJ9fX0="
+    ),
+    ANONIMUS3(
+        "Маска Анонимус",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjFjNDc2NDNkZDRmOTU5NWFmMmY5YmY1ODNhN2YyNjgzZmE1MzdhNzIwMmM4M2UzY2Y2NDM5MTYwNzg5Zjc1YSJ9fX0="
+    ),
+    STAR_PLATINUM(
+        "Стар Платинум",
+        4096,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNTZkZDFhNmU1N2YwYjNmMjc4OGViNzRkZTUwMmRmZjYxMTQ2NzQ1MWM4ZjEwYTk0YWViZjczYjAyMjk4ZjE5MyJ9fX0="
+    ),
+    ANONIMUS2(
+        "Элитный Анонимус",
+        8192,
+        Rare.LEGENDARY,
+        "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjliMGEzZTRjMGRjODFmNTRiNWEyZGI1NWNjNWM0OTFmNjQ1NWNlMWY5NDczZjk3MDU0NmQ1NjkyZWY4ZDFjIn19fQ=="
     ),
     ;
 
@@ -193,7 +241,7 @@ enum class Mask(private val title: String, private val price: Int, private val r
         val skull = SkullManager.create(url)
         val meta = skull.itemMeta
 
-        val lore = listOf("","§fРедкость: ${rare.getColored()}", "§fСтоимость: ${MoneyFormatter.texted(price)}")
+        val lore = listOf("","§fРедкость: ${rare.getColored()}", "§fЦена: ${MoneyFormatter.texted(price)}")
         meta.lore = lore
 
         skull.itemMeta = meta

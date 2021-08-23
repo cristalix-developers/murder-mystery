@@ -88,7 +88,7 @@ class CustomizationNPC {
                 }.build()) {
                     subInventory(player, 6) { _: Player, currentContent: InventoryContents ->
                         currentContent.setLayout(
-                            "XXXXXXXXX",
+                            "XIIIIIIIX",
                             "XIIIIIIIX",
                             "XIIIIIIIX",
                             "XIIIIIIIX",
