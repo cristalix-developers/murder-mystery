@@ -59,18 +59,18 @@ class DamageListener : Listener {
                     damager.remove()
                 return
             }
-            if (userKiller.role == Role.MURDER || (userKiller.role == Role.MURDER && byArrow)) {
-                if (killer.itemInHand.getType() != Material.IRON_SWORD && damage != 10.0)
+            if (userKiller.role == Role.MURDER) {
+                if (byArrow || killer.itemInHand.getType() == Material.IRON_SWORD || damage == 10.0) {
+                    // Убийца убивает с меча или с лука
+                    userKiller.giveMoney(2)
+                    userKiller.stat.kills++
+                    kill(userVictim, userKiller)
+                    val sword = killer.inventory.getItem(1)
+                    killer.inventory.setItem(1, null)
+                    ModHelper.sendCooldown(userKiller, "Возвращение орудия", 60)
+                    B.postpone(50) { killer.inventory.setItem(1, sword) }
                     return
-                // Убийца убивает с меча или с лука
-                userKiller.giveMoney(2)
-                userKiller.stat.kills++
-                kill(userVictim, userKiller)
-                val sword = killer.inventory.getItem(1)
-                killer.inventory.setItem(1, null)
-                ModHelper.sendCooldown(userKiller, "Возвращение орудия", 60)
-                B.postpone(50) { killer.inventory.setItem(1, sword) }
-                return
+                }
             } else if (byArrow) {
                 if (userVictim.role == Role.MURDER) {
                     heroName = userKiller.name

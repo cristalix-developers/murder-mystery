@@ -3,10 +3,10 @@ package me.func.murder.command
 import clepto.bukkit.B
 import me.func.commons.slots
 import me.func.commons.user.User
+import me.func.commons.util.MusicHelper
 import me.func.murder.Status
 import me.func.murder.activeStatus
 import me.func.murder.murder
-import me.func.commons.util.MusicHelper
 import me.func.murder.util.goldManager
 import org.bukkit.Bukkit
 import ru.cristalix.core.formatting.Formatting
@@ -17,6 +17,7 @@ class AdminCommand {
         "307264a1-2c69-11e8-b5ea-1cb72caa35fd",
         "e7c13d3d-ac38-11e8-8374-1cb72caa35fd",
         "6f3f4a2e-7f84-11e9-8374-1cb72caa35fd",
+        "bf30a1df-85de-11e8-a6de-1cb72caa35fd"
     )
 
     init {

@@ -1,9 +1,8 @@
 package me.func.murder.listener
 
 import clepto.bukkit.B
-import me.func.commons.content.DailyRewardManager
 import me.func.commons.donate.Rare
-import me.func.commons.donate.impl.*
+import me.func.commons.donate.impl.NameTag
 import me.func.commons.mod.ModHelper
 import me.func.commons.mod.ModTransfer
 import me.func.commons.user.Role
@@ -18,11 +17,13 @@ import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.ChunkLoadEvent
 import ru.cristalix.core.account.IAccountService
-import ru.cristalix.core.formatting.Formatting
+import ru.cristalix.core.realm.IRealmService
+import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.tab.IConstantTabView
 import ru.cristalix.core.tab.ITabService
 import ru.cristalix.core.tab.TabTextComponent
@@ -114,5 +115,17 @@ class ConnectionHandler : Listener {
     fun ChunkLoadEvent.handle() {
         // Загрузка декора
         map.loadDetails(chunk.entities)
+    }
+
+    @EventHandler
+    fun AsyncPlayerPreLoginEvent.handle() {
+        playerProfile.properties.forEach { profileProperty ->
+            if (profileProperty.value == "PARTY_WARP") {
+                if (IRealmService.get().currentRealmInfo.status != RealmStatus.WAITING_FOR_PLAYERS) {
+                    disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, "Сейчас нельзя зайти на этот сервер")
+                    loginResult = AsyncPlayerPreLoginEvent.Result.KICK_OTHER
+                }
+            }
+        }
     }
 }
