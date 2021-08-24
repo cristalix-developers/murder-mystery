@@ -36,7 +36,7 @@ enum class MapType(
         "Аутласт", 2, Music.OUTLAST, "hall", "6f3f4a2e-7f84-11e9-8374-1cb72caa35fd", MapData(
             "OUTLAST",
             43.0, -16.0,
-            "mcpatcher/cit/others/colors/a.png",
+            "mcpatcher/cit/others/mod items/gem_ruby.png",
             "1.png",
             128.0,
             arrayListOf()
@@ -306,13 +306,13 @@ enum class MapType(
         })
     ),
     PORT(
-        "Порт", 4, Music.OUTLAST, "Port", "6f3f4a2e-7f84-11e9-8374-1cb72caa35fd",
+        "Порт", 4, Music.PORT, "Port", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
         MapData(
-            "OUTLAST",
-            43.0, -16.0,
-            "mcpatcher/cit/others/colors/a.png",
-            "1.png",
-            128.0,
+            "PORT",
+            107.0, 69.0,
+            "mcpatcher/cit/others/mod items/gem_ruby.png",
+            "port.png",
+            256.0,
             arrayListOf()
         ), arrayListOf()
     ), ;

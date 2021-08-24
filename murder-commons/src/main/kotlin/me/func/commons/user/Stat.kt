@@ -33,5 +33,8 @@ data class Stat(
     var timePlayedTotal: Long,
     var lastEnter: Long,
 
+    var dailyClaimTimestamp: Long,
+    var rewardStreak: Int,
+
     var lastSeenName: String?,
 )

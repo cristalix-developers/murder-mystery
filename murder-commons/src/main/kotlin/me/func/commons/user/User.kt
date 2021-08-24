@@ -84,7 +84,9 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
                 Mask.NONE,
                 0,
                 0,
-                ""
+                0,
+                0,
+                "",
             )
         } else {
             if (stat.activeKillMessage == null)

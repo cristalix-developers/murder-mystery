@@ -10,6 +10,7 @@ import me.func.commons.donate.impl.*
 import me.func.commons.getByPlayer
 import me.func.commons.realm
 import me.func.commons.user.User
+import me.func.commons.util.MusicHelper
 import me.func.commons.util.ParticleHelper
 import me.func.commons.worldMeta
 import org.bukkit.Material
@@ -110,6 +111,7 @@ class CustomizationNPC {
                             "§7Убийств: §c${stat.kills}\n" +
                             "§7Сыграно: §f${stat.games} §7игр(ы)\n" +
                             "§7Победы: §b${stat.wins}\n" +
+                            "§7Streak ежедневных наград: §e${stat.rewardStreak}\n" +
                             "§7Лутбоксов открыто: §f${stat.lootboxOpenned}\n" +
                             "§7Лутбоксов: §b${stat.lootbox}\n" +
                             "§7Награды: §f${stat.achievement.size}§7/${Achievement.values().size}\n\n" +
@@ -194,7 +196,7 @@ class CustomizationNPC {
                 })
                 val musicOn = stat.music
                 contents.add('F', ClickableItem.of(item {
-                    if (user.stat.music) {
+                    if (stat.music) {
                         type = Material.CLAY_BALL
                         nbt("simulators", "winter_disc")
                         text("§cВыключить музыку")
@@ -204,6 +206,9 @@ class CustomizationNPC {
                     }
                 }.build()) {
                     stat.music = !musicOn
+                    if (!stat.music) {
+                        MusicHelper.stop(user)
+                    }
                     player.closeInventory()
                     player.sendMessage(Formatting.fine(if (musicOn) "Музыка выключена." else "Музыка снова включена."))
                 })

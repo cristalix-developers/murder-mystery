@@ -12,6 +12,7 @@ enum class Music(private val url: String) {
     OUTLAST("https://implario.dev/murder/game.mp3"),
     FIELD("https://implario.dev/murder/field.mp3"),
     LOBBY("https://implario.dev/murder/waiting.mp3"),
+    PORT("https://implario.dev/murder/port.mp3"),
     VILLAGER_WIN("https://implario.dev/murder/win.mp3")
     ;
 

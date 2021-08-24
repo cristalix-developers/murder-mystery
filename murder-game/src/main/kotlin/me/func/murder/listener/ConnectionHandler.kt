@@ -1,8 +1,9 @@
 package me.func.murder.listener
 
 import clepto.bukkit.B
+import me.func.commons.content.DailyRewardManager
 import me.func.commons.donate.Rare
-import me.func.commons.donate.impl.NameTag
+import me.func.commons.donate.impl.*
 import me.func.commons.mod.ModHelper
 import me.func.commons.mod.ModTransfer
 import me.func.commons.user.Role
@@ -15,14 +16,13 @@ import me.func.murder.map
 import me.func.murder.murder
 import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.GameMode
-import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.ChunkLoadEvent
-import org.bukkit.inventory.ItemStack
 import ru.cristalix.core.account.IAccountService
+import ru.cristalix.core.formatting.Formatting
 import ru.cristalix.core.tab.IConstantTabView
 import ru.cristalix.core.tab.ITabService
 import ru.cristalix.core.tab.TabTextComponent
@@ -90,24 +90,6 @@ class ConnectionHandler : Listener {
                 .integer(3 * (1 + user.stat.villagerStreak))
                 .string(map.title)
                 .send("murder-join", user)
-
-            ModTransfer()
-                .integer(4)
-                .item(ItemStack(Material.POTION))
-                .string("1")
-                .item(ItemStack(Material.POTION))
-                .string("1")
-                .item(ItemStack(Material.POTION))
-                .string("88")
-                .item(ItemStack(Material.DIAMOND_BLOCK))
-                .string("1")
-                .item(ItemStack(Material.POTION))
-                .string("1")
-                .item(ItemStack(Material.FEATHER))
-                .string("1")
-                .item(ItemStack(Material.POTION))
-                .string("1")
-                .send("murder:weekly-reward", user)
 
             Music.LOBBY.play(user)
         }

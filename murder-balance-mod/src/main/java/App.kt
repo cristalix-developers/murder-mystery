@@ -18,6 +18,8 @@ class App : KotlinMod() {
         UIEngine.registerHandler(HungerRender::class.java) { isCancelled = true }
         UIEngine.registerHandler(ArmorRender::class.java) { isCancelled = true }
 
+        RewardManager()
+
         val balanceText = text {
             content = "§aЗагрузка..."
             origin = BOTTOM_RIGHT

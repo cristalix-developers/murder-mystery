@@ -3,6 +3,8 @@ package me.func.commons.listener
 import clepto.bukkit.B
 import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent
 import io.netty.buffer.Unpooled
+import me.func.commons.content.DailyRewardManager
+import me.func.commons.content.WeekRewards
 import me.func.commons.getByPlayer
 import me.func.commons.mod.ModHelper
 import me.func.commons.worldMeta
@@ -21,6 +23,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.*
 import ru.cristalix.core.display.DisplayChannels
 import ru.cristalix.core.display.messages.Mod
+import ru.cristalix.core.formatting.Formatting
 import java.io.File
 import java.nio.file.Files
 import java.util.*
@@ -54,9 +57,10 @@ class GlobalListeners : Listener {
             spawn = dot.add(0.5, 0.0, 0.5)
         }
 
+        val user = getByPlayer(player)
+
         // Отправка модов
         B.postpone(1) {
-            val user = getByPlayer(player)
 
             player.teleport(spawn)
             modList.forEach {
@@ -68,6 +72,22 @@ class GlobalListeners : Listener {
                 )
             }
             ModHelper.updateBalance(user)
+        }
+        B.postpone(10) {
+            val now = System.currentTimeMillis()
+            // Обнулить комбо сбора наград если прошло больше суток или комбо >7
+            if ((user.stat.rewardStreak > 0 && now - user.stat.lastEnter > 24 * 60 * 60 * 1000) || user.stat.rewardStreak > 6) {
+                user.stat.rewardStreak = 0
+            }
+            if (now - user.stat.dailyClaimTimestamp > 14 * 60 * 60 * 1000) {
+                user.stat.dailyClaimTimestamp = now
+                DailyRewardManager.open(user)
+
+                val dailyReward = WeekRewards.values()[user.stat.rewardStreak]
+                player.sendMessage(Formatting.fine("Ваша ежедневная награда: " + dailyReward.title))
+                dailyReward.give(user)
+                user.stat.rewardStreak++
+            }
         }
     }
 

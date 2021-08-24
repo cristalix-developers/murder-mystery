@@ -118,7 +118,7 @@ class App : JavaPlugin(), Listener {
                         .strings(
                             listOf(
                                 StringDrawData.builder().align(1).scale(2).position(V2(115.0, 0.0))
-                                    .string(if (map == MapType.OUTLAST) "㗬㗬㗬" else "§e(тест)")
+                                    .string("㗬㗬㗬")
                                     .build(),
                                 StringDrawData.builder().align(1).scale(3).position(V2(115.0, 40.0))
                                     .string("§b" + map.title).build()
