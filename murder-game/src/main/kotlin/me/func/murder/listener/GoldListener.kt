@@ -11,7 +11,6 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent
 import org.bukkit.event.player.PlayerPickupArrowEvent
-import org.bukkit.event.player.PlayerPickupItemEvent
 
 class GoldListener : Listener {
 
@@ -35,10 +34,10 @@ class GoldListener : Listener {
             return
         }
         val itemStack = player.inventory.getItem(8)
+        val user = murder.getUser(player)
+        user.giveMoney(1)
         if (itemStack != null) {
             player.inventory.addItem(gold)
-            val user = murder.getUser(player)
-            user.giveMoney(1)
             if (itemStack.getAmount() == 10 && user.role != Role.DETECTIVE) {
                 player.inventory.remove(Material.GOLD_INGOT)
                 player.inventory.setItem(if (user.role == Role.MURDER) 2 else 1, bow)
