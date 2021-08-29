@@ -44,7 +44,7 @@ jar {
 }
 
 bundler {
-    name 'Murder Balance'
+    name 'Murder Balance & Rewards'
     mainClass 'App'
     version '1.0'
     author 'func'

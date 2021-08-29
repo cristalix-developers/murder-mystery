@@ -22,8 +22,20 @@ class Map {
         UIEngine.registerHandler(PluginMessage::class.java) {
             if (channel == "murder:map-load") {
                 mapData = gson.fromJson(NetUtil.readUtf8(data, 65536), MapData::class.java)
-                minimap = createMinimap(mapData)
-                started = true
+                if (mapData.title == "PORT") {
+                    loadTextures(
+                        load(
+                            mapData.mapTexturePath,
+                            "088231085F83D889062812" + mapData.title[0].toUpperCase()
+                        )
+                    ).thenRun {
+                        minimap = createMinimap(mapData)
+                        started = true
+                    }
+                } else {
+                    minimap = createMinimap(mapData)
+                    started = true
+                }
             }
         }
 
@@ -48,17 +60,8 @@ class Map {
                     mapData.maxX = 43.0
                     mapData.maxZ = -16.0
                 }
-                minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
-            } else {
-                loadTextures(
-                    load(
-                        mapData.mapTexturePath,
-                        "088231085F83D889062812" + mapData.title[0].toUpperCase()
-                    )
-                ).thenRun {
-                    minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
-                }
             }
+            minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
         }
 
         UIEngine.registerHandler(RenderTickPre::class.java) {

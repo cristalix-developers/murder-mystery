@@ -1,7 +1,6 @@
 package me.func.murder.listener
 
 import clepto.bukkit.B
-import me.func.commons.content.DailyRewardManager
 import me.func.commons.donate.Rare
 import me.func.commons.donate.impl.*
 import me.func.commons.mod.ModHelper
@@ -22,7 +21,6 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.world.ChunkLoadEvent
 import ru.cristalix.core.account.IAccountService
-import ru.cristalix.core.formatting.Formatting
 import ru.cristalix.core.tab.IConstantTabView
 import ru.cristalix.core.tab.ITabService
 import ru.cristalix.core.tab.TabTextComponent

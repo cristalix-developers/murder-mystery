@@ -2,6 +2,7 @@ package me.func.murder.listener
 
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
+import me.func.commons.app
 import me.func.commons.arrow
 import me.func.commons.donate.impl.Corpse
 import me.func.commons.donate.impl.KillMessage
@@ -26,6 +27,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.player.PlayerInteractEvent
+import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.util.EulerAngle
 
@@ -103,6 +105,12 @@ class DamageListener : Listener {
                 B.postpone(100) { user.player!!.inventory.setItem(20, arrow) }
             }
         }
+    }
+
+    @EventHandler
+    fun PlayerMoveEvent.handle() {
+        if (player.gameMode != GameMode.SPECTATOR && to.block.type == Material.WATER)
+            kill(murder.getUser(player), null)
     }
 
     private fun kill(victim: User, killer: User?) {

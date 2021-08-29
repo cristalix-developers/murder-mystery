@@ -78,10 +78,10 @@ enum class MapType(
 
                 override fun interact(user: User) {
                     drop =
-                        StandardsInteract.dropSomething(drop, dropShelf, stableShelf, Material.BOOKSHELF, Material.AIR)
+                        StandardsInteract.dropAndExplode(drop, dropShelf, stableShelf, Material.BOOKSHELF, Material.AIR)
                     B.postpone(20 * 30) {
                         drop = false
-                        StandardsInteract.dropSomething(drop, dropShelf, stableShelf, Material.AIR, Material.BOOKSHELF)
+                        StandardsInteract.dropAndExplode(drop, dropShelf, stableShelf, Material.AIR, Material.BOOKSHELF)
                     }
                 }
             }, object : BlockInteract(V3(-3.0, 126.0, -61.0), 1, "Спуститься") {
@@ -146,7 +146,7 @@ enum class MapType(
             override fun interact(user: User) {
                 user.player!!.inventory.setItem(3, syringe)
             }
-        }, object : BlockInteract(V3(1.0, 101.0, -7.0), 5, "Сломать мост") {
+        }, object : BlockInteract(V3(1.0, 101.0, -7.0), 3, "Сломать мост") {
             var broken = false
             val breakList = listOf(
                 V3(2.0, 100.0, -7.0),
@@ -156,7 +156,7 @@ enum class MapType(
                 V3(0.0, 100.0, -7.0),
                 V3(-1.0, 100.0, -7.0)
             )
-            val setBack = mutableListOf<Pair<Int, Byte>>()
+            var setBack = mutableListOf<Pair<Int, Byte>>()
 
             override fun trigger(event: PlayerInteractEvent): Boolean {
                 return super.trigger(event) && !broken
@@ -164,13 +164,7 @@ enum class MapType(
 
             override fun interact(user: User) {
                 broken = true
-                breakList.map { UtilV3.toLocation(it, worldMeta.world) }
-                    .forEach {
-                        val block = it.block.type
-                        setBack.add(block.id to it.block.data)
-                        it.block.setTypeAndDataFast(0, 0)
-                        it.world.spawnFallingBlock(it, block, 1)
-                    }
+                setBack = StandardsInteract.drop(breakList)
                 // Когда игра закончится вернуть все как было
                 Cycle.run(20 * 30, 25) {
                     if (Bukkit.getOnlinePlayers().isEmpty()) {
@@ -314,7 +308,40 @@ enum class MapType(
             "port.png",
             256.0,
             arrayListOf()
-        ), arrayListOf()
+        ), listOf(object : BlockInteract(V3(77.5, 91.0, -9.5), 4, "Сломать мост") {
+            var broken = false
+            val breakList = listOf(
+                V3(78.0, 89.0, -9.0),
+                V3(77.0, 89.0, -9.0),
+                V3(76.0, 89.0, -9.0),
+                V3(78.0, 89.0, -10.0),
+                V3(77.0, 89.0, -10.0),
+                V3(76.0, 89.0, -10.0),
+            )
+            var setBack = mutableListOf<Pair<Int, Byte>>()
+
+            override fun trigger(event: PlayerInteractEvent): Boolean {
+                return super.trigger(event) && !broken
+            }
+
+            override fun interact(user: User) {
+                broken = true
+                setBack = StandardsInteract.drop(breakList)
+                // Когда игра закончится вернуть все как было
+                Cycle.run(20 * 30, 25) {
+                    if (Bukkit.getOnlinePlayers().isEmpty()) {
+                        broken = false
+                        breakList.map { UtilV3.toLocation(it, worldMeta.world) }
+                            .forEachIndexed { index, location ->
+                                val currentBlock = setBack[index]
+                                location.block.setTypeAndDataFast(currentBlock.first, currentBlock.second)
+                            }
+                        setBack.clear()
+                        Cycle.exit()
+                    }
+                }
+            }
+        })
     ), ;
 
     fun loadDetails(entities: Array<Entity>) {
