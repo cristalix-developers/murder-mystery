@@ -2,7 +2,6 @@ package me.func.murder
 
 import clepto.bukkit.B
 import clepto.cristalix.Cristalix
-import dev.implario.bukkit.item.item
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.commons.*
@@ -13,23 +12,13 @@ import me.func.commons.listener.GlobalListeners
 import me.func.commons.map.MapType
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
-import me.func.commons.util.Music
-import org.bukkit.Material
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.block.BlockPhysicsEvent
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
 import ru.cristalix.core.display.data.DataDrawData
 import ru.cristalix.core.display.data.StringDrawData
-import ru.cristalix.core.formatting.Formatting
 import ru.cristalix.core.math.V2
 import ru.cristalix.core.math.V3
 import ru.cristalix.core.realm.RealmId
@@ -47,35 +36,13 @@ lateinit var murder: App
 
 class App : JavaPlugin(), Listener {
 
-    private lateinit var cosmeticItem: ItemStack
-    private lateinit var startItem: ItemStack
-    private lateinit var backItem: ItemStack
-
     override fun onEnable() {
         B.plugin = this
         murder = this
         Platforms.set(PlatformDarkPaper())
-        B.events(this, GlobalListeners(), Lootbox())
+        B.events(this, GlobalListeners(), Lootbox(), LobbyHandler)
         MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load("lobby"), 200)
         CoreApi.get().registerService(IRenderService::class.java, BukkitRenderService(getServer()))
-        cosmeticItem = item {
-            type = Material.CLAY_BALL
-            text("§aПерсонаж")
-            nbt("other", "clothes")
-            nbt("click", "menu")
-        }.build()
-        startItem = item {
-            type = Material.CLAY_BALL
-            text("§bИграть")
-            nbt("other", "guild_members")
-            nbt("click", "next")
-        }.build()
-        backItem = item {
-            type = Material.CLAY_BALL
-            text("§cВыйти")
-            nbt("other", "cancel")
-            nbt("click", "leave")
-        }.build()
 
         // Конфигурация реалма
         realm.isLobbyServer = true
@@ -141,46 +108,11 @@ class App : JavaPlugin(), Listener {
         }, "leave")
     }
 
-    private fun getUser(player: Player): User {
+    fun getUser(player: Player): User {
         return getUser(player.uniqueId)
     }
 
     private fun getUser(uuid: UUID): User {
         return userManager.getUser(uuid)
-    }
-
-    @EventHandler
-    fun EntityDamageEvent.handle() {
-        cancelled = true
-    }
-
-    @EventHandler
-    fun BlockPhysicsEvent.handle() {
-        isCancelled = true
-    }
-
-    @EventHandler
-    fun PlayerInteractEvent.handle() {
-        if (item == null)
-            return
-        val nmsItem = CraftItemStack.asNMSCopy(item)
-        if (nmsItem.hasTag() && nmsItem.tag.hasKeyOfType("click", 8))
-            player.performCommand(nmsItem.tag.getString("click"))
-    }
-
-    @EventHandler
-    fun PlayerJoinEvent.handle() {
-        B.postpone(25) {
-            val user = getUser(player)
-            Music.LOBBY.play(user)
-            user.sendPlayAgain("§aПопробовать!", MapType.OUTLAST)
-        }
-
-        player.inventory.setItem(0, startItem)
-        player.inventory.setItem(4, cosmeticItem)
-        player.inventory.setItem(8, backItem)
-
-        if (Math.random() < 0.4)
-            player.sendMessage(Formatting.fine("Рекомендуем сделать §eминимальную яркость §fи §bвключить звуки§f для полного погружения."))
     }
 }

@@ -24,10 +24,8 @@ class Map {
                 mapData = gson.fromJson(NetUtil.readUtf8(data, 65536), MapData::class.java)
                 if (mapData.title == "PORT") {
                     loadTextures(
-                        load(
-                            mapData.mapTexturePath,
-                            "088231085F83D889062812" + mapData.title[0].toUpperCase()
-                        )
+                        load(mapData.mapTexturePath,
+                            "088231085F83D889062812" + mapData.title[0].toUpperCase())
                     ).thenRun {
                         minimap = createMinimap(mapData)
                         started = true
