@@ -19,12 +19,12 @@ import java.util.function.Consumer
 class PlayerBalancer(private val server: String, private val maxPlayers: Int) : BiConsumer<Player, MapType> {
 
     @Throws(InterruptedException::class, ExecutionException::class)
-    private fun play(player: Player, mapType: MapType) {
+    private fun play(player: Player) {
         val party: Optional<*> = IPartyService.get().getPartyByMember(player.uniqueId).get()
         if (party.isPresent) {
             val party1 = party.get() as PartySnapshot
             if (party1.leader == player.uniqueId) {
-                val realm = getRealm(server, party1.members.size, mapType)
+                val realm = getRealm(server, party1.members.size)
                 if (realm.isPresent) {
                     val realmInfo = IRealmService.get().getRealmById(realm.get())
                     if (realmInfo.currentPlayers + party1.members.size <= realmInfo.maxPlayers
@@ -51,7 +51,7 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
                 )
             }
         } else {
-            val realmId = getRealm(server, 1, mapType)
+            val realmId = getRealm(server, 1)
             if (realmId.isPresent) {
                 ITransferService.get().transfer(player.uniqueId, realmId.get())
             } else {
@@ -63,13 +63,12 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
         }
     }
 
-    private fun getRealm(realm: String, mintoJoin: Int, mapType: MapType): Optional<RealmId> {
+    private fun getRealm(realm: String, mintoJoin: Int): Optional<RealmId> {
         var maxRealm: RealmInfo? = null
         var minRealm: RealmInfo? = null
         for (realmInfo in IRealmService.get().getRealmsOfType(realm)) {
             if (realmInfo.status != RealmStatus.GAME_STARTED_CAN_JOIN
                 || realmInfo.currentPlayers + mintoJoin > realmInfo.maxPlayers
-                || realmInfo.realmId.id % 10 != mapType.realmMod
             ) {
                 continue
             }
@@ -92,7 +91,7 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
 
     override fun accept(player: Player, mapType: MapType) {
         try {
-            play(player, mapType)
+            play(player)
         } catch (e: ExecutionException) {
             e.printStackTrace()
         } catch (e: InterruptedException) {
