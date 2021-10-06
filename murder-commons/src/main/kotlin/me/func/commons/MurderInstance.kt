@@ -20,6 +20,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
+import ru.cristalix.core.datasync.EntityDataParameters
 import ru.cristalix.core.inventory.IInventoryService
 import ru.cristalix.core.inventory.InventoryService
 import ru.cristalix.core.network.ISocketClient
@@ -30,6 +31,7 @@ import ru.cristalix.core.realm.RealmInfo
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
+import java.awt.SystemColor.text
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -55,6 +57,12 @@ val arrow: ItemStack = item {
     type = Material.ARROW
     text("§bСтрела")
 }.build()
+val light: ItemStack = item {
+    type = Material.CLAY_BALL
+    nbt("thief", "4")
+    text("§6Фонарик §l§eПКМ")
+}.build()
+
 var version = 203
 
 class MurderInstance(
@@ -67,6 +75,7 @@ class MurderInstance(
 
     init {
         app = plugin
+        EntityDataParameters.register()
         worldMeta = meta
 
         // Регистрация сервисов
@@ -80,7 +89,6 @@ class MurderInstance(
         realm = IRealmService.get().currentRealmInfo
         realm.status = RealmStatus.WAITING_FOR_PLAYERS
         realm.maxPlayers = currentSlot
-        realm.readableName = "Мардер #${realm.realmId.id} v.$version"
         realm.groupName = "MurderMystery"
 
         // Подключение к сервису статистики
@@ -106,13 +114,7 @@ class MurderInstance(
 
         val nextGame = PlayerBalancer("MUR", slots - 4)
         B.regCommand({ player: Player, args ->
-            nextGame.accept(
-                player, try {
-                    MapType.valueOf(args[0])
-                } catch (exception: Exception) {
-                    MapType.OUTLAST
-                }
-            )
+            nextGame.accept(player, true)
             null
         }, "next")
     }

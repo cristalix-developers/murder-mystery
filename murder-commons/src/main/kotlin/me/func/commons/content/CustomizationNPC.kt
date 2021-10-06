@@ -284,7 +284,7 @@ class CustomizationNPC {
         Npcs.spawn(
             Npc.builder()
                 .location(npcLabel.add(0.5, 0.0, 0.5))
-                .name("§d§lMurder§f§lMystery")
+                .name("§dПерсонализация")
                 .behaviour(NpcBehaviour.STARE_AT_PLAYER)
                 .skinUrl("https://webdata.c7x.dev/textures/skin/307264a1-2c69-11e8-b5ea-1cb72caa35fd")
                 .skinDigest("307264a1-2c69-11e8-b5ea1cb72caa35fd")

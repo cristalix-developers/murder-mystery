@@ -1,25 +1,19 @@
-package me.func.murder.listener
+package listener
 
+import Status
+import activeStatus
 import clepto.bukkit.B
+import map
 import me.func.commons.donate.Rare
-import me.func.commons.donate.impl.*
-import me.func.commons.mod.ModHelper
+import me.func.commons.donate.impl.NameTag
 import me.func.commons.mod.ModTransfer
-import me.func.commons.user.Role
 import me.func.commons.util.Music
-import me.func.commons.util.MusicHelper
-import me.func.commons.worldMeta
-import me.func.murder.Status
-import me.func.murder.activeStatus
-import me.func.murder.map
-import me.func.murder.murder
+import murder
 import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.world.ChunkLoadEvent
 import ru.cristalix.core.account.IAccountService
 import ru.cristalix.core.tab.IConstantTabView
 import ru.cristalix.core.tab.ITabService
@@ -32,7 +26,7 @@ import java.util.concurrent.TimeUnit
 var tab: ITabService = ITabService.get()
 val tabView: IConstantTabView = tab.createConstantTabView()
 
-class ConnectionHandler : Listener {
+object JoinListener : Listener {
 
     init {
         // Таб
@@ -43,7 +37,8 @@ class ConnectionHandler : Listener {
                 { murder.getUser(it).stat.activeNameTag != NameTag.NONE },
                 { player ->
                     val tag = murder.getUser(player).stat.activeNameTag
-                    CompletableFuture.completedFuture(ComponentBuilder(
+                    CompletableFuture.completedFuture(
+                        ComponentBuilder(
                         if (tag != NameTag.NONE) tag.getRare().with(tag.getTitle()) else "").create())
                 },
                 { player -> CompletableFuture.completedFuture(Rare.values().size + 1 - murder.getUser(player).stat.activeNameTag.getRare().ordinal) },
@@ -71,8 +66,8 @@ class ConnectionHandler : Listener {
         // Информация на моды, музыка
         B.postpone(5) {
             ModTransfer()
-                .string("§cМаньяк " + 2 * (1 + user.stat.villagerStreak) + "%")
-                .string("§bДетектив " + 3 * (1 + user.stat.villagerStreak) + "%")
+                .string("§cМаньяк 20%")
+                .string("§aЖертва 80%")
                 .string(map.title)
                 .send("murder-join", user)
 
@@ -80,24 +75,4 @@ class ConnectionHandler : Listener {
         }
     }
 
-    @EventHandler
-    fun PlayerQuitEvent.handle() {
-        val user = murder.getUser(player)
-
-        user.stat.timePlayedTotal += System.currentTimeMillis() - user.stat.lastEnter
-
-        MusicHelper.stop(user)
-
-        player.scoreboard.teams.forEach { it.unregister() }
-
-        if (activeStatus == Status.GAME && user.role == Role.VILLAGER) {
-            user.stat.villagerStreak = 0
-        }
-    }
-
-    @EventHandler
-    fun ChunkLoadEvent.handle() {
-        // Загрузка декора
-        map.loadDetails(chunk.entities)
-    }
 }

@@ -22,7 +22,7 @@ class Map {
         UIEngine.registerHandler(PluginMessage::class.java) {
             if (channel == "murder:map-load") {
                 mapData = gson.fromJson(NetUtil.readUtf8(data, 65536), MapData::class.java)
-                if (mapData.title == "PORT") {
+                if (mapData.title != "OUTLAST") {
                     loadTextures(
                         load(
                             mapData.mapTexturePath,

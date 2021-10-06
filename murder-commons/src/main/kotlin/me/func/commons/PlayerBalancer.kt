@@ -16,61 +16,21 @@ import java.util.concurrent.ExecutionException
 import java.util.function.BiConsumer
 import java.util.function.Consumer
 
-class PlayerBalancer(private val server: String, private val maxPlayers: Int) : BiConsumer<Player, MapType> {
+class PlayerBalancer(private val server: String, private val maxPlayers: Int) : BiConsumer<Player, Boolean> {
 
-    @Throws(InterruptedException::class, ExecutionException::class)
-    private fun play(player: Player, mapType: MapType) {
-        val party: Optional<*> = IPartyService.get().getPartyByMember(player.uniqueId).get()
-        if (party.isPresent) {
-            val party1 = party.get() as PartySnapshot
-            if (party1.leader == player.uniqueId) {
-                val realm = getRealm(server, party1.members.size, mapType)
-                if (realm.isPresent) {
-                    val realmInfo = IRealmService.get().getRealmById(realm.get())
-                    if (realmInfo.currentPlayers + party1.members.size <= realmInfo.maxPlayers
-                    ) {
-                        for (uuid in party1.members) {
-                            ITransferService.get().transfer(uuid, realm.get())
-                        }
-                    } else {
-                        player.spigot().sendMessage(
-                            ChatMessageType.ACTION_BAR,
-                            TextComponent("§3Не найдено свободных серверов")
-                        )
-                    }
-                } else {
-                    player.spigot().sendMessage(
-                        ChatMessageType.ACTION_BAR,
-                        TextComponent("§3Не найдено свободных серверов")
-                    )
-                }
-            } else {
-                player.spigot().sendMessage(
-                    ChatMessageType.ACTION_BAR,
-                    TextComponent("§3Вы должны быть лидером пати")
-                )
-            }
-        } else {
-            val realmId = getRealm(server, 1, mapType)
-            if (realmId.isPresent) {
-                ITransferService.get().transfer(player.uniqueId, realmId.get())
-            } else {
-                player.spigot().sendMessage(
-                    ChatMessageType.ACTION_BAR,
-                    TextComponent("§3Не найдено свободных серверов")
-                )
-            }
+    private fun getRealm(realm: String, mintoJoin: Int, isMurder: Boolean): Optional<RealmId> {
+        if (!isMurder) {
+            val info = IRealmService.get().getRealmsOfType("DBD").first()
+            if (info.status == RealmStatus.WAITING_FOR_PLAYERS &&
+                info.currentPlayers < info.maxPlayers)
+                return Optional.of(info.realmId)
+            return Optional.empty()
         }
-    }
-
-    private fun getRealm(realm: String, mintoJoin: Int, mapType: MapType): Optional<RealmId> {
         var maxRealm: RealmInfo? = null
         var minRealm: RealmInfo? = null
         for (realmInfo in IRealmService.get().getRealmsOfType(realm)) {
             if (realmInfo.status != RealmStatus.GAME_STARTED_CAN_JOIN
-                || realmInfo.currentPlayers + mintoJoin > realmInfo.maxPlayers
-                || realmInfo.realmId.id % 10 != mapType.realmMod
-            ) {
+                || realmInfo.currentPlayers + mintoJoin > realmInfo.maxPlayers) {
                 continue
             }
             if (realmInfo.currentPlayers + mintoJoin <= maxPlayers) {
@@ -90,9 +50,49 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
         return if (maxRealm != null) Optional.of(maxRealm.realmId) else Optional.empty()
     }
 
-    override fun accept(player: Player, mapType: MapType) {
+    override fun accept(player: Player, isMurder: Boolean) {
         try {
-            play(player, mapType)
+            val party: Optional<*> = IPartyService.get().getPartyByMember(player.uniqueId).get()
+            if (party.isPresent) {
+                val party1 = party.get() as PartySnapshot
+                if (party1.leader == player.uniqueId) {
+                    val realm = getRealm(server, party1.members.size, isMurder)
+                    if (realm.isPresent) {
+                        val realmInfo = IRealmService.get().getRealmById(realm.get())
+                        if (realmInfo.currentPlayers + party1.members.size <= realmInfo.maxPlayers
+                        ) {
+                            for (uuid in party1.members) {
+                                ITransferService.get().transfer(uuid, realm.get())
+                            }
+                        } else {
+                            player.spigot().sendMessage(
+                                ChatMessageType.ACTION_BAR,
+                                TextComponent("§3Не найдено свободных серверов")
+                            )
+                        }
+                    } else {
+                        player.spigot().sendMessage(
+                            ChatMessageType.ACTION_BAR,
+                            TextComponent("§3Не найдено свободных серверов")
+                        )
+                    }
+                } else {
+                    player.spigot().sendMessage(
+                        ChatMessageType.ACTION_BAR,
+                        TextComponent("§3Вы должны быть лидером пати")
+                    )
+                }
+            } else {
+                val realmId = getRealm(server, 1, isMurder)
+                if (realmId.isPresent) {
+                    ITransferService.get().transfer(player.uniqueId, realmId.get())
+                } else {
+                    player.spigot().sendMessage(
+                        ChatMessageType.ACTION_BAR,
+                        TextComponent("§3Не найдено свободных серверов")
+                    )
+                }
+            }
         } catch (e: ExecutionException) {
             e.printStackTrace()
         } catch (e: InterruptedException) {

@@ -61,7 +61,6 @@ class GlobalListeners : Listener {
 
         // Отправка модов
         B.postpone(1) {
-
             player.teleport(spawn)
             modList.forEach {
                 user.sendPacket(

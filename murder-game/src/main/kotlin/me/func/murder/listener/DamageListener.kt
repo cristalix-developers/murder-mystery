@@ -9,6 +9,7 @@ import me.func.commons.donate.impl.KillMessage
 import me.func.commons.mod.ModHelper
 import me.func.commons.user.Role
 import me.func.commons.user.User
+import me.func.commons.util.LocalModHelper
 import me.func.commons.util.StandHelper
 import me.func.murder.*
 import me.func.murder.util.droppedBowManager
@@ -135,7 +136,7 @@ class DamageListener : Listener {
         player.gameMode = GameMode.SPECTATOR
         player.inventory.clear()
         victim.role = Role.NONE
-        ModHelper.updateOnline()
+        LocalModHelper.updateOnline()
 
         var location = player.location.clone()
         var id: Int

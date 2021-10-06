@@ -146,8 +146,8 @@ class Chances {
 
         UIEngine.registerHandler(PluginMessage::class.java) {
             if (channel == "murder-join") {
-                (murder.children[0] as TextElement).content = "§cМаньяк " + data.readInt() + "%"
-                (detective.children[0] as TextElement).content = "§bДетектив " + data.readInt() + "%"
+                (murder.children[0] as TextElement).content = NetUtil.readUtf8(data)
+                (detective.children[0] as TextElement).content = NetUtil.readUtf8(data)
                 // Мигание названием карты в начале
                 val text = (topMessage.children[1] as TextElement)
                 text.content = "Музыка 㗡"
@@ -232,6 +232,12 @@ class Chances {
                 (roleAndOnline.children[1] as TextElement).content = "§fвы $role"
                 (detectiveAlive.children[0] as TextElement).content =
                     if (detective) "§bДетектив жив" else "§cДетектив мертв"
+            } else if (channel == "dbd:update") {
+                val message = NetUtil.readUtf8(data)
+                val online = data.readInt()
+                (roleAndOnline.children[0] as TextElement).content = "§fмирных живо §2$online"
+                (roleAndOnline.children[1] as TextElement).content = "§fвы $role"
+                (detectiveAlive.children[0] as TextElement).content = message
             } else if (channel == "update-online") {
                 val max = data.readInt()
                 val current = data.readInt()
@@ -247,7 +253,7 @@ class Chances {
                     }
                     val timeLess = max - current / 20
                     (online.children[1] as TextElement).content =
-                        "Победа мирных через ${String.format("%02d:%02d", timeLess / 60, timeLess % 60)}"
+                        "Конец игры через ${String.format("%02d:%02d", timeLess / 60, timeLess % 60)}"
                 }
             } else if (channel == "murder:cooldown") {
                 val text = NetUtil.readUtf8(data)

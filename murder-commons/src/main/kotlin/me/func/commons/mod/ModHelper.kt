@@ -31,18 +31,6 @@ object ModHelper {
             .send("corpse", to)
     }
 
-    fun updateOnline() {
-        val users = Bukkit.getOnlinePlayers().map { getByPlayer(it) }
-        val detectiveAlive = users.any { it.role == Role.DETECTIVE && it.player!!.gameMode != GameMode.SPECTATOR }
-        val alive = users.filter { it.player!!.gameMode != GameMode.SPECTATOR }.size
-        users.forEach {
-            ModTransfer()
-                .boolean(detectiveAlive)
-                .integer(alive)
-                .send("murder:update", it)
-        }
-    }
-
     fun sendCooldown(user: User, text: String, ticks: Int) {
         ModTransfer()
             .string(text)

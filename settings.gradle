@@ -4,4 +4,5 @@ include 'murder-mod'
 include 'murder-proxy'
 include 'murder-commons'
 include 'murder-balance-mod'
+include 'dbd'
 

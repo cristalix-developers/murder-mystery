@@ -33,6 +33,9 @@ data class Stat(
     var timePlayedTotal: Long,
     var lastEnter: Long,
 
+    var eventWins: Int,
+    var eventKills: Int,
+
     var dailyClaimTimestamp: Long,
     var rewardStreak: Int,
 

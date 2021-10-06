@@ -6,6 +6,7 @@ import me.func.commons.mod.ModTransfer
 import me.func.commons.realm
 import me.func.commons.slots
 import me.func.commons.user.Role
+import me.func.commons.util.LocalModHelper
 import me.func.commons.worldMeta
 import me.func.commons.util.Music
 import me.func.murder.util.droppedBowManager
@@ -64,7 +65,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         player.inventory.clear()
                         player.itemOnCursor = null
                         player.openInventory.topInventory.clear()
-                        val user = me.func.murder.murder.getUser(player)
+                        val user = murder.getUser(player)
                         user.stat.mask.setMask(user)
                     }
                 }
@@ -87,7 +88,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     }
                 }
                 // Показать карту
-                me.func.murder.util.LocalModHelper.loadMap(map)
+                LocalModHelper.loadMap(map)
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
                 users.forEach { user ->
                     val player = user.player!!
@@ -107,7 +108,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         .string(user.role.shortTitle)
                         .send("murder-start", user)
 
-                    ModHelper.updateOnline()
+                    me.func.commons.util.LocalModHelper.updateOnline()
                     // Сменить музыку
                     map.music.play(user)
                 }
@@ -211,7 +212,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 // Кик всех игроков с сервера
                 clepto.cristalix.Cristalix.transfer(
                     Bukkit.getOnlinePlayers().map { it.uniqueId },
-                    ru.cristalix.core.realm.RealmId.of(LOBBY_SERVER)
+                    LOBBY_SERVER
                 )
             }
             // Очистка мусорных сущностей

@@ -55,8 +55,10 @@ class App : JavaPlugin(), Listener {
         B.plugin = this
         murder = this
         Platforms.set(PlatformDarkPaper())
-        B.events(this, GlobalListeners(), Lootbox())
+        B.events(this, GlobalListeners(), Lootbox)
+
         MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load("lobby"), 200)
+
         CoreApi.get().registerService(IRenderService::class.java, BukkitRenderService(getServer()))
         cosmeticItem = item {
             type = Material.CLAY_BALL
@@ -79,6 +81,7 @@ class App : JavaPlugin(), Listener {
 
         // Конфигурация реалма
         realm.isLobbyServer = true
+        realm.readableName = "MurderMystery Lobby"
         realm.servicedServers = arrayOf("MUR", "MURP")
 
         // Создание контента для лобби
@@ -91,21 +94,22 @@ class App : JavaPlugin(), Listener {
 
         worldMeta.getLabels("play").forEach { npcLabel ->
             val npcArgs = npcLabel.tag.split(" ")
-            val map = MapType.valueOf(npcArgs[0].toUpperCase())
+            val murder = npcArgs[0].toInt() == 0
+            val game = if (murder) "§l> §dMurder§fMystery" else "§l> §4Dead By Daylight"
             npcLabel.setYaw(npcArgs[1].toFloat())
             npcLabel.setPitch(npcArgs[2].toFloat())
             Npcs.spawn(
                 Npc.builder()
                     .location(npcLabel.clone().add(0.5, -0.4, 0.5))
-                    .name("§f >> §b§lИГРАТЬ §f<<")
+                    .name("§e§lНАЖМИТЕ ЧТОБЫ ИГРАТЬ")
                     .behaviour(NpcBehaviour.STARE_AT_PLAYER)
-                    .skinUrl("https://webdata.c7x.dev/textures/skin/${map.npcSkin}")
-                    .skinDigest(map.npcSkin)
+                    .skinUrl("https://webdata.c7x.dev/textures/skin/${if (murder) MapType.OUTLAST.npcSkin else "30719b68-2c69-11e8-b5ea-1cb72caa35fd"}")
+                    .skinDigest(if (murder) MapType.OUTLAST.npcSkin else "30719b68-2c69-11e8-b5ea-1cb72caa35fd")
                     .type(EntityType.PLAYER)
                     .onClick {
                         if (fixDoubleClick != null && fixDoubleClick == it)
                             return@onClick
-                        balancer.accept(it, map)
+                        balancer.accept(it, murder)
                         fixDoubleClick = it
                     }.build()
             )
@@ -120,8 +124,8 @@ class App : JavaPlugin(), Listener {
                                 StringDrawData.builder().align(1).scale(2).position(V2(115.0, 0.0))
                                     .string("㗬㗬㗬")
                                     .build(),
-                                StringDrawData.builder().align(1).scale(3).position(V2(115.0, 40.0))
-                                    .string("§b" + map.title).build()
+                                StringDrawData.builder().align(1).scale(2).position(V2(115.0, 40.0))
+                                    .string(game).build()
                             )
                         ).dimensions(V2(0.0, 0.0))
                         .scale(2.0)

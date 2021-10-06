@@ -1,15 +1,22 @@
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
+import dev.xdark.clientapi.block.SoundType
 import dev.xdark.clientapi.entity.AbstractClientPlayer
 import dev.xdark.clientapi.entity.EntityProvider
 import dev.xdark.clientapi.event.network.PluginMessage
 import dev.xdark.clientapi.math.BlockPos
+import dev.xdark.clientapi.resource.ResourceLocation
+import dev.xdark.clientapi.sound.SoundCategory
+import dev.xdark.clientapi.sound.SoundEvent
 import dev.xdark.clientapi.util.EnumFacing
 import dev.xdark.feder.NetUtil
+import net.java.games.input.Component.Identifier.Key.V
 import ru.cristalix.clientapi.KotlinMod
 import ru.cristalix.uiengine.UIEngine
+import ru.cristalix.uiengine.element.TextElement
 import ru.cristalix.uiengine.element.animate
 import ru.cristalix.uiengine.utility.CENTER
+import ru.cristalix.uiengine.utility.TOP
 import ru.cristalix.uiengine.utility.V3
 import ru.cristalix.uiengine.utility.text
 import java.util.*
@@ -18,6 +25,8 @@ const val NAMESPACE = "murder"
 const val FILE_STORE = "http://51.38.128.132/murder/"
 
 class App : KotlinMod() {
+
+    lateinit var heart: TextElement
 
     override fun onEnable() {
         UIEngine.initialize(this)
@@ -85,6 +94,54 @@ class App : KotlinMod() {
                 corpse.teleport(x, y + 0.2, z)
                 corpse.setNoGravity(false)
                 clientApi.minecraft().world.spawnEntity(corpse)
+            } else if (channel == "dbd:heart-create") {
+                heart = text {
+                    content = "§4❤❤"
+                    align = TOP
+                    origin = TOP
+                    offset.y += 20
+                    shadow = true
+                    scale = V3(2.0, 2.0)
+                }
+                UIEngine.overlayContext.addChild(heart)
+            }  else if (channel == "dbd:heart-update") {
+                heart.animate(0.05) {
+                    heart.scale.y = 4.0
+                    heart.scale.x = 4.0
+                }
+
+                val hearts = data.readInt()
+                if (hearts == 1)
+                    GlowEffect.show(0.1, 255, 0, 0, 0.6)
+                else
+                    GlowEffect.show(0.1, 255, 0, 0, 0.04)
+
+                UIEngine.overlayContext.schedule(0.05) {
+                    heart.animate(0.05) {
+                        heart.scale.y = 1.0
+                        heart.scale.x = 1.0
+                    }
+                    if (hearts == 1)
+                        GlowEffect.show(0.1, 255, 0, 0, 0.0)
+                }
+                UIEngine.overlayContext.schedule(0.1) {
+                    heart.animate(0.1) {
+                        heart.scale.y = 3.3
+                        heart.scale.x = 3.3
+                    }
+                    if (hearts == 1)
+                        GlowEffect.show(0.1, 255, 0, 0, 0.4)
+                }
+                UIEngine.overlayContext.schedule(0.2) {
+                    heart.animate(0.1) {
+                        heart.scale.y = 2.0
+                        heart.scale.x = 2.0
+                    }
+                    if (hearts == 1)
+                        GlowEffect.show(0.1, 255, 0, 0, 0.6)
+                }
+                heart.content = "§4"
+                repeat(hearts) { heart.content += "❤" }
             }
         }
     }

@@ -18,6 +18,9 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
     private var connection: PlayerConnection? = null
     var tempKills = 0
+    var lightTicks = 260
+    var out = false
+    var hearts = 2
     var role = Role.NONE
     var animationLock = false
 
@@ -82,6 +85,8 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
                 Corpse.NONE,
                 ArrowParticle.NONE,
                 Mask.NONE,
+                0,
+                0,
                 0,
                 0,
                 0,

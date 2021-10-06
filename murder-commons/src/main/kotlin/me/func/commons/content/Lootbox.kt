@@ -23,7 +23,7 @@ import ru.cristalix.core.inventory.ControlledInventory
 import ru.cristalix.core.inventory.InventoryContents
 import ru.cristalix.core.inventory.InventoryProvider
 
-class Lootbox : Listener {
+object Lootbox : Listener {
 
     private val dropList = Corpse.values().map { it }
         .plus(NameTag.values())
