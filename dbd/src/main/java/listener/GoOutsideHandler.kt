@@ -1,5 +1,7 @@
 package listener
 
+import Status
+import activeStatus
 import clepto.bukkit.B
 import killer
 import me.func.commons.user.Role
@@ -17,6 +19,12 @@ object GoOutsideHandler : Listener {
 
     @EventHandler
     fun PlayerMoveEvent.handle() {
+        if (activeStatus == Status.GAME && player == killer!!.player && player.velocity.y > 0 && !player.isOnGround) {
+            val clone = player.velocity
+            clone.y = 0.0
+            player.velocity = clone
+            cancel = true
+        }
         if (to.distanceSquared(winZone) < winZone.tagInt * winZone.tagInt) {
             val user = murder.getUser(player)
             if (user.role == Role.VICTIM) {

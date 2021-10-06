@@ -13,7 +13,8 @@ enum class Music(private val url: String) {
     FIELD("https://implario.dev/murder/field.mp3"),
     LOBBY("https://implario.dev/murder/waiting.mp3"),
     DBD_GAME("https://implario.dev/murder/dbd-game.mp3"),
-    DBD_RUN("https://implario.dev/murder/run.mp3"),
+    DBD_RUN("https://implario.dev/murder/dbd.mp3"),
+    DBD_DEATH("https://implario.dev/murder/dbd-death.mp3"),
     PORT("https://implario.dev/murder/port.mp3"),
     VILLAGER_WIN("https://implario.dev/murder/win.mp3")
     ;

@@ -48,30 +48,32 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         player.inventory.clear()
                         player.itemOnCursor = null
                         player.openInventory.topInventory.clear()
-                        player.addPotionEffect(disableJump)
                         val user = murder.getUser(player)
                         user.stat.mask.setMask(user)
                     }
                 }
 
-                B.postpone(35) { ModHelper.sendGlobalTitle("§4Dead By Daylight ⛽\n§fⒸⓇⒾⓈⓉⒶⓁⒾⓍ") }
+                B.postpone(35) { ModHelper.sendGlobalTitle("§4Dead By Daylight ⛽\n\n§fⒸⓇⒾⓈⓉⒶⓁⒾⓍ") }
                 Music.DBD_GAME.playAll()
 
                 // Список игроков Murder
                 val users = players.map { murder.getUser(it) }
                 // Выдача роли маньяка и создание голема
                 killer = users.random()
-                killer!!.player!!.addPotionEffect(org.bukkit.potion.PotionEffect(
-                    org.bukkit.potion.PotionEffectType.SLOW,
-                    Int.MAX_VALUE,
-                    1
-                ))
+                killer!!.player!!.addPotionEffect(
+                    org.bukkit.potion.PotionEffect(
+                        org.bukkit.potion.PotionEffectType.SLOW,
+                        Int.MAX_VALUE,
+                        0
+                    )
+                )
                 killer!!.role = Role.MURDER
                 UtilEntity.setScale(killer!!.player, 1.6, 1.6, 1.6)
 
                 // Выдача роли жертвы
                 users.filter { it.role != Role.MURDER }
                     .forEach {
+                        it.player!!.addPotionEffect(disableJump)
                         it.player!!.addPotionEffect(blindness)
                         ModTransfer().integer(1).send("dbd:heart-create", it)
                         it.role = Role.VICTIM
@@ -131,9 +133,21 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 .filter { time % maxOf(5, minOf((it.second / 10).toInt(), 25)) == 0 && killer!!.player != it.first }
                 .map { murder.getUser(it.first) }
                 .forEach {
-                    it.player!!.playSound(it.player!!.location, org.bukkit.Sound.BLOCK_WOOD_PLACE, org.bukkit.SoundCategory.PLAYERS, 1.0f, 0.6f)
+                    it.player!!.playSound(
+                        it.player!!.location,
+                        org.bukkit.Sound.BLOCK_WOOD_PLACE,
+                        org.bukkit.SoundCategory.PLAYERS,
+                        1.0f,
+                        0.6f
+                    )
                     B.postpone(10) {
-                        it.player!!.playSound(it.player!!.location, org.bukkit.Sound.BLOCK_WOOD_PLACE, org.bukkit.SoundCategory.PLAYERS, 0.7f, 2.0f)
+                        it.player!!.playSound(
+                            it.player!!.location,
+                            org.bukkit.Sound.BLOCK_WOOD_PLACE,
+                            org.bukkit.SoundCategory.PLAYERS,
+                            0.7f,
+                            2.0f
+                        )
                     }
                     ModTransfer().integer(it.hearts).send("dbd:heart-update", it)
                 }
@@ -148,31 +162,34 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             // Выдача побед выжившим и выдача всем доп. игр
             Bukkit.getOnlinePlayers().forEach {
                 val user = murder.getUser(it)
-                    if (Math.random() < 0.11) {
-                        user.stat.lootbox++
-                        B.bc(ru.cristalix.core.formatting.Formatting.fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
-                    }
-                    val firework = it.world!!.spawn(it.location, org.bukkit.entity.Firework::class.java)
-                    val meta = firework.fireworkMeta
-                    meta.addEffect(
-                        org.bukkit.FireworkEffect.builder()
-                            .flicker(true)
-                            .trail(true)
-                            .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
-                            .with(org.bukkit.FireworkEffect.Type.BALL)
-                            .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
-                            .withColor(org.bukkit.Color.YELLOW)
-                            .withColor(org.bukkit.Color.GREEN)
-                            .withColor(org.bukkit.Color.WHITE)
-                            .build()
-                    )
-                    meta.power = 0
-                    firework.fireworkMeta = meta
-                me.func.commons.util.Music.VILLAGER_WIN.play(user)
+                if (Math.random() < 0.11) {
+                    user.stat.lootbox++
+                    B.bc(ru.cristalix.core.formatting.Formatting.fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
+                }
+                val firework = it.world!!.spawn(it.location, org.bukkit.entity.Firework::class.java)
+                val meta = firework.fireworkMeta
+                meta.addEffect(
+                    org.bukkit.FireworkEffect.builder()
+                        .flicker(true)
+                        .trail(true)
+                        .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
+                        .with(org.bukkit.FireworkEffect.Type.BALL)
+                        .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
+                        .withColor(org.bukkit.Color.YELLOW)
+                        .withColor(org.bukkit.Color.GREEN)
+                        .withColor(org.bukkit.Color.WHITE)
+                        .build()
+                )
+                meta.power = 0
+                firework.fireworkMeta = meta
+                Music.VILLAGER_WIN.play(user)
             }
             B.bc("")
             B.bc("§c§lКОНЕЦ! $winMessage")
             B.bc("")
+
+            me.func.commons.mod.ModHelper.sendGlobalTitle("§e§lКОНЕЦ!\n\n\n§dDead By Daylight")
+
             B.postpone(20 * 8) {
                 // Кик всех игроков с сервера
                 clepto.cristalix.Cristalix.transfer(

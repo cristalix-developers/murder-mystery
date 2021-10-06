@@ -20,7 +20,7 @@ import org.bukkit.potion.PotionEffectType
 
 object GadgetMechanic : Listener {
 
-    private const val REGEN_TIME = 7
+    private const val REGEN_TIME = 10
     val blindness = org.bukkit.potion.PotionEffect(PotionEffectType.BLINDNESS, Int.MAX_VALUE, 1)
     private val slowness = org.bukkit.potion.PotionEffect(PotionEffectType.SLOW, 20 * REGEN_TIME, 5)
     val bandage = item {

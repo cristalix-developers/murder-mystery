@@ -1,16 +1,12 @@
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
-import dev.xdark.clientapi.block.SoundType
 import dev.xdark.clientapi.entity.AbstractClientPlayer
+import dev.xdark.clientapi.entity.EntityLivingBase
 import dev.xdark.clientapi.entity.EntityProvider
 import dev.xdark.clientapi.event.network.PluginMessage
 import dev.xdark.clientapi.math.BlockPos
-import dev.xdark.clientapi.resource.ResourceLocation
-import dev.xdark.clientapi.sound.SoundCategory
-import dev.xdark.clientapi.sound.SoundEvent
 import dev.xdark.clientapi.util.EnumFacing
 import dev.xdark.feder.NetUtil
-import net.java.games.input.Component.Identifier.Key.V
 import ru.cristalix.clientapi.KotlinMod
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.element.TextElement
@@ -27,6 +23,7 @@ const val FILE_STORE = "http://51.38.128.132/murder/"
 class App : KotlinMod() {
 
     lateinit var heart: TextElement
+    private val corpses = mutableListOf<AbstractClientPlayer>()
 
     override fun onEnable() {
         UIEngine.initialize(this)
@@ -56,13 +53,30 @@ class App : KotlinMod() {
                     UIEngine.overlayContext.removeChild(text)
                 }
             } else if (channel == "corpse") {
+                val name = NetUtil.readUtf8(data)
+                var deleted = false
+                corpses.removeIf {
+                    if (it.gameProfile.name == name) {
+                        clientApi.minecraft().world.removeEntity(it)
+                        deleted = true
+                        return@removeIf true
+                    }
+                    false
+                }
+
+                if (corpses.size > 36)
+                    corpses.clear()
+
+                if (deleted)
+                    return@registerHandler
+
                 val corpse = clientApi.entityProvider()
                     .newEntity(EntityProvider.PLAYER, clientApi.minecraft().world) as AbstractClientPlayer
 
                 val uuid = UUID.randomUUID()
                 corpse.setUniqueId(uuid)
 
-                val profile = GameProfile(uuid, NetUtil.readUtf8(data))
+                val profile = GameProfile(uuid, name)
                 profile.properties.put("skinURL", Property("skinURL", NetUtil.readUtf8(data)))
                 profile.properties.put("skinDigest", Property("skinDigest", NetUtil.readUtf8(data)))
                 corpse.gameProfile = profile
@@ -93,6 +107,9 @@ class App : KotlinMod() {
                 )
                 corpse.teleport(x, y + 0.2, z)
                 corpse.setNoGravity(false)
+
+                corpses.add(corpse)
+
                 clientApi.minecraft().world.spawnEntity(corpse)
             } else if (channel == "dbd:heart-create") {
                 heart = text {
@@ -104,17 +121,14 @@ class App : KotlinMod() {
                     scale = V3(2.0, 2.0)
                 }
                 UIEngine.overlayContext.addChild(heart)
-            }  else if (channel == "dbd:heart-update") {
+            } else if (channel == "dbd:heart-update") {
                 heart.animate(0.05) {
                     heart.scale.y = 4.0
                     heart.scale.x = 4.0
                 }
 
                 val hearts = data.readInt()
-                if (hearts == 1)
-                    GlowEffect.show(0.1, 255, 0, 0, 0.6)
-                else
-                    GlowEffect.show(0.1, 255, 0, 0, 0.04)
+                GlowEffect.show(0.1, 255, 0, 0, if (hearts == 1) 0.4 else 0.07)
 
                 UIEngine.overlayContext.schedule(0.05) {
                     heart.animate(0.05) {
@@ -130,7 +144,7 @@ class App : KotlinMod() {
                         heart.scale.x = 3.3
                     }
                     if (hearts == 1)
-                        GlowEffect.show(0.1, 255, 0, 0, 0.4)
+                        GlowEffect.show(0.1, 255, 0, 0, 0.3)
                 }
                 UIEngine.overlayContext.schedule(0.2) {
                     heart.animate(0.1) {

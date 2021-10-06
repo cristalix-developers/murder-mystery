@@ -28,7 +28,7 @@ object WinUtil {
                 true
             }
             alive.isEmpty() && out.isNotEmpty() -> {
-                winMessage = "§aВсе спаслись: §f§l${out.joinToString{ it.player!!.name + ", " }}"
+                winMessage = "§aВсе спаслись: §f§l${out.joinToString{ it.player!!.name }}"
                 true
             }
             activeStatus.lastSecond * 20 == timer.time && alive.isEmpty() && out.isEmpty() -> {
@@ -36,7 +36,7 @@ object WinUtil {
                 true
             }
             activeStatus.lastSecond * 20 == timer.time && out.isNotEmpty() -> {
-                winMessage = "§aЛюди спаслись, потерпевшие: §f§l${out.joinToString{ it.player!!.name + ", " }}"
+                winMessage = "§aЛюди спаслись, потерпевшие: §f§l${out.joinToString{ it.player!!.name }}"
                 true
             }
             else -> false
