@@ -11,6 +11,7 @@ import me.func.commons.worldMeta
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
 import org.bukkit.Location
+import org.bukkit.entity.Arrow
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.*
@@ -182,6 +183,7 @@ class GlobalListeners : Listener {
 
     @EventHandler
     fun ProjectileHitEvent.handle() {
-        entity.remove()
+        if (entity is Arrow)
+            entity.remove()
     }
 }

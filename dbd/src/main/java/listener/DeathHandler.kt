@@ -10,6 +10,7 @@ import me.func.commons.donate.impl.Corpse
 import me.func.commons.donate.impl.KillMessage
 import me.func.commons.getByPlayer
 import me.func.commons.mod.ModHelper
+import me.func.commons.mod.ModTransfer
 import me.func.commons.user.Role
 import me.func.commons.user.User
 import me.func.commons.util.LocalModHelper
@@ -34,6 +35,8 @@ import org.bukkit.potion.PotionEffectType
 
 object DeathHandler : Listener {
 
+    private val speed = PotionEffect(PotionEffectType.SPEED, 20 * 6, 3)
+
     @EventHandler
     fun EntityDamageEvent.handle() {
         if (activeStatus != Status.GAME)
@@ -50,21 +53,30 @@ object DeathHandler : Listener {
         ) {
             val victim = murder.getUser(entity as CraftPlayer)
 
+            killer!!.bites++
+
             if (victim.hearts > 1) {
+                B.postpone(4 * 20) { killer!!.player!!.inventory.setItem(3, GadgetMechanic.openTrap) }
                 victim.hearts--
-                (entity as CraftPlayer).addPotionEffect(
-                    PotionEffect(
-                        PotionEffectType.SPEED,
-                        20 * 5,
-                        3
-                    )
-                )
+                (entity as CraftPlayer).addPotionEffect(speed)
                 Music.DBD_RUN.playAll()
                 B.postpone(20 * 15) { Music.DBD_GAME.playAll() }
             } else {
-                B.bc("  §l> §cИгрок §e${victim.player!!.name} §cпал! Чтобы спасти нажмите §f§lSHIFT §c c §e1 бинтом§c! Осталось 15 секунд.")
+                val player = victim.player!!
+
+                B.bc("  §l> §cИгрок §e${player.name} §cпал! Чтобы спасти нажмите §f§lSHIFT §c c §e1 бинтом§c! Осталось 15 секунд.")
                 ModHelper.sendTitle(victim, "§cВас ранили!\n§eЖдите помощи")
                 ModHelper.makeCorpse(victim)
+
+                Bukkit.getOnlinePlayers().filter { it != killer!!.player }.forEach {
+                    ModTransfer()
+                        .string(player.uniqueId.toString())
+                        .double(player.location.x)
+                        .double(player.location.y + 1.0)
+                        .double(player.location.z)
+                        .string("textures/others/znak_v_3.png")
+                        .send("holo", murder.getUser(it))
+                }
 
                 victim.player!!.gameMode = GameMode.SPECTATOR
 
@@ -98,6 +110,8 @@ object DeathHandler : Listener {
 
                                 it.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l-1 §fбинт"))
 
+                                val uuid = victim.player!!.uniqueId.toString()
+
                                 // Отправляем труп опять, чтобы удалить
                                 Bukkit.getOnlinePlayers()
                                     .map { player -> getByPlayer(player) }
@@ -106,6 +120,7 @@ object DeathHandler : Listener {
                                             victim.player!!.name,
                                             victim.player!!.uniqueId, player, 0.0, 0.0, 0.0
                                         )
+                                        ModTransfer().string(uuid).send("holohide", player)
                                     }
 
                                 victim.hearts = 1
@@ -117,6 +132,8 @@ object DeathHandler : Listener {
                                         1
                                     )
                                 )
+                                victim.player!!.addPotionEffect(speed)
+
                                 B.bc("  §l> §e${victim.player!!.name} §aспасен благодаря помощи  §e${it.name}")
                                 ModHelper.sendTitle(victim, "§cВас ранили!\n§eЖдите помощи")
                                 Cycle.exit()
@@ -137,13 +154,19 @@ object DeathHandler : Listener {
 
     private fun kill(victim: User) {
         if (victim.role == Role.VICTIM) {
+            val uuid = victim.player!!.uniqueId.toString()
+
+            Bukkit.getOnlinePlayers().filter { it != killer!!.player }.forEach {
+                ModTransfer().string(uuid).send("holohide", murder.getUser(it))
+            }
+
             if (killer != null && Math.random() < 0.35) {
                 B.bc("  > " + killer!!.stat.activeKillMessage.texted(victim.name))
             } else {
                 B.bc("  > " + KillMessage.NONE.texted(victim.name))
             }
             ModHelper.sendTitle(victim, "Вас убили!")
-            killer?.stat!!.kills++
+            killer?.stat!!.eventKills++
             killer?.giveMoney(1)
 
             val location = victim.player!!.location.clone()

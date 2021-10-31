@@ -1,6 +1,5 @@
 package me.func.commons
 
-import me.func.commons.map.MapType
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.entity.Player
@@ -14,35 +13,27 @@ import ru.cristalix.core.transfer.ITransferService
 import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.function.BiConsumer
-import java.util.function.Consumer
 
-class PlayerBalancer(private val server: String, private val maxPlayers: Int) : BiConsumer<Player, Boolean> {
+class PlayerBalancer : BiConsumer<Player, Boolean> {
 
-    private fun getRealm(realm: String, mintoJoin: Int, isMurder: Boolean): Optional<RealmId> {
-        if (!isMurder) {
-            val info = IRealmService.get().getRealmsOfType("DBD").first()
-            if (info.status == RealmStatus.WAITING_FOR_PLAYERS &&
-                info.currentPlayers < info.maxPlayers)
-                return Optional.of(info.realmId)
-            return Optional.empty()
-        }
+    private fun getRealm(mintoJoin: Int, isMurder: Boolean): Optional<RealmId> {
         var maxRealm: RealmInfo? = null
         var minRealm: RealmInfo? = null
-        for (realmInfo in IRealmService.get().getRealmsOfType(realm)) {
-            if (realmInfo.status != RealmStatus.GAME_STARTED_CAN_JOIN
+        for (realmInfo in IRealmService.get().getRealmsOfType(if (isMurder) "MUR" else "DBD")) {
+            if (realmInfo.status == RealmStatus.GAME_STARTED_RESTRICTED || realmInfo.status == RealmStatus.GAME_STARTED_CAN_SPACTATE
                 || realmInfo.currentPlayers + mintoJoin > realmInfo.maxPlayers) {
                 continue
             }
-            if (realmInfo.currentPlayers + mintoJoin <= maxPlayers) {
+            if (realmInfo.currentPlayers + mintoJoin <= if (isMurder) 16 else 6) {
                 if (maxRealm == null) {
                     maxRealm = realmInfo
-                } else if (maxRealm.currentPlayers < realmInfo.currentPlayers) {
+                } else if (maxRealm.currentPlayers <= realmInfo.currentPlayers) {
                     maxRealm = realmInfo
                 }
             } else {
                 if (minRealm == null) {
                     minRealm = realmInfo
-                } else if (minRealm.currentPlayers > realmInfo.currentPlayers) {
+                } else if (minRealm.currentPlayers >= realmInfo.currentPlayers) {
                     minRealm = realmInfo
                 }
             }
@@ -56,7 +47,7 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
             if (party.isPresent) {
                 val party1 = party.get() as PartySnapshot
                 if (party1.leader == player.uniqueId) {
-                    val realm = getRealm(server, party1.members.size, isMurder)
+                    val realm = getRealm(party1.members.size, isMurder)
                     if (realm.isPresent) {
                         val realmInfo = IRealmService.get().getRealmById(realm.get())
                         if (realmInfo.currentPlayers + party1.members.size <= realmInfo.maxPlayers
@@ -83,7 +74,7 @@ class PlayerBalancer(private val server: String, private val maxPlayers: Int) : 
                     )
                 }
             } else {
-                val realmId = getRealm(server, 1, isMurder)
+                val realmId = getRealm(1, isMurder)
                 if (realmId.isPresent) {
                     ITransferService.get().transfer(player.uniqueId, realmId.get())
                 } else {

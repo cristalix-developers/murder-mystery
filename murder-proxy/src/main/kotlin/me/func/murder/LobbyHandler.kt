@@ -2,6 +2,7 @@ package me.func.murder
 
 import clepto.bukkit.B
 import dev.implario.bukkit.item.item
+import me.func.commons.getByPlayer
 import me.func.commons.map.MapType
 import me.func.commons.util.Music
 import org.bukkit.Material
@@ -48,7 +49,7 @@ object LobbyHandler : Listener {
     @EventHandler
     fun PlayerJoinEvent.handle() {
         B.postpone(25) {
-            val user = murder.getUser(player)
+            val user = getByPlayer(player)
             Music.LOBBY.play(user)
             user.sendPlayAgain("§aПопробовать!", MapType.OUTLAST)
         }

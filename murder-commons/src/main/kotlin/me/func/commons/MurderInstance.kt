@@ -9,9 +9,9 @@ import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
+import me.func.commons.command.AdminCommand
 import me.func.commons.donate.DonateAdapter
 import me.func.commons.donate.DonatePosition
-import me.func.commons.map.MapType
 import me.func.commons.user.Stat
 import me.func.commons.user.User
 import me.func.commons.util.ParticleHelper
@@ -31,7 +31,6 @@ import ru.cristalix.core.realm.RealmInfo
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
-import java.awt.SystemColor.text
 import java.util.*
 import kotlin.properties.Delegates
 
@@ -112,11 +111,14 @@ class MurderInstance(
             tick++
         }
 
-        val nextGame = PlayerBalancer("MUR", slots - 4)
-        B.regCommand({ player: Player, args ->
+        val nextGame = PlayerBalancer()
+        B.regCommand({ player: Player, _ ->
             nextGame.accept(player, true)
             null
         }, "next")
+
+        // Регистрация админ команд
+        AdminCommand()
     }
 
 }

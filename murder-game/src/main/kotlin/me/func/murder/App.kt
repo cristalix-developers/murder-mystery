@@ -10,7 +10,6 @@ import me.func.commons.content.TopManager
 import me.func.commons.listener.GlobalListeners
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
-import me.func.murder.command.AdminCommand
 import me.func.murder.listener.InteractEvent
 import me.func.murder.listener.*
 import me.func.commons.map.MapType
@@ -18,10 +17,8 @@ import me.func.murder.util.ArrowEffect
 import me.func.murder.util.BowManager
 import me.func.murder.util.GoldManager
 import org.bukkit.Bukkit
-import org.bukkit.World
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import ru.cristalix.core.datasync.EntityDataParameters
 import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmId
 import ru.cristalix.npcs.server.Npcs
@@ -73,9 +70,6 @@ class App : JavaPlugin() {
             InventoryListener(),
             MapDecoration()
         )
-
-        // Регистрация админ команд
-        AdminCommand()
 
         // Создание контента для лобби
         TopManager()

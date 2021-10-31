@@ -107,16 +107,22 @@ class CustomizationNPC {
                 contents.add('S', ClickableItem.empty(item {
                     type = Material.CLAY_BALL
                     nbt("other", "quest_week")
-                    text("§bСтатистика\n\n" +
-                            "§7Убийств: §c${stat.kills}\n" +
-                            "§7Сыграно: §f${stat.games} §7игр(ы)\n" +
-                            "§7Победы: §b${stat.wins}\n" +
-                            "§7Streak ежедневных наград: §e${stat.rewardStreak}\n" +
-                            "§7Лутбоксов открыто: §f${stat.lootboxOpenned}\n" +
-                            "§7Лутбоксов: §b${stat.lootbox}\n" +
-                            "§7Награды: §f${stat.achievement.size}§7/${Achievement.values().size}\n\n" +
-                            "${MoneyFormatter.texted(stat.money)}\n" +
-                            "§bНаиграно ${(stat.timePlayedTotal / 1000 / 360).toInt() / 10.0} часов")
+                    text(
+                        "§f§l > §bОбщая статистика\n" +
+                                "§7    Монет: §e${stat.money}\n" +
+                                "§7    Лутбоксов: §b${stat.lootbox}\n" +
+                                "§7    Награды: §f${stat.achievement.size}§7/${Achievement.values().size}\n" +
+                                "§7    Лутбоксов открыто: §f${stat.lootboxOpenned}\n" +
+                                "§7    Streak Daily: §e${stat.rewardStreak}\n\n" +
+                                "§f§l > §dMurder§fMystery\n" +
+                                "§7    Победы: §b${stat.wins}\n" +
+                                "§7    Убийств: §c${stat.kills}\n" +
+                                "§7    Сыграно: §f${stat.games} §7игр(ы)\n" +
+                                "§7    Наиграно §f${(stat.timePlayedTotal / 1000 / 360).toInt() / 10.0} §7часов\n\n" +
+                                "§f§l > §4Dead§cBy§4Daylight\n" +
+                                "§7    Убийств: §c${stat.eventKills}\n" +
+                                "§7    Побед: §f${stat.eventWins}"
+                    )
                 }.build()))
 
                 contents.add('P', ClickableItem.of(item {
@@ -304,7 +310,13 @@ class CustomizationNPC {
         }, "menu", "help")
     }
 
-    fun pasteItems(user: User, realMoney: Boolean, content: InventoryContents, item: Iterable<DonatePosition>, fill: (DonatePosition) -> Unit) {
+    fun pasteItems(
+        user: User,
+        realMoney: Boolean,
+        content: InventoryContents,
+        item: Iterable<DonatePosition>,
+        fill: (DonatePosition) -> Unit
+    ) {
         item.forEach { currentItem ->
             content.add('I', ClickableItem.of(DonateHelper.modifiedItem(user, currentItem)) {
                 if (user.stat.donate.contains(currentItem)) {

@@ -1,7 +1,6 @@
 import com.mojang.authlib.GameProfile
 import com.mojang.authlib.properties.Property
 import dev.xdark.clientapi.entity.AbstractClientPlayer
-import dev.xdark.clientapi.entity.EntityLivingBase
 import dev.xdark.clientapi.entity.EntityProvider
 import dev.xdark.clientapi.event.network.PluginMessage
 import dev.xdark.clientapi.math.BlockPos
@@ -28,6 +27,7 @@ class App : KotlinMod() {
     override fun onEnable() {
         UIEngine.initialize(this)
         Chances()
+        NeedHelp
 
         registerHandler<PluginMessage> {
             if (channel == "murder:money") {

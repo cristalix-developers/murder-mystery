@@ -10,6 +10,7 @@ import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.ComponentBuilder
 import net.minecraft.server.v1_12_R1.Packet
 import net.minecraft.server.v1_12_R1.PlayerConnection
+import org.bukkit.Location
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import java.util.*
@@ -17,10 +18,13 @@ import java.util.*
 class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
     private var connection: PlayerConnection? = null
-    var tempKills = 0
+    var tempLocation: Location? = null
+    var bites = 0
     var lightTicks = 260
+    var countdown = 0
     var out = false
     var hearts = 2
+    var fuel = 0
     var role = Role.NONE
     var animationLock = false
 

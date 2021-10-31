@@ -89,5 +89,11 @@ enum class Achievement(
         it.stat.lootbox++
     }), MUSIC("Погруженный", "§7Включить музыку\n§f + §e10 монет", { it.stat.music }, {
         it.giveMoney(10)
+    }), PLAY_DBD("DeathByDaylight 2021", "§7Победите 1 раз\n§f + §e100 монет", { it.stat.eventWins >= 1 }, {
+        it.giveMoney(100)
+    }), DBD_WINNER("Победитель DeathByDaylight", "§7Победите 100 раз\n§f + §e1`000 монет", { it.stat.eventWins >= 100 }, {
+        it.giveMoney(1000)
+    }), DBD_KILLER("Убийца DeathByDaylight", "§7Убейте 10 жертв\n§f + §e192 монет", { it.stat.eventKills >= 10 }, {
+        it.giveMoney(192)
     })
 }

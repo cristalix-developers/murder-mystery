@@ -342,7 +342,7 @@ enum class MapType(
                 }
             }
         })
-    ), DBD("Dead By Daylight", 5, Music.LOBBY, "dbd", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
+    ), DBD("Dead By Daylight", 7, Music.LOBBY, "dbd", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
         MapData(
             "DBD",
             36.0, 14.0,

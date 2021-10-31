@@ -40,5 +40,10 @@ object GlowEffect {
         vignette.animate(duration) {
             vignette.color.alpha = power
         }
+        UIEngine.overlayContext.schedule(duration) {
+            vignette.animate(duration) {
+                vignette.color.alpha = 0.0
+            }
+        }
     }
 }

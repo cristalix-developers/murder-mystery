@@ -50,6 +50,12 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         player.openInventory.topInventory.clear()
                         val user = murder.getUser(player)
                         user.stat.mask.setMask(user)
+
+                        killer!!.player!!.inventory.setItem(2, dev.implario.bukkit.item.item {
+                            type = org.bukkit.Material.FISHING_ROD
+                            nbt("Unbreakable", 1)
+                            text("§bХук")
+                        }.build())
                     }
                 }
 
@@ -186,9 +192,21 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             }
             B.bc("")
             B.bc("§c§lКОНЕЦ! $winMessage")
+            if (Bukkit.getOnlinePlayers().size > 3) {
+                B.bc("  §bТоп залитого топлива:")
+                Bukkit.getOnlinePlayers()
+                    .filter { it != killer?.player }
+                    .sortedBy { -murder.getUser(it).fuel }
+                    .take(3)
+                    .forEachIndexed {
+                            index, it -> B.bc("     §f§l${index + 1}. §e${it.name} §bзалил ${murder.getUser(it).fuel} штук")
+                    }
+            }
+            if (killer != null)
+                B.bc("  §eМаньяк сделал ${killer!!.bites} ударов")
             B.bc("")
 
-            me.func.commons.mod.ModHelper.sendGlobalTitle("§e§lКОНЕЦ!\n\n\n§dDead By Daylight")
+            ModHelper.sendGlobalTitle("§e§lКОНЕЦ!\n\n\n§4Dead By Daylight")
 
             B.postpone(20 * 8) {
                 // Кик всех игроков с сервера

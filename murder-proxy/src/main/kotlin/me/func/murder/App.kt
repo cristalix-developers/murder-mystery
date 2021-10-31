@@ -42,7 +42,6 @@ import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
 import java.util.*
 
-
 lateinit var murder: App
 
 class App : JavaPlugin(), Listener {
@@ -82,20 +81,20 @@ class App : JavaPlugin(), Listener {
         // Конфигурация реалма
         realm.isLobbyServer = true
         realm.readableName = "MurderMystery Lobby"
-        realm.servicedServers = arrayOf("MUR", "MURP")
+        realm.servicedServers = arrayOf("MURP", *GameType.values().map { it.name }.toTypedArray())
 
         // Создание контента для лобби
         TopManager()
         Npcs.init(app)
         CustomizationNPC()
+        LobbyHandler
         // NPC поиска игры
-        val balancer = PlayerBalancer("MUR", 16)
+        val balancer = PlayerBalancer()
         var fixDoubleClick: Player? = null
 
         worldMeta.getLabels("play").forEach { npcLabel ->
             val npcArgs = npcLabel.tag.split(" ")
-            val murder = npcArgs[0].toInt() == 0
-            val game = if (murder) "§l> §dMurder§fMystery" else "§l> §4Dead By Daylight"
+            val type = GameType.valueOf(npcArgs[0].toUpperCase())
             npcLabel.setYaw(npcArgs[1].toFloat())
             npcLabel.setPitch(npcArgs[2].toFloat())
             Npcs.spawn(
@@ -103,13 +102,13 @@ class App : JavaPlugin(), Listener {
                     .location(npcLabel.clone().add(0.5, -0.4, 0.5))
                     .name("§e§lНАЖМИТЕ ЧТОБЫ ИГРАТЬ")
                     .behaviour(NpcBehaviour.STARE_AT_PLAYER)
-                    .skinUrl("https://webdata.c7x.dev/textures/skin/${if (murder) MapType.OUTLAST.npcSkin else "30719b68-2c69-11e8-b5ea-1cb72caa35fd"}")
-                    .skinDigest(if (murder) MapType.OUTLAST.npcSkin else "30719b68-2c69-11e8-b5ea-1cb72caa35fd")
+                    .skinUrl("https://webdata.c7x.dev/textures/skin/${type.skin}")
+                    .skinDigest(type.skin.toString())
                     .type(EntityType.PLAYER)
                     .onClick {
                         if (fixDoubleClick != null && fixDoubleClick == it)
                             return@onClick
-                        balancer.accept(it, murder)
+                        balancer.accept(it, type == GameType.MUR)
                         fixDoubleClick = it
                     }.build()
             )
@@ -125,7 +124,7 @@ class App : JavaPlugin(), Listener {
                                     .string("㗬㗬㗬")
                                     .build(),
                                 StringDrawData.builder().align(1).scale(2).position(V2(115.0, 40.0))
-                                    .string(game).build()
+                                    .string("§l> " + type.string).build()
                             )
                         ).dimensions(V2(0.0, 0.0))
                         .scale(2.0)
@@ -184,7 +183,7 @@ class App : JavaPlugin(), Listener {
         player.inventory.setItem(4, cosmeticItem)
         player.inventory.setItem(8, backItem)
 
-        if (Math.random() < 0.4)
+        if (Math.random() < 0.3)
             player.sendMessage(Formatting.fine("Рекомендуем сделать §eминимальную яркость §fи §bвключить звуки§f для полного погружения."))
     }
 }

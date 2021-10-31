@@ -2,7 +2,7 @@ import clepto.bukkit.B
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import listener.DeathHandler
-import listener.GoOutsideHandler
+import listener.MoveHandler
 import listener.JoinListener
 import me.func.commons.MurderInstance
 import me.func.commons.content.CustomizationNPC
@@ -16,20 +16,21 @@ import me.func.commons.userManager
 import me.func.commons.util.MapLoader
 import mechanic.BlockPhysicsCancel
 import mechanic.GadgetMechanic
+import mechanic.GadgetMechanic.clearTraps
 import mechanic.drop.ChestManager
 import mechanic.drop.ItemHolder
 import mechanic.engine.EngineManager
+import mechanic.gate.GateManager
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
-import ru.cristalix.core.datasync.EntityDataParameters
 import ru.cristalix.core.realm.RealmId
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.npcs.server.Npcs
 import java.util.*
 
 const val GAMES_STREAK_RESTART = 6
-const val ENGINE_NEEDED = 6
+const val ENGINE_NEEDED = 7
 lateinit var murder: App
 lateinit var map: MapType
 var killer: User? = null
@@ -42,13 +43,12 @@ class App : JavaPlugin() {
     override fun onEnable() {
         B.plugin = this
         murder = this
-        EntityDataParameters.register()
         Platforms.set(PlatformDarkPaper())
 
         map = MapType.DBD
 
         MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load(map.address), 6)
-        realm.readableName = "ДБД #${realm.realmId.id} v.1"
+        realm.readableName = "DBD${realm.realmId.id} v.1.0.2"
         realm.lobbyFallback = LOBBY_SERVER
 
         // Запуск игрового таймера
@@ -66,8 +66,11 @@ class App : JavaPlugin() {
             ChestManager,
             ItemHolder,
             GadgetMechanic,
-            GoOutsideHandler
+            MoveHandler,
         )
+
+        // Загрузка врат
+        GateManager
 
         // Создание контента для лобби
         TopManager()
@@ -78,6 +81,7 @@ class App : JavaPlugin() {
     fun restart() {
         activeStatus = Status.STARTING
         ChestManager.hideAll()
+        clearTraps()
         Bukkit.getOnlinePlayers().forEach { it.kickPlayer("Выключение сервера.") }
 
         // Полная перезагрузка если много игр наиграно
