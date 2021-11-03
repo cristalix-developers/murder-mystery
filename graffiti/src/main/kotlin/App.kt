@@ -1,5 +1,3 @@
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import dev.xdark.clientapi.event.entity.RotateAround
 import dev.xdark.clientapi.event.input.KeyPress
 import dev.xdark.clientapi.event.render.RenderTickPre
@@ -8,13 +6,10 @@ import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.vector.Vector3f
 import ru.cristalix.clientapi.KotlinMod
 import ru.cristalix.uiengine.UIEngine
-import ru.cristalix.uiengine.element.Context
 import ru.cristalix.uiengine.element.Context3D
-import ru.cristalix.uiengine.element.animate
+import ru.cristalix.uiengine.eventloop.animate
 import ru.cristalix.uiengine.utility.*
 import java.lang.StrictMath.pow
-import java.util.*
-import java.util.function.Supplier
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -150,7 +145,7 @@ class App : KotlinMod() {
                         }
                     }
 
-                    activeGraffiti.animate(0.1) {
+                    activeGraffiti.animate(0.03) {
                         offset.x = moveX
                         offset.y = moveY
                         offset.z = moveZ
@@ -188,15 +183,15 @@ class App : KotlinMod() {
                 if (activeGraffiti.children.isNotEmpty())
                     activeGraffiti.children[0].color.alpha = if (fixed) 1.0 else 0.6
                 if (fixed) {
-                    createGraffiti(activeGraffiti, "")
+                    createGraffiti(activeGraffiti.copy(), "")
                 }
             }
         }
     }
 
-    private fun createGraffiti(prototype: Context3D, highlight: String) {
-        drewGraffities.add(prototype to highlight)
-        UIEngine.worldContexts.add(prototype)
-        UIEngine.postOverlayContext.schedule(10) { UIEngine.worldContexts.remove(prototype) }
+    private fun createGraffiti(copy: Context3D, highlight: String) {
+        drewGraffities.add(copy to highlight)
+        UIEngine.worldContexts.add(copy)
+        UIEngine.schedule(10) { UIEngine.worldContexts.remove(copy) }
     }
 }

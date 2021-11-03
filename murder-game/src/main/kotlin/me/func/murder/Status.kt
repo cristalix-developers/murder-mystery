@@ -94,8 +94,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     val player = user.player!!
                     val nameTag = user.stat.activeNameTag
                     player.playerListName =
-                        if (nameTag == me.func.commons.donate.impl.NameTag.NONE) " " else nameTag.getRare()
-                            .with(nameTag.getTitle())
+                        if (nameTag == me.func.commons.donate.impl.NameTag.NONE) " " else "${nameTag.getRare().getColored()} §7${nameTag.getTitle()}"
                     me.func.murder.listener.tab.setTabView(player.uniqueId, me.func.murder.listener.tabView)
                     me.func.murder.listener.tab.update(player)
                     ModHelper.sendTitle(user, "Роль: ${user.role.title}")

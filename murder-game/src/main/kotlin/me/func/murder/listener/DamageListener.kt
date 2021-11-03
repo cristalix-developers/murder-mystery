@@ -33,7 +33,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.util.EulerAngle
 
 
-class DamageListener : Listener {
+object DamageListener : Listener {
 
     @EventHandler
     fun EntityDamageByEntityEvent.handle() {
@@ -110,7 +110,7 @@ class DamageListener : Listener {
 
     @EventHandler
     fun PlayerMoveEvent.handle() {
-        if (player.gameMode != GameMode.SPECTATOR && to.block.type == Material.WATER)
+        if (player.gameMode != GameMode.SPECTATOR && to.block.isLiquid)
             kill(murder.getUser(player), null)
     }
 

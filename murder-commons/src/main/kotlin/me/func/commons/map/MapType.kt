@@ -342,7 +342,9 @@ enum class MapType(
                 }
             }
         })
-    ), DBD("Dead By Daylight", 7, Music.LOBBY, "dbd", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
+    ),
+    DBD(
+        "Dead By Daylight", 7, Music.LOBBY, "dbd", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
         MapData(
             "DBD",
             36.0, 14.0,
@@ -350,7 +352,18 @@ enum class MapType(
             "dbd.png",
             128.0,
             arrayListOf()
-        ), listOf()) ;
+        ), listOf()
+    ),
+    DBD2(
+        "Dead By Daylight", 8, Music.LOBBY, "dbd2", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
+        MapData(
+            "DBD2",
+            41.0, 73.0,
+            "mcpatcher/cit/others/mod items/gem_ruby.png",
+            "dbd2.png",
+            128.0,
+            arrayListOf()
+        ), listOf());
 
     fun loadDetails(entities: Array<Entity>) {
         entities.filterIsInstance<ArmorStand>()

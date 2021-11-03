@@ -2,18 +2,20 @@ import clepto.bukkit.B
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import listener.DeathHandler
-import listener.MoveHandler
 import listener.JoinListener
+import listener.MoveHandler
 import me.func.commons.MurderInstance
 import me.func.commons.content.CustomizationNPC
 import me.func.commons.content.Lootbox
 import me.func.commons.content.TopManager
 import me.func.commons.listener.GlobalListeners
+import me.func.commons.listener.MapDecoration
 import me.func.commons.map.MapType
 import me.func.commons.realm
 import me.func.commons.user.User
 import me.func.commons.userManager
 import me.func.commons.util.MapLoader
+import me.func.commons.worldMeta
 import mechanic.BlockPhysicsCancel
 import mechanic.GadgetMechanic
 import mechanic.GadgetMechanic.clearTraps
@@ -22,8 +24,10 @@ import mechanic.drop.ItemHolder
 import mechanic.engine.EngineManager
 import mechanic.gate.GateManager
 import org.bukkit.Bukkit
+import org.bukkit.entity.Item
 import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
+import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmId
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.npcs.server.Npcs
@@ -45,7 +49,7 @@ class App : JavaPlugin() {
         murder = this
         Platforms.set(PlatformDarkPaper())
 
-        map = MapType.DBD
+        map = if (IRealmService.get().currentRealmInfo.realmId.id < 500) MapType.DBD else MapType.DBD2
 
         MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load(map.address), 6)
         realm.readableName = "DBD${realm.realmId.id} v.1.0.2"
@@ -57,7 +61,8 @@ class App : JavaPlugin() {
 
         // Регистрация обработчиков событий
         B.events(
-            GlobalListeners(),
+            GlobalListeners,
+            MapDecoration,
             JoinListener,
             DeathHandler,
             Lootbox,
@@ -71,6 +76,8 @@ class App : JavaPlugin() {
 
         // Загрузка врат
         GateManager
+        // Загрузка размеров стендов
+        map.loadDetails(worldMeta.world.entities.toTypedArray())
 
         // Создание контента для лобби
         TopManager()
@@ -83,6 +90,7 @@ class App : JavaPlugin() {
         ChestManager.hideAll()
         clearTraps()
         Bukkit.getOnlinePlayers().forEach { it.kickPlayer("Выключение сервера.") }
+        worldMeta.world.livingEntities.filter { it is Item }.forEach { it.remove() }
 
         // Полная перезагрузка если много игр наиграно
         if (games > GAMES_STREAK_RESTART)

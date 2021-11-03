@@ -13,10 +13,10 @@ class App : KotlinMod() {
     override fun onEnable() {
         UIEngine.initialize(this)
 
-        UIEngine.registerHandler(HealthRender::class.java) { isCancelled = true }
-        UIEngine.registerHandler(ExpBarRender::class.java) { isCancelled = true }
-        UIEngine.registerHandler(HungerRender::class.java) { isCancelled = true }
-        UIEngine.registerHandler(ArmorRender::class.java) { isCancelled = true }
+        registerHandler<HealthRender> { isCancelled = true }
+        registerHandler<ExpBarRender> { isCancelled = true }
+        registerHandler<HungerRender> { isCancelled = true }
+        registerHandler<ArmorRender> { isCancelled = true }
 
         RewardManager()
 

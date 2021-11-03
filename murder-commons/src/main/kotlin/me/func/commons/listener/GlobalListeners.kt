@@ -29,7 +29,7 @@ import java.io.File
 import java.nio.file.Files
 import java.util.*
 
-class GlobalListeners : Listener {
+object GlobalListeners : Listener {
 
     // Получении точки спавна
     private var spawn: Location? = null

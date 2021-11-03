@@ -64,81 +64,89 @@ object DeathHandler : Listener {
             } else {
                 val player = victim.player!!
 
-                B.bc("  §l> §cИгрок §e${player.name} §cпал! Чтобы спасти нажмите §f§lSHIFT §c c §e1 бинтом§c! Осталось 15 секунд.")
-                ModHelper.sendTitle(victim, "§cВас ранили!\n§eЖдите помощи")
-                ModHelper.makeCorpse(victim)
+                // Если игрока еще можно спасти
+                if (Bukkit.getOnlinePlayers().map { murder.getUser(it).role == Role.VICTIM }.size > 1) {
+                    ModHelper.makeCorpse(victim)
+                    victim.player!!.gameMode = GameMode.SPECTATOR
 
-                Bukkit.getOnlinePlayers().filter { it != killer!!.player }.forEach {
-                    ModTransfer()
-                        .string(player.uniqueId.toString())
-                        .double(player.location.x)
-                        .double(player.location.y + 1.0)
-                        .double(player.location.z)
-                        .string("textures/others/znak_v_3.png")
-                        .send("holo", murder.getUser(it))
-                }
-
-                victim.player!!.gameMode = GameMode.SPECTATOR
-
-                val location = victim.player!!.location.clone().add(0.0, 1.3, 0.0)
-                location.pitch = 90f
-
-                Cycle.run(1, 20 * 15) { time ->
-                    if (time == 20 * 15 - 1) {
-                        kill(victim)
-                        return@run
+                    ModHelper.sendTitle(victim, "§cВас ранили!\n§eЖдите помощи")
+                    B.bc("  §l> §cИгрок §e${player.name} §cпал! Чтобы спасти нажмите §f§lSHIFT §c c §e1 бинтом§c! Осталось 15 секунд.")
+                    Bukkit.getOnlinePlayers().filter { it != killer!!.player }.forEach {
+                        ModTransfer()
+                            .string(player.uniqueId.toString())
+                            .double(player.location.x)
+                            .double(player.location.y + 1.0)
+                            .double(player.location.z)
+                            .string("textures/others/znak_v_3.png")
+                            .send("holo", murder.getUser(it))
                     }
 
-                    victim.player!!.teleport(location)
 
-                    Bukkit.getOnlinePlayers()
-                        .filter {
-                            it.location.distanceSquared(location) < 10 &&
-                                    it != killer?.player &&
-                                    it.gameMode != GameMode.SPECTATOR
-                        }.forEach {
-                            if (!it.inventory.contains(GadgetMechanic.bandage)) {
-                                it.spigot()
-                                    .sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§cВам нужен §e§l1 бинт§c!"))
-                            } else if (!it.isSneaking) {
-                                it.spigot().sendMessage(
-                                    ChatMessageType.ACTION_BAR,
-                                    TextComponent("§cНажмите §e§lSHIFT§c, чтобы спасти")
-                                )
-                            } else {
-                                it.inventory.setItem(3, null)
+                    val location = victim.player!!.location.clone().add(0.0, 1.3, 0.0)
+                    location.pitch = 90f
 
-                                it.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l-1 §fбинт"))
-
-                                val uuid = victim.player!!.uniqueId.toString()
-
-                                // Отправляем труп опять, чтобы удалить
-                                Bukkit.getOnlinePlayers()
-                                    .map { player -> getByPlayer(player) }
-                                    .forEach { player ->
-                                        ModHelper.sendCorpse(
-                                            victim.player!!.name,
-                                            victim.player!!.uniqueId, player, 0.0, 0.0, 0.0
-                                        )
-                                        ModTransfer().string(uuid).send("holohide", player)
-                                    }
-
-                                victim.hearts = 1
-                                victim.player!!.gameMode = GameMode.ADVENTURE
-                                victim.player!!.addPotionEffect(
-                                    PotionEffect(
-                                        PotionEffectType.CONFUSION,
-                                        20 * 2,
-                                        1
-                                    )
-                                )
-                                victim.player!!.addPotionEffect(speed)
-
-                                B.bc("  §l> §e${victim.player!!.name} §aспасен благодаря помощи  §e${it.name}")
-                                ModHelper.sendTitle(victim, "§cВас ранили!\n§eЖдите помощи")
-                                Cycle.exit()
-                            }
+                    Cycle.run(1, 20 * 15) { time ->
+                        if (time == 20 * 15 - 1) {
+                            kill(victim)
+                            return@run
                         }
+
+                        victim.player!!.teleport(location)
+
+                        Bukkit.getOnlinePlayers()
+                            .filter {
+                                it.location.distanceSquared(location) < 10 &&
+                                        it != killer?.player &&
+                                        it.gameMode != GameMode.SPECTATOR
+                            }.forEach {
+                                if (!it.inventory.contains(GadgetMechanic.bandage)) {
+                                    it.spigot()
+                                        .sendMessage(
+                                            ChatMessageType.ACTION_BAR,
+                                            TextComponent("§cВам нужен §e§l1 бинт§c!")
+                                        )
+                                } else if (!it.isSneaking) {
+                                    it.spigot().sendMessage(
+                                        ChatMessageType.ACTION_BAR,
+                                        TextComponent("§cНажмите §e§lSHIFT§c, чтобы спасти")
+                                    )
+                                } else {
+                                    it.inventory.setItem(3, null)
+
+                                    it.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l-1 §fбинт"))
+
+                                    val uuid = victim.player!!.uniqueId.toString()
+
+                                    // Отправляем труп опять, чтобы удалить
+                                    Bukkit.getOnlinePlayers()
+                                        .map { player -> getByPlayer(player) }
+                                        .forEach { player ->
+                                            ModHelper.sendCorpse(
+                                                victim.player!!.name,
+                                                victim.player!!.uniqueId, player, 0.0, 0.0, 0.0
+                                            )
+                                            ModTransfer().string(uuid).send("holohide", player)
+                                        }
+
+                                    victim.hearts = 1
+                                    victim.player!!.gameMode = GameMode.ADVENTURE
+                                    victim.player!!.addPotionEffect(
+                                        PotionEffect(
+                                            PotionEffectType.CONFUSION,
+                                            20 * 2,
+                                            1
+                                        )
+                                    )
+                                    victim.player!!.addPotionEffect(speed)
+
+                                    B.bc("  §l> §e${victim.player!!.name} §aспасен благодаря помощи  §e${it.name}")
+                                    ModHelper.sendTitle(victim, "§cВас ранили!\n§eЖдите помощи")
+                                    Cycle.exit()
+                                }
+                            }
+                    }
+                } else {
+                    kill(victim)
                 }
             }
         } else {

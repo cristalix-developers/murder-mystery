@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit
 var tab: ITabService = ITabService.get()
 val tabView: IConstantTabView = tab.createConstantTabView()
 
-class ConnectionHandler : Listener {
+object ConnectionHandler : Listener {
 
     init {
         // Таб

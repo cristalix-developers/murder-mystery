@@ -1,12 +1,11 @@
 package me.func.murder.listener
 
-import me.func.commons.app
 import me.func.commons.map.interactive.BlockInteract
 import me.func.commons.mod.ModHelper
 import me.func.murder.Status
 import me.func.murder.activeStatus
-import me.func.murder.murder
 import me.func.murder.map
+import me.func.murder.murder
 import me.func.murder.util.goldManager
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -17,12 +16,11 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.EquipmentSlot
-import org.bukkit.potion.Potion
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import ru.cristalix.core.formatting.Formatting
 
-class InteractEvent : Listener {
+object InteractEvent : Listener {
 
     @EventHandler
     fun PlayerInteractEvent.handle() {

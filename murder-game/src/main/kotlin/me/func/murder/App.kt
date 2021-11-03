@@ -8,6 +8,7 @@ import me.func.commons.content.CustomizationNPC
 import me.func.commons.content.Lootbox
 import me.func.commons.content.TopManager
 import me.func.commons.listener.GlobalListeners
+import me.func.commons.listener.MapDecoration
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
 import me.func.murder.listener.InteractEvent
@@ -60,15 +61,15 @@ class App : JavaPlugin() {
 
         // Регистрация обработчиков событий
         B.events(
-            DamageListener(),
-            ConnectionHandler(),
-            GlobalListeners(),
-            GoldListener(),
-            ChatListener(),
-            InteractEvent(),
+            DamageListener,
+            ConnectionHandler,
+            GlobalListeners,
+            GoldListener,
+            ChatListener,
+            InteractEvent,
             Lootbox,
-            InventoryListener(),
-            MapDecoration()
+            InventoryListener,
+            MapDecoration
         )
 
         // Создание контента для лобби

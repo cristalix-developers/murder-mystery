@@ -5,6 +5,7 @@ import activeStatus
 import clepto.bukkit.B
 import dev.implario.bukkit.item.item
 import killer
+import me.func.commons.util.StandHelper
 import me.func.commons.worldMeta
 import mechanic.GadgetMechanic
 import murder
@@ -14,6 +15,7 @@ import net.minecraft.server.v1_12_R1.Block
 import net.minecraft.server.v1_12_R1.BlockPosition
 import net.minecraft.server.v1_12_R1.PacketPlayOutBlockAction
 import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.BlockFace
@@ -30,8 +32,13 @@ import org.bukkit.util.Vector
 object ChestManager : Listener {
 
     private val chests = worldMeta.getLabels("chest")
-        .associate { it.block.getRelative(BlockFace.DOWN).location to 0 }
-        .toMutableMap()
+        .associate { it.block.getRelative(BlockFace.DOWN).location to LootChest(it, 0, StandHelper(it.toCenterLocation().subtract(0.0, 0.6, 0.0))
+            .gravity(false)
+            .marker(true)
+            .invisible(true)
+            .name("§bОткрыть")
+            .build())
+        }.toMutableMap()
     private val tickList = mutableListOf<Location>()
     val fuel: ItemStack = item {
         text("§l§eТопливо")
@@ -40,6 +47,9 @@ object ChestManager : Listener {
     }.build()
 
     init {
+        chests.forEach {
+
+        }
         B.repeat(5) {
             if (activeStatus == Status.GAME) {
                 tick()
@@ -49,12 +59,15 @@ object ChestManager : Listener {
 
     @EventHandler
     fun PlayerInteractEvent.handle() {
-        if (hasBlock() && blockClicked.type == Material.CHEST && chests[blockClicked.location] == 0 && killer?.player != player) {
+        if (player.gameMode == GameMode.SPECTATOR)
+            return
+        if (hasBlock() && blockClicked.type == Material.CHEST && chests[blockClicked.location]?.open == 0 && killer?.player != player) {
             tickList.add(blockClicked.location)
 
             val location = blockClicked.location.clone().add(0.5, 1.0, 0.5)
             drop(location, fuel)
-            drop(location, GadgetMechanic.bandage)
+            if (Math.random() < 0.5)
+                drop(location, GadgetMechanic.bandage)
 
             if (Math.random() < 0.4) {
                 val energy = (Math.random() * 350).toInt()
@@ -62,8 +75,9 @@ object ChestManager : Listener {
                 player.spigot()
                     .sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l+${energy / 20} §fсек. света"))
             }
-
-            chests[blockClicked.location] = 1
+            val chest = chests[blockClicked.location]!!
+            chest.open = 1
+            chest.stand.customName = "§7Пусто"
         }
     }
 
@@ -76,14 +90,16 @@ object ChestManager : Listener {
 
     private fun drop(location: Location, itemStack: ItemStack) {
         val item = location.world.dropItemNaturally(location.clone().add(0.5, 1.0, 0.5), itemStack)
-        item.velocity = Vector(Math.random() - 0.5, 1.0, Math.random() - 0.5).multiply(0.2)
+        item.velocity = Vector(Math.random() - 0.5, 1.1, Math.random() - 0.5).multiply(0.1)
+        item.customName = "§l§fx1 §f" + item.itemStack.itemMeta.displayName
         item.isCustomNameVisible = true
     }
 
     fun hideAll() {
-        chests.replaceAll { _, _ ->
-            tickList.clear()
-            0
+        tickList.clear()
+        chests.forEach { (_, value) ->
+            value.stand.customName = "§bОткрыть"
+            value.open = 0
         }
     }
 

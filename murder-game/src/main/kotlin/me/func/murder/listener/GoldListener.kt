@@ -12,7 +12,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent
 import org.bukkit.event.player.PlayerPickupArrowEvent
 
-class GoldListener : Listener {
+object GoldListener : Listener {
 
     private val bow = item {
         type = Material.BOW

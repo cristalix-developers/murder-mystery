@@ -144,9 +144,10 @@ object GadgetMechanic : Listener {
                 if (it == 20 * REGEN_TIME - 1) {
                     user.hearts++
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§aРана заделана!"))
+                    Cycle.exit()
                     return@run
                 }
-                if (originalLocation.distanceSquared(player.location) > 1.2 || user.hearts > 1) {
+                if (originalLocation.world.equals(player.location.world) && originalLocation.distanceSquared(player.location) > 1.2 || user.hearts > 1) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§cВы порвали бинт!"))
                     Cycle.exit()
                 } else {

@@ -1,4 +1,4 @@
-package me.func.murder.listener
+package me.func.commons.listener
 
 import clepto.bukkit.B
 import me.func.commons.worldMeta
@@ -13,7 +13,7 @@ import org.bukkit.event.player.PlayerMoveEvent
 import org.spigotmc.event.entity.EntityDismountEvent
 import java.util.*
 
-class MapDecoration : Listener {
+object MapDecoration : Listener {
 
     @EventHandler
     fun PlayerInteractAtEntityEvent.handle() {
