@@ -2,7 +2,6 @@ package me.func.murder.listener
 
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
-import me.func.commons.app
 import me.func.commons.arrow
 import me.func.commons.donate.impl.Corpse
 import me.func.commons.donate.impl.KillMessage

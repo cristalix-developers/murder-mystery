@@ -56,7 +56,7 @@ class App : JavaPlugin() {
         BowManager()
 
         // Запуск игрового таймера
-        timer = Timer()
+        timer = Timer
         timer.runTaskTimer(this, 10, 1)
 
         // Регистрация обработчиков событий

@@ -19,6 +19,7 @@ class App : KotlinMod() {
         registerHandler<ArmorRender> { isCancelled = true }
 
         RewardManager()
+        QueueStatus
 
         val balanceText = text {
             content = "§aЗагрузка..."

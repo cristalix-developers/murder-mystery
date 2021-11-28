@@ -10,7 +10,6 @@ import me.func.commons.worldMeta
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.Bukkit
-import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand
@@ -20,7 +19,6 @@ import org.bukkit.material.Door
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
-import org.codehaus.groovy.ast.tools.GeneralUtils.block
 import ru.cristalix.core.math.V3
 import ru.cristalix.core.util.UtilV3
 

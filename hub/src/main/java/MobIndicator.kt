@@ -8,8 +8,8 @@ import dev.xdark.clientapi.opengl.GlStateManager
 import org.lwjgl.opengl.GL11
 import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.vector.Vector3f
+import ru.cristalix.clientapi.registerHandler
 import ru.cristalix.uiengine.UIEngine.clientApi
-import ru.cristalix.uiengine.UIEngine.registerHandler
 import ru.cristalix.uiengine.element.Context3D
 import ru.cristalix.uiengine.utility.*
 
@@ -37,7 +37,7 @@ object MobIndicator {
 
         context.addChild(body)
 
-        registerHandler(RenderTickPre::class.java) {
+        registerHandler<RenderTickPre> {
             val player = clientApi.minecraft().player
             val matrix = Matrix4f()
             Matrix4f.setIdentity(matrix)
@@ -53,7 +53,7 @@ object MobIndicator {
 
         val map = mutableMapOf<Int, Pair<Double, Double>>()
 
-        registerHandler(PluginMessage::class.java) {
+        registerHandler<PluginMessage> {
             if (channel == "hub:mob") {
                 val id = data.readInt()
                 val hp = data.readDouble()
@@ -65,7 +65,7 @@ object MobIndicator {
             }
         }
 
-        registerHandler(NameTemplateRender::class.java) {
+        registerHandler<NameTemplateRender> {
             if (entity !is EntityLivingBase) return@registerHandler
             val entity = entity as EntityLivingBase
 

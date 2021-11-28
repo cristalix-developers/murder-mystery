@@ -4,34 +4,38 @@ import clepto.bukkit.B
 import clepto.cristalix.Cristalix
 import dev.implario.bukkit.item.item
 import dev.implario.bukkit.platform.Platforms
+import dev.implario.games5e.node.CoordinatorClient
+import dev.implario.games5e.node.NoopGameNode
+import dev.implario.games5e.packets.PacketOk
+import dev.implario.games5e.packets.PacketQueueEnter
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
+import io.netty.buffer.Unpooled
 import me.func.commons.*
 import me.func.commons.content.CustomizationNPC
 import me.func.commons.content.Lootbox
 import me.func.commons.content.TopManager
 import me.func.commons.listener.GlobalListeners
-import me.func.commons.map.MapType
+import me.func.commons.mod.ModTransfer
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
-import me.func.commons.util.Music
+import net.minecraft.server.v1_12_R1.PacketDataSerializer
+import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
+import org.bukkit.Bukkit
 import org.bukkit.Material
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
-import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
-import org.bukkit.event.block.BlockPhysicsEvent
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.player.PlayerInteractEvent
-import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
 import ru.cristalix.core.display.data.DataDrawData
 import ru.cristalix.core.display.data.StringDrawData
 import ru.cristalix.core.formatting.Formatting
+import ru.cristalix.core.lib.Futures
 import ru.cristalix.core.math.V2
 import ru.cristalix.core.math.V3
+import ru.cristalix.core.party.IPartyService
+import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmId
 import ru.cristalix.core.render.BukkitRenderService
 import ru.cristalix.core.render.IRenderService
@@ -40,57 +44,57 @@ import ru.cristalix.core.render.WorldRenderData
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
+import java.awt.SystemColor.text
 import java.util.*
+import java.util.concurrent.TimeUnit
+
 
 lateinit var murder: App
 
-class App : JavaPlugin(), Listener {
+class App : JavaPlugin() {
 
-    private lateinit var cosmeticItem: ItemStack
-    private lateinit var startItem: ItemStack
-    private lateinit var backItem: ItemStack
+    val client = CoordinatorClient(NoopGameNode())
+    private var squidSlot = 80
 
     override fun onEnable() {
         B.plugin = this
         murder = this
         Platforms.set(PlatformDarkPaper())
-        B.events(this, GlobalListeners(), Lootbox)
 
-        MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load("lobby"), 200)
+        B.events(GlobalListeners, Lootbox, LobbyHandler)
+
+        MurderInstance(this, { getUser(it) }, { getUser(it) }, MapLoader.load("lobby"), 270)
 
         CoreApi.get().registerService(IRenderService::class.java, BukkitRenderService(getServer()))
-        cosmeticItem = item {
-            type = Material.CLAY_BALL
-            text("§aПерсонаж")
-            nbt("other", "clothes")
-            nbt("click", "menu")
-        }.build()
-        startItem = item {
-            type = Material.CLAY_BALL
-            text("§bИграть")
-            nbt("other", "guild_members")
-            nbt("click", "next")
-        }.build()
-        backItem = item {
-            type = Material.CLAY_BALL
-            text("§cВыйти")
-            nbt("other", "cancel")
-            nbt("click", "leave")
-        }.build()
 
         // Конфигурация реалма
         realm.isLobbyServer = true
         realm.readableName = "MurderMystery Lobby"
         realm.servicedServers = arrayOf("MURP", *GameType.values().map { it.name }.toTypedArray())
+        realm.extraSlots = 10
+
+        val uuid = UUID.fromString("7188b5b2-43b3-40fc-bcd0-abeea3883490")
+        B.repeat(10) {
+            val count = client.queueOnline[uuid]!!
+            Bukkit.getOnlinePlayers().forEach {
+                try {
+                    val serializer = PacketDataSerializer(Unpooled.buffer())
+                    serializer.writeInt(count)
+                    (it as CraftPlayer).handle.playerConnection.sendPacket(PacketPlayOutCustomPayload("queue:online", serializer))
+                } catch (exception: Exception) {}
+            }
+        }
 
         // Создание контента для лобби
         TopManager()
         Npcs.init(app)
         CustomizationNPC()
-        LobbyHandler
         // NPC поиска игры
         val balancer = PlayerBalancer()
         var fixDoubleClick: Player? = null
+
+        client.listenQueues()
+        client.enable()
 
         worldMeta.getLabels("play").forEach { npcLabel ->
             val npcArgs = npcLabel.tag.split(" ")
@@ -108,10 +112,46 @@ class App : JavaPlugin(), Listener {
                     .onClick {
                         if (fixDoubleClick != null && fixDoubleClick == it)
                             return@onClick
-                        balancer.accept(it, type == GameType.MUR)
                         fixDoubleClick = it
+
+                        if (type == GameType.SQD) {
+                            Futures.timeout(IPartyService.get().getPartyByMember(it.uniqueId), 3, TimeUnit.SECONDS).whenComplete { group, throwable ->
+                                if (throwable == null) {
+                                    if (!group.map { party -> party.leader == it.uniqueId }.orElse(true)) {
+                                        it.sendMessage(Formatting.error("Вы не лидер пати."))
+                                        return@whenComplete
+                                    }
+                                }
+
+                                Futures.timeout(
+                                    client.client.send(
+                                        PacketQueueEnter(
+                                            client.allQueues[0].properties.queueId,
+                                            if (throwable == null && group.isPresent) group.get().members.toList() else listOf(it.uniqueId),
+                                            true, true, HashMap()
+                                        )
+                                    ).awaitFuture(PacketOk::class.java), 2, TimeUnit.SECONDS
+                                ).whenComplete { _, error ->
+                                    if (error != null) {
+                                        error.printStackTrace()
+                                        it.sendMessage(Formatting.error("Ошибка: ${error::class.simpleName} ${error.message}"))
+                                    } else {
+                                        it.sendMessage(Formatting.fine("Вы добавлены в очередь!"))
+                                        ModTransfer()
+                                            .string("icon")
+                                            .integer(squidSlot)
+                                            .send("queue:show", getUser(it))
+                                    }
+                                }
+                            }
+                            return@onClick
+                        } else {
+                            balancer.accept(it, type == GameType.MUR)
+                        }
                     }.build()
             )
+            val working = IRealmService.get().hasAnyRealmsOfType(type.name)
+            val prefix = (if (working) "§a" else "§c") + "◉ " + (if (working) "" else "Закрыто ")
             val textDataName = UUID.randomUUID().toString()
             IRenderService.get().createGlobalWorldRenderData(
                 worldMeta.world.uid,
@@ -124,7 +164,7 @@ class App : JavaPlugin(), Listener {
                                     .string("㗬㗬㗬")
                                     .build(),
                                 StringDrawData.builder().align(1).scale(2).position(V2(115.0, 40.0))
-                                    .string("§l> " + type.string).build()
+                                    .string(prefix + type.string).build()
                             )
                         ).dimensions(V2(0.0, 0.0))
                         .scale(2.0)
@@ -137,53 +177,31 @@ class App : JavaPlugin(), Listener {
         }
 
         // Команда выхода в хаб
-        val hub = RealmId.of("HUB-1")
+        val hub = RealmId.of("HUB-2")
         B.regCommand({ player, _ ->
             Cristalix.transfer(listOf(player.uniqueId), hub)
             null
         }, "leave")
+
+        B.regCommand({ player, arg ->
+            if (player.isOp)
+                squidSlot = arg[0].toInt()
+            null
+        }, "squid")
+
+        B.regCommand({ player, arg ->
+            Bukkit.getOnlinePlayers().forEach {
+                player.hidePlayer(murder, it)
+            }
+            Formatting.fine("Игроки скрыты!")
+        }, "hide")
     }
 
-    private fun getUser(player: Player): User {
+    fun getUser(player: Player): User {
         return getUser(player.uniqueId)
     }
 
     private fun getUser(uuid: UUID): User {
         return userManager.getUser(uuid)
-    }
-
-    @EventHandler
-    fun EntityDamageEvent.handle() {
-        cancelled = true
-    }
-
-    @EventHandler
-    fun BlockPhysicsEvent.handle() {
-        isCancelled = true
-    }
-
-    @EventHandler
-    fun PlayerInteractEvent.handle() {
-        if (item == null)
-            return
-        val nmsItem = CraftItemStack.asNMSCopy(item)
-        if (nmsItem.hasTag() && nmsItem.tag.hasKeyOfType("click", 8))
-            player.performCommand(nmsItem.tag.getString("click"))
-    }
-
-    @EventHandler
-    fun PlayerJoinEvent.handle() {
-        B.postpone(25) {
-            val user = getUser(player)
-            Music.LOBBY.play(user)
-            user.sendPlayAgain("§aПопробовать!", MapType.OUTLAST)
-        }
-
-        player.inventory.setItem(0, startItem)
-        player.inventory.setItem(4, cosmeticItem)
-        player.inventory.setItem(8, backItem)
-
-        if (Math.random() < 0.3)
-            player.sendMessage(Formatting.fine("Рекомендуем сделать §eминимальную яркость §fи §bвключить звуки§f для полного погружения."))
     }
 }

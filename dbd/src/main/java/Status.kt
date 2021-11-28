@@ -24,6 +24,9 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         var actualTime = time
         val players = Bukkit.getOnlinePlayers()
 
+        if (time % 20 == 0)
+            realm.status = RealmStatus.WAITING_FOR_PLAYERS
+
         // Если время вышло и пора играть
         if (time / 20 == STARTING.lastSecond) {
             // Начать отсчет заново, так как мало игроков
@@ -91,7 +94,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     val player = user.player!!
                     val nameTag = user.stat.activeNameTag
                     player.playerListName =
-                        if (nameTag == me.func.commons.donate.impl.NameTag.NONE) " " else "${nameTag.getRare().getColored()} §7${nameTag.getTitle()}"
+                        if (nameTag == NameTag.NONE) " " else "${nameTag.getRare().getColored()} §7${nameTag.getTitle()}"
                     tab.setTabView(player.uniqueId, tabView)
                     tab.update(player)
                     ModHelper.sendTitle(user, "Роль: ${user.role.title}")

@@ -1,6 +1,16 @@
+import com.mojang.authlib.GameProfile
+import com.mojang.authlib.properties.Property
+import dev.xdark.clientapi.entity.AbstractClientPlayer
+import dev.xdark.clientapi.entity.EntityPlayer
+import dev.xdark.clientapi.entity.EntityPlayerSP
+import dev.xdark.clientapi.entity.EntityProvider
+import dev.xdark.clientapi.event.entity.EntityDataChange
+import dev.xdark.clientapi.event.entity.EntityLeftClick
+import dev.xdark.clientapi.event.entity.EntityRightClick
 import dev.xdark.clientapi.event.entity.RotateAround
 import dev.xdark.clientapi.event.input.KeyPress
 import dev.xdark.clientapi.event.render.RenderTickPre
+import dev.xdark.feder.NetUtil
 import org.lwjgl.input.Keyboard
 import org.lwjgl.util.vector.Matrix4f
 import org.lwjgl.util.vector.Vector3f
@@ -10,6 +20,7 @@ import ru.cristalix.uiengine.element.Context3D
 import ru.cristalix.uiengine.eventloop.animate
 import ru.cristalix.uiengine.utility.*
 import java.lang.StrictMath.pow
+import java.util.*
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.sin
@@ -36,6 +47,34 @@ class App : KotlinMod() {
 
     override fun onEnable() {
         UIEngine.initialize(this)
+
+        registerHandler<EntityLeftClick> {
+            UIEngine.clientApi.chat().sendChatMessage("wow! nice flex")
+
+            val corpse = clientApi.entityProvider()
+                .newEntity(EntityProvider.PLAYER, clientApi.minecraft().world) as AbstractClientPlayer
+
+            val uuid = UUID.randomUUID()
+            corpse.setUniqueId(uuid)
+
+            val profile = GameProfile(uuid, "name")
+            corpse.gameProfile = profile
+
+            val info = clientApi.clientConnection().newPlayerInfo(profile)
+            info.responseTime = 5
+            info.skinType = "DEFAULT"
+            clientApi.clientConnection().addPlayerInfo(info)
+
+            (entity as AbstractClientPlayer).renderingEntity = corpse
+
+            UIEngine.clientApi.p13nProvider().playEmotion(
+                entity as AbstractClientPlayer,
+                UUID.fromString("1e953467-c105-4603-ae5d-b8114b96933c"),
+                "",
+                true
+            )
+        }
+
         UIEngine.overlayContext.addChild(background)
 
         packs.forEach { pack ->

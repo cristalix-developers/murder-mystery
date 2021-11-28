@@ -107,7 +107,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         .string(user.role.shortTitle)
                         .send("murder-start", user)
 
-                    me.func.commons.util.LocalModHelper.updateOnline()
+                    LocalModHelper.updateOnline()
                     // Сменить музыку
                     map.music.play(user)
                 }
@@ -175,6 +175,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 val user = murder.getUser(it)
                 if (it.gameMode != GameMode.SPECTATOR) {
                     user.stat.wins++
+                    user.giveMoney(10)
                     if (Math.random() < 0.11) {
                         user.stat.lootbox++
                         B.bc(fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))

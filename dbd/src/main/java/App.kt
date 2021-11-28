@@ -29,11 +29,10 @@ import org.bukkit.entity.Player
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.realm.IRealmService
 import ru.cristalix.core.realm.RealmId
-import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.npcs.server.Npcs
 import java.util.*
 
-const val GAMES_STREAK_RESTART = 6
+const val GAMES_STREAK_RESTART = 14
 const val ENGINE_NEEDED = 7
 lateinit var murder: App
 lateinit var map: MapType
@@ -95,8 +94,6 @@ class App : JavaPlugin() {
         // Полная перезагрузка если много игр наиграно
         if (games > GAMES_STREAK_RESTART)
             Bukkit.shutdown()
-
-        realm.status = RealmStatus.WAITING_FOR_PLAYERS
     }
 
     fun getUser(player: Player): User {

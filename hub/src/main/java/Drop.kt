@@ -6,11 +6,11 @@ import ru.cristalix.uiengine.element.RectangleElement
 import ru.cristalix.uiengine.utility.*
 
 enum class Drop(private val title: String, private val texture: String, val needTotal: Int) {
-    SKULL("Черепушки", "skull",  50),
-    TROLLCLAW("Коготь тролля", "trollclaw",  10),
+    SKULL("Черепушки", "skull",  25),
+    TROLLCLAW("Коготь тролля", "trollclaw",  5),
     AID_CROWN("Корона Аида", "aid_crown",  1),
-    SPIT("Слюна Цербера", "spit",  20),
-    CROW_FEATHERS("Перья Ворона", "crow_feathers",  30),;
+    SPIT("Слюна Цербера", "spit",  10),
+    CROW_FEATHERS("Перья Ворона", "crow_feathers",  15),;
 
     fun createLogo(): RectangleElement {
         val padding = 6

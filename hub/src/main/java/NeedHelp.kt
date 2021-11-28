@@ -2,9 +2,9 @@ import dev.xdark.clientapi.event.network.PluginMessage
 import dev.xdark.clientapi.event.render.RenderTickPre
 import dev.xdark.clientapi.opengl.GlStateManager
 import dev.xdark.feder.NetUtil.readUtf8
+import ru.cristalix.clientapi.registerHandler
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.UIEngine.clientApi
-import ru.cristalix.uiengine.UIEngine.registerHandler
 import ru.cristalix.uiengine.element.Context3D
 import ru.cristalix.uiengine.utility.*
 import java.util.*
@@ -14,7 +14,7 @@ object NeedHelp {
     private var holos: MutableMap<String, Context3D> = HashMap()
 
     init {
-        registerHandler(PluginMessage::class.java) {
+        registerHandler<PluginMessage> {
             if (channel == "holo") {
                 val uuid = readUtf8(data)
                 val x = data.readDouble()
@@ -35,13 +35,13 @@ object NeedHelp {
         }
 
         val player = clientApi.minecraft().player
-        registerHandler(RenderTickPre::class.java) {
+        registerHandler<RenderTickPre> {
             holos.forEach {
                 val yaw =
                     (player.rotationYaw - player.prevRotationYaw) * clientApi.minecraft().timer.renderPartialTicks + player.prevRotationYaw
                 val pitch =
                     (player.rotationPitch - player.prevRotationPitch) * clientApi.minecraft().timer.renderPartialTicks + player.prevRotationPitch
-                it.value.context?.rotation = Rotation(-yaw * Math.PI / 180 + Math.PI, 0.0, 1.0, 0.0)
+                it.value.rotation = Rotation(-yaw * Math.PI / 180 + Math.PI, 0.0, 1.0, 0.0)
                 it.value.children[0].rotation = Rotation(-pitch * Math.PI / 180, 1.0, 0.0, 0.0)
             }
         }

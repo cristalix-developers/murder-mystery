@@ -3,7 +3,6 @@ package me.func.commons.user
 import dev.implario.bukkit.item.item
 import me.func.commons.light
 import org.bukkit.Material
-import sun.audio.AudioPlayer.player
 
 enum class Role(val title: String, val shortTitle: String, val start: ((User) -> Unit)?) {
     VICTIM("§2Жертва", "§2Жертва", {

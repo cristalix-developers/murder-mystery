@@ -33,16 +33,14 @@ object Lootbox : Listener {
         .plus(Mask.values())
         .filter { it != KillMessage.NONE && it != Corpse.NONE && it != NameTag.NONE && it != StepParticle.NONE && it != ArrowParticle.NONE && it != Mask.NONE }
 
-    private val lootboxPrice = 192
+    private const val lootboxPrice = 192
 
     private val lootboxItem = item {
         type = Material.CLAY_BALL
         nbt("other", "enderchest1")
         text(
             "§bЛутбокс\n\n§7Откройте и получите\n§7псевдоним, частицы ходьбы\n§7следы от стрелы, маски\n§7или скин могилы!\n\n§e > §f㜰 §aОткрыть сейчас за\n${
-                me.func.commons.donate.MoneyFormatter.texted(
-                    lootboxPrice
-                )
+                me.func.commons.donate.MoneyFormatter.texted(lootboxPrice)
             }"
         )
     }.build()
@@ -96,7 +94,13 @@ object Lootbox : Listener {
                         }
                         user.giveMoney(moneyDrop)
 
-                        B.bc(Formatting.fine("§e${player.name} §fполучил §b${drop.getRare().with(drop.getTitle())}."))
+                        B.bc(
+                            Formatting.fine(
+                                "§e${player.name} §fполучил §b${
+                                    drop.getRare().with(drop.getTitle())
+                                }."
+                            )
+                        )
                     })
                 }
                 contents.add('P', ClickableItem.empty(item {

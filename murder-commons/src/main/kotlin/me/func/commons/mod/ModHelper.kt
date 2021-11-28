@@ -1,10 +1,8 @@
 package me.func.commons.mod
 
 import me.func.commons.getByPlayer
-import me.func.commons.user.Role
 import me.func.commons.user.User
 import org.bukkit.Bukkit
-import org.bukkit.GameMode
 import java.util.*
 
 object ModHelper {

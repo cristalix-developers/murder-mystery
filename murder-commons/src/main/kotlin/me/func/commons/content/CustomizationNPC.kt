@@ -5,7 +5,6 @@ import dev.implario.bukkit.item.item
 import me.func.commons.achievement.Achievement
 import me.func.commons.donate.DonateHelper
 import me.func.commons.donate.DonatePosition
-import me.func.commons.donate.MoneyFormatter
 import me.func.commons.donate.impl.*
 import me.func.commons.getByPlayer
 import me.func.commons.realm
@@ -42,14 +41,14 @@ class CustomizationNPC {
     }.build()
 
     private val accessItem = item {
-        text("§aКупить\n\n§7Это кнопка подтверждения\n§7покупки.")
+        text("§aКупить\n\n§7Это кнопка подтверждения\n§7покупки.\n\n§7Персонализация работает\nна MurderMystery и\nDead By Daylight")
         nbt("other", "access")
         enchant(Enchantment.LUCK, 1)
         type = Material.CLAY_BALL
     }.build()
 
     private val menu = ControlledInventory.builder()
-        .title("MurderMystery")
+        .title("Меню")
         .rows(6)
         .columns(9)
         .provider(object : InventoryProvider {

@@ -15,6 +15,7 @@ import me.func.commons.donate.DonatePosition
 import me.func.commons.user.Stat
 import me.func.commons.user.User
 import me.func.commons.util.ParticleHelper
+import me.func.commons.util.StandHelper
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -103,6 +104,18 @@ class MurderInstance(
         getByUuid = byUuid
 
         val lootbox = worldMeta.getLabel("lootbox").toCenterLocation().clone().subtract(0.0, 3.0, 0.0)
+        StandHelper(lootbox.clone().add(0.0, 2.75, 0.0))
+            .gravity(false)
+            .invisible(true)
+            .marker(true)
+            .name("§bОткрыть лутбокс")
+            .build()
+        StandHelper(lootbox.clone().add(0.0, 2.4, 0.0))
+            .gravity(false)
+            .invisible(true)
+            .marker(true)
+            .name("§e§lКЛИК")
+            .build()
         var tick = 0
         B.repeat(1) {
             if (realm.status == RealmStatus.GAME_STARTED_RESTRICTED)

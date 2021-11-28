@@ -27,7 +27,10 @@ object WinUtil {
                 true
             }
             alive.isEmpty() && out.isNotEmpty() -> {
-                out.forEach { it.stat.eventWins++ }
+                out.forEach {
+                    it.giveMoney(5)
+                    it.stat.eventWins++
+                }
                 winMessage = "§aСпаслись: §f§l${out.joinToString{ it.player!!.name }}"
                 true
             }
@@ -37,7 +40,10 @@ object WinUtil {
                 true
             }
             activeStatus.lastSecond * 20 == timer.time && out.isNotEmpty() -> {
-                out.forEach { it.stat.eventWins++ }
+                out.forEach {
+                    it.giveMoney(7)
+                    it.stat.eventWins++
+                }
                 winMessage = "§aЛюди спаслись, потерпевшие: §f§l${out.joinToString{ it.player!!.name }}"
                 true
             }

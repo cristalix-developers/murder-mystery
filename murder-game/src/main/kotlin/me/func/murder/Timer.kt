@@ -7,7 +7,7 @@ import org.bukkit.scheduler.BukkitRunnable
 
 lateinit var timer: Timer
 
-class Timer : BukkitRunnable() {
+object Timer : BukkitRunnable() {
     var time = 0
 
     override fun run() {

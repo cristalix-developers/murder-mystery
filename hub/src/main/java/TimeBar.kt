@@ -1,10 +1,11 @@
 import dev.xdark.clientapi.event.lifecycle.GameLoop
 import dev.xdark.clientapi.event.network.PluginMessage
 import dev.xdark.feder.NetUtil
+import ru.cristalix.clientapi.registerHandler
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.element.RectangleElement
 import ru.cristalix.uiengine.element.TextElement
-import ru.cristalix.uiengine.element.animate
+import ru.cristalix.uiengine.eventloop.animate
 import ru.cristalix.uiengine.utility.*
 
 object TimeBar {
@@ -38,7 +39,7 @@ object TimeBar {
         var currentTime = System.currentTimeMillis()
         val textElement = cooldown.children[1] as TextElement
 
-        UIEngine.registerHandler(GameLoop::class.java) {
+        registerHandler<GameLoop> {
             if (System.currentTimeMillis() - currentTime > 1000) {
                 time--
                 currentTime = System.currentTimeMillis()
@@ -47,7 +48,7 @@ object TimeBar {
             }
         }
 
-        UIEngine.registerHandler(PluginMessage::class.java) {
+        registerHandler<PluginMessage> {
             if (channel == "hub:timebar") {
                 val text = NetUtil.readUtf8(data) + "00:00"
                 time = data.readInt()
@@ -67,7 +68,7 @@ object TimeBar {
                 (cooldown.children[0] as RectangleElement).animate(time - 0.1) {
                     size.x = 0.0
                 }
-                UIEngine.overlayContext.schedule(time) {
+                UIEngine.schedule(time) {
                     cooldown.enabled = false
                     (cooldown.children[0] as RectangleElement).size.x = 180.0
                 }

@@ -17,6 +17,7 @@ class App : KotlinMod() {
         NeedHelp
         TimeBar
         MobIndicator
+        Alert
 
         val drops = Drop.values().associateWith { it.createLogo() }.toMutableMap()
         var loaded = false

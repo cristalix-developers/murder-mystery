@@ -1,6 +1,5 @@
 import dev.xdark.clientapi.resource.ResourceLocation
 import ru.cristalix.uiengine.UIEngine
-import ru.cristalix.uiengine.element.AbstractElement
 import ru.cristalix.uiengine.element.RectangleElement
 import ru.cristalix.uiengine.eventloop.animate
 import ru.cristalix.uiengine.utility.*
