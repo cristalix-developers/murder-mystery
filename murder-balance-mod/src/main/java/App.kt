@@ -18,7 +18,6 @@ class App : KotlinMod() {
         registerHandler<HungerRender> { isCancelled = true }
         registerHandler<ArmorRender> { isCancelled = true }
 
-        RewardManager()
         QueueStatus
 
         val balanceText = text {

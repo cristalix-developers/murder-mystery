@@ -125,8 +125,8 @@ class MurderInstance(
         }
 
         val nextGame = PlayerBalancer()
-        B.regCommand({ player: Player, _ ->
-            nextGame.accept(player, true)
+        B.regCommand({ player: Player, args ->
+            nextGame.accept(player, if (args.isEmpty()) "MUR" else args[0])
             null
         }, "next")
 

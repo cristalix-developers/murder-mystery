@@ -14,17 +14,17 @@ import java.util.*
 import java.util.concurrent.ExecutionException
 import java.util.function.BiConsumer
 
-class PlayerBalancer : BiConsumer<Player, Boolean> {
+class PlayerBalancer : BiConsumer<Player, String> {
 
-    private fun getRealm(mintoJoin: Int, isMurder: Boolean): Optional<RealmId> {
+    private fun getRealm(mintoJoin: Int, realm: String): Optional<RealmId> {
         var maxRealm: RealmInfo? = null
         var minRealm: RealmInfo? = null
-        for (realmInfo in IRealmService.get().getRealmsOfType(if (isMurder) "MUR" else "DBD")) {
+        for (realmInfo in IRealmService.get().getRealmsOfType(realm)) {
             if (realmInfo.status == RealmStatus.GAME_STARTED_RESTRICTED || realmInfo.status == RealmStatus.GAME_STARTED_CAN_SPACTATE
                 || realmInfo.currentPlayers + mintoJoin > realmInfo.maxPlayers) {
                 continue
             }
-            if (realmInfo.currentPlayers + mintoJoin <= if (isMurder) 16 else 6) {
+            if (realmInfo.currentPlayers + mintoJoin <= realmInfo.maxPlayers) {
                 if (maxRealm == null) {
                     maxRealm = realmInfo
                 } else if (maxRealm.currentPlayers <= realmInfo.currentPlayers) {
@@ -41,13 +41,13 @@ class PlayerBalancer : BiConsumer<Player, Boolean> {
         return if (maxRealm != null) Optional.of(maxRealm.realmId) else Optional.empty()
     }
 
-    override fun accept(player: Player, isMurder: Boolean) {
+    override fun accept(player: Player, realm1: String) {
         try {
             val party: Optional<*> = IPartyService.get().getPartyByMember(player.uniqueId).get()
             if (party.isPresent) {
                 val party1 = party.get() as PartySnapshot
                 if (party1.leader == player.uniqueId) {
-                    val realm = getRealm(party1.members.size, isMurder)
+                    val realm = getRealm(party1.members.size, realm1)
                     if (realm.isPresent) {
                         val realmInfo = IRealmService.get().getRealmById(realm.get())
                         if (realmInfo.currentPlayers + party1.members.size <= realmInfo.maxPlayers
@@ -74,7 +74,7 @@ class PlayerBalancer : BiConsumer<Player, Boolean> {
                     )
                 }
             } else {
-                val realmId = getRealm(1, isMurder)
+                val realmId = getRealm(1, realm1)
                 if (realmId.isPresent) {
                     ITransferService.get().transfer(player.uniqueId, realmId.get())
                 } else {

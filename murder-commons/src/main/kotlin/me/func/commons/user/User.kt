@@ -56,7 +56,7 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
     fun sendPlayAgain(prefix: String, map: MapType) {
         player!!.spigot().sendMessage(
             *ComponentBuilder("\n$prefix §fИграть на Cristalix §dMurderMystery §e§lКЛИК\n")
-                .event(ClickEvent(ClickEvent.Action.RUN_COMMAND, "/next " + map.name))
+                .event(ClickEvent(ClickEvent.Action.RUN_COMMAND, "/next MUR"))
                 .create()
         )
     }

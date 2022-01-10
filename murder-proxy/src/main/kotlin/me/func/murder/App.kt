@@ -18,11 +18,13 @@ import me.func.commons.listener.GlobalListeners
 import me.func.commons.mod.ModTransfer
 import me.func.commons.user.User
 import me.func.commons.util.MapLoader
+import me.func.commons.util.StandHelper
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
+import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -56,6 +58,8 @@ class App : JavaPlugin() {
     val client = CoordinatorClient(NoopGameNode())
     private var squidSlot = 80
 
+    private val online = mutableMapOf<GameType, ArmorStand>()
+
     override fun onEnable() {
         B.plugin = this
         murder = this
@@ -73,15 +77,21 @@ class App : JavaPlugin() {
         realm.servicedServers = arrayOf("MURP", *GameType.values().map { it.name }.toTypedArray())
         realm.extraSlots = 10
 
-        val uuid = UUID.fromString("7188b5b2-43b3-40fc-bcd0-abeea3883490")
         B.repeat(10) {
-            val count = client.queueOnline[uuid]!!
-            Bukkit.getOnlinePlayers().forEach {
-                try {
-                    val serializer = PacketDataSerializer(Unpooled.buffer())
-                    serializer.writeInt(count)
-                    (it as CraftPlayer).handle.playerConnection.sendPacket(PacketPlayOutCustomPayload("queue:online", serializer))
-                } catch (exception: Exception) {}
+            GameType.values().mapNotNull { it.queue }.forEach { uuid ->
+                val count = client.queueOnline.getOrDefault(UUID.fromString(uuid), null) ?: return@forEach
+
+                Bukkit.getOnlinePlayers().forEach {
+                    try {
+                        val serializer = PacketDataSerializer(Unpooled.buffer())
+                        serializer.writeInt(count)
+                        (it as CraftPlayer).handle.playerConnection.sendPacket(PacketPlayOutCustomPayload("queue:online", serializer))
+                    } catch (exception: Exception) {}
+                }
+            }
+            online.forEach { (game, stand) ->
+                val online = IRealmService.get().getOnlineOnRealms(game.name)
+                stand.customName = "§b${online} игроков в игре"
             }
         }
 
@@ -98,23 +108,35 @@ class App : JavaPlugin() {
 
         worldMeta.getLabels("play").forEach { npcLabel ->
             val npcArgs = npcLabel.tag.split(" ")
+
+            if (npcArgs[0].toUpperCase() == "AMN")
+                return@forEach
+
             val type = GameType.valueOf(npcArgs[0].toUpperCase())
             npcLabel.setYaw(npcArgs[1].toFloat())
             npcLabel.setPitch(npcArgs[2].toFloat())
+
+            online[type] = StandHelper(npcLabel.clone().add(0.5, 1.85, 0.5))
+                .gravity(false)
+                .invisible(true)
+                .marker(true)
+                .name("99 игроков в игре")
+                .build()
+
             Npcs.spawn(
                 Npc.builder()
-                    .location(npcLabel.clone().add(0.5, -0.4, 0.5))
+                    .location(npcLabel.clone().add(0.5, -0.5, 0.5))
                     .name("§e§lНАЖМИТЕ ЧТОБЫ ИГРАТЬ")
                     .behaviour(NpcBehaviour.STARE_AT_PLAYER)
-                    .skinUrl("https://webdata.c7x.dev/textures/skin/${type.skin}")
-                    .skinDigest(type.skin.toString())
+                    .skinUrl(type.skin)
+                    .skinDigest(type.skin.substring(type.skin.lastIndexOf("/") + 1))
                     .type(EntityType.PLAYER)
                     .onClick {
                         if (fixDoubleClick != null && fixDoubleClick == it)
                             return@onClick
                         fixDoubleClick = it
 
-                        if (type == GameType.SQD) {
+                        if (type.queue != null) {
                             Futures.timeout(IPartyService.get().getPartyByMember(it.uniqueId), 3, TimeUnit.SECONDS).whenComplete { group, throwable ->
                                 if (throwable == null) {
                                     if (!group.map { party -> party.leader == it.uniqueId }.orElse(true)) {
@@ -122,11 +144,10 @@ class App : JavaPlugin() {
                                         return@whenComplete
                                     }
                                 }
-
                                 Futures.timeout(
                                     client.client.send(
                                         PacketQueueEnter(
-                                            client.allQueues[0].properties.queueId,
+                                            UUID.fromString(type.queue),
                                             if (throwable == null && group.isPresent) group.get().members.toList() else listOf(it.uniqueId),
                                             true, true, HashMap()
                                         )
@@ -138,15 +159,15 @@ class App : JavaPlugin() {
                                     } else {
                                         it.sendMessage(Formatting.fine("Вы добавлены в очередь!"))
                                         ModTransfer()
-                                            .string("icon")
-                                            .integer(squidSlot)
+                                            .string(type.name.toLowerCase())
+                                            .integer(type.slots)
                                             .send("queue:show", getUser(it))
                                     }
                                 }
                             }
                             return@onClick
                         } else {
-                            balancer.accept(it, type == GameType.MUR)
+                            balancer.accept(it, type.name)
                         }
                     }.build()
             )
@@ -168,7 +189,7 @@ class App : JavaPlugin() {
                             )
                         ).dimensions(V2(0.0, 0.0))
                         .scale(2.0)
-                        .position(V3(npcLabel.x - 2, npcLabel.y + 4, npcLabel.z))
+                        .position(V3(npcLabel.x - 2, npcLabel.y + 4.1, npcLabel.z))
                         .rotation(0)
                         .build()
                 ).build()
