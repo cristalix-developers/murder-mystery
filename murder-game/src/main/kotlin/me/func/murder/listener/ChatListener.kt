@@ -1,3 +1,4 @@
+/*
 package me.func.murder.listener
 
 import org.bukkit.Bukkit
@@ -11,14 +12,7 @@ object ChatListener : Listener {
 
     @EventHandler
     fun AsyncPlayerChatEvent.handle() {
-        if (player.gameMode == GameMode.SPECTATOR) {
-            Bukkit.getOnlinePlayers().forEach {
-                if (it.gameMode == GameMode.SPECTATOR)
-                    it.sendMessage(player.name + " >§7 " + ChatColor.stripColor(message))
-            }
-            isCancelled = true
-            return
-        }
+
     }
 
-}
+}*/

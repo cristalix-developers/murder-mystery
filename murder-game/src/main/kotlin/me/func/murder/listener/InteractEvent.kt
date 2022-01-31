@@ -1,3 +1,4 @@
+/*
 package me.func.murder.listener
 
 import me.func.commons.map.interactive.BlockInteract
@@ -5,7 +6,7 @@ import me.func.commons.mod.ModHelper
 import me.func.murder.Status
 import me.func.murder.activeStatus
 import me.func.murder.map
-import me.func.murder.murder
+import me.func.murder.app
 import me.func.murder.util.goldManager
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -29,7 +30,7 @@ object InteractEvent : Listener {
         map.interactive.filterIsInstance<BlockInteract>()
             .filter { it.trigger(this) }
             .forEach {
-                val user = murder.getUser(player)
+                val user = app.getUser(player)
                 goldManager.take(user, it.gold) {
                     it.interact(user)
                     player.playSound(player.location, Sound.BLOCK_CLOTH_FALL, 1.1f, 1f)
@@ -55,8 +56,8 @@ object InteractEvent : Listener {
                 player.itemInHand = null
                 player.sendMessage(Formatting.error("Вы одурманили ${clickedEntity.name}"))
                 (clickedEntity as CraftPlayer).addPotionEffects(poisons)
-                ModHelper.sendTitle(murder.getUser(clickedEntity as CraftPlayer), "§cО нет! §aКиСлооТа")
+                ModHelper.sendTitle(app.getUser(clickedEntity as CraftPlayer), "§cО нет! §aКиСлооТа")
             }
         }
     }
-}
+}*/

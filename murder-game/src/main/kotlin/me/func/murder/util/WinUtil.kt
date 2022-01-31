@@ -2,7 +2,7 @@ package me.func.murder.util
 
 import me.func.commons.user.Role
 import me.func.murder.activeStatus
-import me.func.murder.murder
+import me.func.murder.app
 import me.func.murder.timer
 import me.func.murder.winMessage
 import org.bukkit.Bukkit
@@ -17,13 +17,15 @@ object WinUtil {
             return true
         }
         // Получение всех активных ролей
-        val activeRoles = Bukkit.getOnlinePlayers()
-            .asSequence()
-            .filter { it.gameMode != GameMode.SPECTATOR }
-            .map { murder.getUser(it.uniqueId) }
-            .filter { it.role != Role.NONE }
-            .map { it.role }
-            .distinctBy { it }.toList()
+        val activeRoles =
+            Bukkit.getOnlinePlayers()
+                .asSequence()
+                .filter { it.gameMode != GameMode.SPECTATOR }
+                .map { app.getUser(it.uniqueId) }
+                .filter { it.role != Role.NONE }
+                .map { it.role }
+                .distinctBy { it }
+                .toList()
         // Если что то сломалось и игроков нет
         return if (activeRoles.isEmpty()) {
             winMessage = "§eЧто!?"

@@ -1,10 +1,11 @@
+/*
 package me.func.murder.listener
 
 import dev.implario.bukkit.item.item
 import me.func.commons.arrow
 import me.func.commons.gold
 import me.func.commons.user.Role
-import me.func.murder.murder
+import me.func.murder.app
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
@@ -18,7 +19,7 @@ object GoldListener : Listener {
         type = Material.BOW
         text("§eЛук")
         nbt("Unbreakable", 1)
-    }.build()
+    }
 
     @EventHandler
     fun PlayerPickupArrowEvent.handle() {
@@ -34,7 +35,7 @@ object GoldListener : Listener {
             return
         }
         val itemStack = player.inventory.getItem(8)
-        val user = murder.getUser(player)
+        val user = app.getUser(player)
         user.giveMoney(1)
         if (itemStack != null) {
             player.inventory.addItem(gold)
@@ -53,4 +54,4 @@ object GoldListener : Listener {
         isCancelled = true
     }
 
-}
+}*/

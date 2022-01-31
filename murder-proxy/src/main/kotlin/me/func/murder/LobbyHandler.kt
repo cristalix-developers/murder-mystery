@@ -26,7 +26,6 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.ItemStack
 import ru.cristalix.core.formatting.Formatting
-import sun.audio.AudioPlayer.player
 import java.util.*
 
 object LobbyHandler : Listener {

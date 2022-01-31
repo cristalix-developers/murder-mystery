@@ -18,14 +18,11 @@ class ArrowEffect {
             for (entity in worldMeta.world.entities) {
                 if (entity is Arrow) {
                     val effect: User = app.getUser(entity.shooter as Player)
-                    if (effect.stat.arrowParticle.getParticle() != null)
-                        worldMeta.world.spawnParticle(
-                            effect.stat.arrowParticle.getParticle(),
-                            entity.getLocation(),
-                            1
-                        )
+                    if (effect.stat.arrowParticle.getParticle() != null) worldMeta.world.spawnParticle(
+                        effect.stat.arrowParticle.getParticle(), entity.getLocation(), 1
+                    )
                 }
             }
-        }, 1, 1)
+        }, 1, 1) // кхм насколько я помню, long delay, long period - оно будет запускаться каждые два тика ?
     }
 }

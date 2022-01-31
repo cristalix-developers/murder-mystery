@@ -5,7 +5,7 @@ import me.func.commons.mod.ModHelper
 import me.func.commons.user.Role
 import me.func.commons.util.ParticleHelper
 import me.func.commons.util.StandHelper
-import me.func.murder.murder
+import me.func.murder.app
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -24,16 +24,15 @@ class BowManager {
     }
 
     fun drop(location: Location) {
-        if (droppedBow != null)
-            return
+        if (droppedBow != null) return
         // Выпадение лука
-        droppedBow = StandHelper(location.clone().subtract(0.0, 1.0, 0.0))
-            .gravity(false)
-            .marker(true)
-            .invisible(true)
-            .slot(EnumItemSlot.HEAD, ItemStack(Material.BOW))
-            .markTrash()
-            .build()
+        droppedBow =
+            StandHelper(location.clone().subtract(0.0, 1.0, 0.0)).gravity(false)
+                .marker(true)
+                .invisible(true)
+                .slot(EnumItemSlot.HEAD, ItemStack(Material.BOW))
+                .markTrash()
+                .build()
         droppedBow!!.isGlowing = true
     }
 
@@ -52,11 +51,12 @@ class BowManager {
 
     private fun tryPickUp() {
         // Если есть кто-то рядом, сделать его детективом
-        val nearby = Bukkit.getOnlinePlayers()
-            .filter { murder.getUser(it).role != Role.MURDER }
-            .firstOrNull { it.location.distanceSquared(droppedBow!!.location) < 9 }
+        val nearby =
+            Bukkit.getOnlinePlayers()
+                .filter { app.getUser(it).role != Role.MURDER }
+                .firstOrNull { it.location.distanceSquared(droppedBow!!.location) < 9 }
         if (nearby != null) {
-            val first = murder.getUser(nearby.uniqueId)
+            val first = app.getUser(nearby.uniqueId)
             if (first.role == Role.VILLAGER) {
                 clear()
                 first.role = Role.DETECTIVE
@@ -68,8 +68,7 @@ class BowManager {
     }
 
     fun clear() {
-        if (droppedBow != null)
-            droppedBow!!.remove()
+        if (droppedBow != null) droppedBow!!.remove()
         droppedBow = null
     }
 

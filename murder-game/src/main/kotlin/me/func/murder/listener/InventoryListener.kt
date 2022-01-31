@@ -1,3 +1,4 @@
+/*
 package me.func.murder.listener
 
 import me.func.murder.Status
@@ -13,4 +14,4 @@ object InventoryListener : Listener {
         if (inventory.type == InventoryType.CHEST && activeStatus != Status.STARTING)
             isCancelled = true
     }
-}
+}*/

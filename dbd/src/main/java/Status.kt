@@ -1,4 +1,4 @@
-import clepto.bukkit.B
+import zclepto.bukkit.B
 import listener.tab
 import listener.tabView
 import me.func.commons.donate.impl.NameTag

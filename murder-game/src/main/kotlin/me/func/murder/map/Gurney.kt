@@ -1,9 +1,9 @@
 package me.func.murder.map
 
 import dev.implario.bukkit.item.item
-import me.func.commons.app
-import me.func.commons.worldMeta
 import me.func.commons.util.StandHelper
+import me.func.commons.worldMeta
+import me.func.murder.app
 import net.minecraft.server.v1_12_R1.EnumItemSlot
 import org.bukkit.Location
 import org.bukkit.Material
@@ -25,7 +25,7 @@ object Gurney {
             .slot(EnumItemSlot.HEAD, item {
                 type = Material.CLAY_BALL
                 nbt("murder", "katalka")
-            }.build())
+            })
             .markTrash()
             .build()
         pig.isSilent = true

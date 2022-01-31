@@ -1,19 +1,18 @@
 package me.func.murder
 
-import clepto.bukkit.B
 import me.func.commons.mod.ModHelper
 import me.func.commons.mod.ModTransfer
 import me.func.commons.realm
 import me.func.commons.slots
 import me.func.commons.user.Role
 import me.func.commons.util.LocalModHelper
-import me.func.commons.worldMeta
 import me.func.commons.util.Music
+import me.func.commons.worldMeta
 import me.func.murder.util.droppedBowManager
 import me.func.murder.util.goldManager
-import org.bukkit.Bukkit
 import org.bukkit.FireworkEffect
 import org.bukkit.GameMode
+import org.bukkit.craftbukkit.v1_12_R1.CraftEquipmentSlot.slots // from instance
 import org.bukkit.entity.Firework
 import org.bukkit.entity.Spider
 import org.bukkit.potion.PotionEffect
@@ -22,25 +21,21 @@ import ru.cristalix.core.formatting.Formatting.fine
 import ru.cristalix.core.realm.RealmStatus.GAME_STARTED_CAN_JOIN
 import ru.cristalix.core.realm.RealmStatus.GAME_STARTED_RESTRICTED
 
-lateinit var murderName: String
-lateinit var detectiveName: String
-var heroName = ""
-lateinit var winMessage: String
-
-enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
-    STARTING(30, { it ->
+enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
+    STARTING(30, { it, game ->
         // Если набор игроков начался, обновить статус реалма
         if (it == 40)
             realm.status = GAME_STARTED_CAN_JOIN
 
-        val players = Bukkit.getOnlinePlayers()
+        val players = game.players
+
         // Обновление шкалы онлайна
         players.forEach {
             ModTransfer()
                 .integer(slots)
                 .integer(players.size)
                 .boolean(true)
-                .send("update-online", murder.getUser(it))
+                .send("update-online", app.getUser(it))
         }
         var actualTime = it
 
@@ -53,33 +48,33 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 // Обновление статуса реалма, чтобы нельзя было войти
                 realm.status = GAME_STARTED_RESTRICTED
                 // Обнуление прошлого героя и добавления количества игр
-                heroName = ""
+                game.heroName = ""
                 games++
                 // Создание каталок
                 worldMeta.getLabels("gurney").map { me.func.murder.map.Gurney.create(it) }
                 // Телепортация игроков на игровые точки и очистка инвентаря
                 val places = worldMeta.getLabels("start")
-                B.postpone(10) {
+                game.context.after(10) {
                     players.forEachIndexed { index, player ->
                         player.teleport(places[index])
                         player.inventory.clear()
                         player.itemOnCursor = null
                         player.openInventory.topInventory.clear()
-                        val user = murder.getUser(player)
+                        val user = app.getUser(player)
                         user.stat.mask.setMask(user)
                     }
                 }
                 // Список игроков Murder
-                val users = players.map { murder.getUser(it) }
+                val users = players.map { app.getUser(it) }
                 // Выдача активных ролей
                 val murder = users.maxByOrNull { it.stat.villagerStreak }!!
                 murder.role = Role.MURDER
                 murder.stat.villagerStreak = 0
-                murderName = murder.player!!.name
+                game.murderName = murder.player!!.name
                 val detective = users.minus(murder).maxByOrNull { it.stat.villagerStreak }!!
                 detective.role = Role.DETECTIVE
                 detective.stat.villagerStreak = 0
-                detectiveName = detective.player!!.name
+                game.detectiveName = detective.player!!.name
                 // Выдача мирных жителей
                 users.forEach {
                     if (it.role != Role.MURDER && it.role != Role.DETECTIVE) {
@@ -94,12 +89,15 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                     val player = user.player!!
                     val nameTag = user.stat.activeNameTag
                     player.playerListName =
-                        if (nameTag == me.func.commons.donate.impl.NameTag.NONE) " " else "${nameTag.getRare().getColored()} §7${nameTag.getTitle()}"
-                    me.func.murder.listener.tab.setTabView(player.uniqueId, me.func.murder.listener.tabView)
-                    me.func.murder.listener.tab.update(player)
+                        if (nameTag == me.func.commons.donate.impl.NameTag.NONE) " " else "${
+                            nameTag.getRare()
+                                .getColored()
+                        } §7${nameTag.getTitle()}"
+                    // me.func.murder.listener.tab.setTabView(player.uniqueId, me.func.murder.listener.tabView) todo tab
+                    // me.func.murder.listener.tab.update(player)
                     ModHelper.sendTitle(user, "Роль: ${user.role.title}")
                     // Выполнение ролийных особенностей
-                    B.postpone(10 * 20) {
+                    game.context.after(10 * 20) {
                         user.role.start?.invoke(user)
                     }
                     // Отправить информацию о начале игры клиенту
@@ -117,7 +115,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                         it.world.spawnEntity(it, org.bukkit.entity.EntityType.SPIDER) as Spider
                     spider.customName = "Grumm"
                     spider.isCustomNameVisible = false
-                    spider.setMetadata("trash", org.bukkit.metadata.FixedMetadataValue(me.func.murder.murder, true))
+                    spider.setMetadata("trash", org.bukkit.metadata.FixedMetadataValue(me.func.murder.app, true))
                 }
 
                 activeStatus = GAME
@@ -129,15 +127,15 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
             actualTime = (STARTING.lastSecond - 10) * 20
         actualTime
     }),
-    GAME(330, { time ->
+    GAME(330, { time, game ->
         // Обновление шкалы времени
         if (time % 20 == 0) {
-            Bukkit.getOnlinePlayers().forEach {
+            game.players.forEach {
                 ModTransfer()
                     .integer(GAME.lastSecond)
                     .integer(time)
                     .boolean(false)
-                    .send("update-online", murder.getUser(it))
+                    .send("update-online", app.getUser(it))
             }
         }
         // Каждые 10 секунд, генерировать золото в случайном месте
@@ -148,8 +146,8 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         // и подсветить всех на 5 секунд, если меньше 30 сек. выдать свечение
         val glowing = PotionEffect(PotionEffectType.GLOWING, 100, 1, false, false)
         if (time == (GAME.lastSecond - 120) * 20) {
-            Bukkit.getOnlinePlayers().forEach { player ->
-                val user = murder.getUser(player)
+            game.players.forEach { player ->
+                val user = app.getUser(player)
                 player.addPotionEffect(glowing)
                 ModHelper.sendTitle(user, "㥏 Скоро рассвет")
                 if (user.role == Role.MURDER) {
@@ -158,7 +156,7 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 }
             }
         } else if (time == (GAME.lastSecond - 30) * 20) {
-            Bukkit.getOnlinePlayers()
+            game.players
                 .filter { it.gameMode != GameMode.SPECTATOR }
                 .forEach { it.isGlowing = true }
         }
@@ -168,17 +166,17 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         }
         time
     }),
-    END(340, { time ->
+    END(340, { time, game ->
         if (GAME.lastSecond * 20 + 10 == time) {
             // Выдача побед выжившим и выдача всем доп. игр
-            Bukkit.getOnlinePlayers().forEach {
-                val user = murder.getUser(it)
+            game.players.forEach {
+                val user = app.getUser(it)
                 if (it.gameMode != GameMode.SPECTATOR) {
                     user.stat.wins++
                     user.giveMoney(10)
                     if (Math.random() < 0.11) {
                         user.stat.lootbox++
-                        B.bc(fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
+                        game.broadcast(fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
                     }
                     val firework = it.world!!.spawn(it.location, Firework::class.java)
                     val meta = firework.fireworkMeta
@@ -201,17 +199,17 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
                 Music.VILLAGER_WIN.play(user)
             }
 
-            B.bc("")
-            B.bc("§c§lКОНЕЦ! $winMessage")
-            B.bc("    §cМаньяк $murderName")
-            B.bc("    §bДетектив $detectiveName")
-            if (heroName.isNotEmpty() && detectiveName != heroName)
-                B.bc("    §aГерой $heroName")
-            B.bc("")
-            B.postpone(20 * 8) {
+            game.broadcast("")
+            game.broadcast("§c§lКОНЕЦ! ${game.winMessage}")
+            game.broadcast("    §cМаньяк ${game.murderName}")
+            game.broadcast("    §bДетектив ${game.detectiveName}")
+            if (game.heroName.isNotEmpty() && game.detectiveName != game.heroName)
+                game.broadcast("    §aГерой ${game.heroName}")
+            game.broadcast("")
+            game.context.after(20 * 8) {
                 // Кик всех игроков с сервера
                 clepto.cristalix.Cristalix.transfer(
-                    Bukkit.getOnlinePlayers().map { it.uniqueId },
+                    game.players.map { it.uniqueId },
                     LOBBY_SERVER
                 )
             }
@@ -222,11 +220,11 @@ enum class Status(val lastSecond: Int, val now: (Int) -> Int) {
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
-                murder.restart()
+                app.restart()
                 -1
             }
             time < (END.lastSecond - 10) * 20 -> (END.lastSecond - 10) * 20
             else -> time
         }
-    }),
+    });
 }

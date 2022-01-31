@@ -5,9 +5,7 @@ import activeStatus
 import clepto.bukkit.B
 import clepto.bukkit.Cycle
 import clepto.bukkit.world.Label
-import jdk.nashorn.internal.objects.NativeArray.forEach
 import killer
-import me.func.commons.map.StandardsInteract.closeDoor
 import me.func.commons.mod.ModHelper
 import me.func.commons.util.StandHelper
 import me.func.commons.worldMeta

@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         google()
-        jcenter()
         maven {
             url "https://repo.implario.dev/public"
         }
@@ -24,7 +23,6 @@ repositories {
 }
 
 apply plugin: 'ru.cristalix.uiengine.bundler'
-apply plugin: 'kotlin'
 
 dependencies {
     compileOnly 'ru.cristalix:client-api:latest-SNAPSHOT'
@@ -106,6 +104,6 @@ task upload() {
     }
 }
 
-    afterEvaluate {
-tasks.upload.dependsOn(tasks.bundle)
-    }
+afterEvaluate {
+    tasks.upload.dependsOn(tasks.bundle)
+}
