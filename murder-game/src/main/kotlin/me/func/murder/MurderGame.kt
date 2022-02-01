@@ -11,23 +11,28 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.inventory.ItemStack
 import java.util.UUID
 
-val gold: ItemStack = item {
-    type = Material.GOLD_INGOT
-    text("§eЗолото\n\n§7Соберите §e10 штук§7,\n§7и получите §bлук§7!\n§7Или покупайте действия\n§7на карте.")
-}
-
-val arrow: ItemStack = item {
-    type = Material.ARROW
-    text("§bСтрела")
-}
-
-val light: ItemStack = item {
-    type = Material.CLAY_BALL
-    nbt("thief", "4")
-    text("§6Фонарик §l§eПКМ")
-}
-
+/**
+ * Created by Kamillaova on 2022.01.30.
+ */
 class MurderGame(gameId: UUID) : Game(gameId) {
+
+    companion object {
+        val gold: ItemStack = item {
+            type = Material.GOLD_INGOT
+            text("§eЗолото\n\n§7Соберите §e10 штук§7,\n§7и получите §bлук§7!\n§7Или покупайте действия\n§7на карте.")
+        }
+
+        val arrow: ItemStack = item {
+            type = Material.ARROW
+            text("§bСтрела")
+        }
+
+        val light: ItemStack = item {
+            type = Material.CLAY_BALL
+            nbt("thief", "4")
+            text("§6Фонарик §l§eПКМ")
+        }
+    }
 
     lateinit var murderName: String
     lateinit var detectiveName: String
@@ -38,7 +43,7 @@ class MurderGame(gameId: UUID) : Game(gameId) {
     private val map: WorldMeta = MapLoader.load(this, "MurderMystey", "prod") // TODO: setup?
 
     init {
-        GameListeners( this)
+        GameListeners(this)
     }
 
     override fun acceptPlayer(e: AsyncPlayerPreLoginEvent): Boolean {

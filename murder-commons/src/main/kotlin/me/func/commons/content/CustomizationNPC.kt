@@ -1,17 +1,15 @@
 package me.func.commons.content
 
-import clepto.bukkit.B
 import dev.implario.bukkit.item.item
 import me.func.commons.achievement.Achievement
-import me.func.commons.donate.DonateHelper
-import me.func.commons.donate.DonatePosition
-import me.func.commons.donate.impl.*
-import me.func.commons.getByPlayer
-import me.func.commons.realm
-import me.func.commons.user.User
+import me.func.commons.donate.impl.ArrowParticle
+import me.func.commons.donate.impl.Corpse
+import me.func.commons.donate.impl.LootboxUnit
+import me.func.commons.donate.impl.Mask
+import me.func.commons.donate.impl.NameTag
+import me.func.commons.donate.impl.StarterPack
+import me.func.commons.donate.impl.StepParticle
 import me.func.commons.util.MusicHelper
-import me.func.commons.util.ParticleHelper
-import me.func.commons.worldMeta
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.enchantments.Enchantment
@@ -23,14 +21,10 @@ import ru.cristalix.core.inventory.ClickableItem
 import ru.cristalix.core.inventory.ControlledInventory
 import ru.cristalix.core.inventory.InventoryContents
 import ru.cristalix.core.inventory.InventoryProvider
-import ru.cristalix.core.network.ISocketClient
-import ru.cristalix.core.network.packages.MoneyTransactionRequestPackage
-import ru.cristalix.core.network.packages.MoneyTransactionResponsePackage
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
-import java.util.function.Consumer
 
 class CustomizationNPC {
 
@@ -346,20 +340,20 @@ class CustomizationNPC {
     private fun donateMenu(player: Player, donatePosition: DonatePosition, realMoney: Boolean) {
         subInventory(player, 1) { _, contents: InventoryContents ->
             contents.setLayout("XOXXXXGBX")
-            contents.add('O', ClickableItem.empty(donatePosition.getIcon()))
+            contents.add('O', ClickableItem.empty(donatePosition.icon))
             contents.add('G', ClickableItem.of(accessItem) {
                 val user = getByPlayer(player)
                 if (realMoney)
-                    buy(user, donatePosition.getPrice(), donatePosition.getTitle()) { donatePosition.give(user) }
+                    buy(user, donatePosition.price, donatePosition.title) { donatePosition.give(user) }
                 else {
                     if (user.stat.donate.contains(donatePosition)) {
                         player.sendMessage(Formatting.error("У вас уже есть этот товар."))
                         player.closeInventory()
-                    } else if (donatePosition.getPrice() > user.stat.money) {
+                    } else if (donatePosition.price > user.stat.money) {
                         player.sendMessage(Formatting.error("Не хватает денег :<"))
                         player.closeInventory()
                     } else {
-                        user.minusMoney(donatePosition.getPrice())
+                        user.minusMoney(donatePosition.price)
                         donatePosition.give(user)
                         player.sendMessage(Formatting.fine("Успешно!"))
                         player.closeInventory()

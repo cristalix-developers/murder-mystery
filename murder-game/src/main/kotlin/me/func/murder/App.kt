@@ -42,9 +42,11 @@ class App : JavaPlugin() {
 
     private val core = CoreApi.get()
     private val statScope = Scope("squid-game", Stat::class.java)
-    private var userManager = BukkitUserManager(listOf(statScope),
+    private val userManager = BukkitUserManager(
+        setOf(statScope),
         { session, context -> User(session, context.getData(statScope)) },
-        { user, context -> context.store(statScope, user.stat) })
+        { user, context -> context.store(statScope, user.stat) }
+    )
 
     lateinit var kensuke: Kensuke
 

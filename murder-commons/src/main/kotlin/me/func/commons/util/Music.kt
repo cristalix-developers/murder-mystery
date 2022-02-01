@@ -16,8 +16,7 @@ enum class Music(private val url: String) {
     DBD_RUN("https://implario.dev/murder/dbd.mp3"),
     DBD_DEATH("https://implario.dev/murder/dbd-death.mp3"),
     PORT("https://implario.dev/murder/port.mp3"),
-    VILLAGER_WIN("https://implario.dev/murder/win.mp3")
-    ;
+    VILLAGER_WIN("https://implario.dev/murder/win.mp3");
 
     fun play(user: User) {
         MusicHelper.play(user, url)
@@ -31,8 +30,7 @@ enum class Music(private val url: String) {
 
 object MusicHelper {
     fun play(user: User, url: String) {
-        if (!user.stat.music)
-            return
+        if (!user.stat.music) return
         stop(user)
         IDisplayService.get().sendRadio(user.player!!.uniqueId, RadioMessage(true, url))
     }

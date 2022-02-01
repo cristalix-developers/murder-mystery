@@ -25,13 +25,24 @@ import ru.cristalix.core.inventory.InventoryProvider
 
 object Lootbox : Listener {
 
-    private val dropList = Corpse.values().map { it }
-        .plus(NameTag.values())
-        .plus(StepParticle.values())
-        .plus(KillMessage.values())
-        .plus(ArrowParticle.values())
-        .plus(Mask.values())
-        .filter { it != KillMessage.NONE && it != Corpse.NONE && it != NameTag.NONE && it != StepParticle.NONE && it != ArrowParticle.NONE && it != Mask.NONE }
+    private val dropList =
+        Corpse.values()
+            .map { it }
+            .plus(NameTag.values())
+            .plus(StepParticle.values())
+            .plus(KillMessage.values())
+            .plus(ArrowParticle.values())
+            .plus(Mask.values())
+            .filter {
+                // @formatter:off
+                   it != KillMessage.NONE
+                && it != Corpse.NONE
+                && it != NameTag.NONE
+                && it != StepParticle.NONE
+                && it != ArrowParticle.NONE
+                && it != Mask.NONE
+                // @formatter:on
+            }
 
     private const val lootboxPrice = 192
 
@@ -45,11 +56,8 @@ object Lootbox : Listener {
         )
     }.build()
 
-    private val lootbox = ControlledInventory.builder()
-        .title("Ваши лутбоксы")
-        .rows(5)
-        .columns(9)
-        .provider(object : InventoryProvider {
+    private val lootbox =
+        ControlledInventory.builder().title("Ваши лутбоксы").rows(5).columns(9).provider(object : InventoryProvider {
             override fun init(player: Player, contents: InventoryContents) {
                 val user = getByPlayer(player)
 
@@ -75,8 +83,7 @@ object Lootbox : Listener {
                         val drop = dropList.random() as DonatePosition
                         val moneyDrop = (Math.random() * 20 + 10).toInt()
 
-                        ModTransfer()
-                            .integer(2)
+                        ModTransfer().integer(2)
                             .item(CraftItemStack.asNMSCopy(drop.getIcon()))
                             .string(drop.getTitle())
                             .string(drop.getRare().name)
@@ -123,8 +130,7 @@ object Lootbox : Listener {
         }, "secrethook")
     }
 
-    @EventHandler
-    fun InventoryOpenEvent.handle() {
+    @EventHandler fun InventoryOpenEvent.handle() {
         if (inventory.type == InventoryType.ENDER_CHEST) {
             isCancelled = true
             lootbox.open(player as Player)

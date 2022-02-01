@@ -46,6 +46,9 @@ import ru.cristalix.core.formatting.Formatting
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
+/**
+ * Created by Kamillaova on 2022.01.30.
+ */
 class GameListeners(private val game: MurderGame) {
     private val context = game.context
 
@@ -144,14 +147,14 @@ class GameListeners(private val game: MurderGame) {
             val user = app.getUser(player)
             user.giveMoney(1)
             if (itemStack != null) {
-                player.inventory.addItem(me.func.commons.gold)
+                player.inventory.addItem(MurderGame.gold)
                 if (itemStack.getAmount() == 10 && user.role != Role.DETECTIVE) {
                     player.inventory.remove(Material.GOLD_INGOT)
                     player.inventory.setItem(if (user.role == Role.MURDER) 2 else 1, bow)
-                    if (player.inventory.contains(Material.ARROW)) player.inventory.addItem(me.func.commons.arrow)
-                    else player.inventory.setItem(20, me.func.commons.arrow)
+                    if (player.inventory.contains(Material.ARROW)) player.inventory.addItem(MurderGame.arrow)
+                    else player.inventory.setItem(20, MurderGame.arrow)
                 }
-            } else player.inventory.setItem(8, me.func.commons.gold)
+            } else player.inventory.setItem(8, MurderGame.gold)
             player.playSound(player.location, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f)
             item.remove()
             isCancelled = true

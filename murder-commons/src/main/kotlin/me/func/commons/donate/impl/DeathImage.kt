@@ -6,26 +6,19 @@ import me.func.commons.user.User
 import org.bukkit.inventory.ItemStack
 
 enum class DeathImage : DonatePosition {
-    NONE();
+    NONE;
 
-    override fun getTitle(): String {
-        TODO("Not yet implemented")
-    }
+    override val price: Int
+        get() = TODO("Not yet implemented")
 
-    override fun getPrice(): Int {
-        TODO("Not yet implemented")
-    }
+    override val icon: ItemStack
+        get() = TODO("Not yet implemented")
 
-    override fun getRare(): Rare {
-        TODO("Not yet implemented")
-    }
+    override val rare: Rare
+        get() = TODO("Not yet implemented")
 
-    override fun getIcon(): ItemStack {
-        TODO("Not yet implemented")
-    }
-    override fun getName(): String {
-        return name
-    }
+    override val title: String
+        get() = TODO("Not yet implemented")
 
     override fun give(user: User) {
         TODO("Not yet implemented")

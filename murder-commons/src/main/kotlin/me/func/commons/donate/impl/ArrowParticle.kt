@@ -14,11 +14,11 @@ import org.bukkit.inventory.ItemStack
  * @project Murder Mystery
  */
 enum class ArrowParticle(
-    private val title: String,
-    private val price: Int,
-    private val rare: Rare,
-    val type: Particle?,
-    private val icon: Material
+    override val title: String,
+    override val price: Int,
+    override val rare: Rare,
+    val particle: Particle?, // todo .getParticle() -> .particle
+    private val material: Material
 ) : DonatePosition {
     NONE("Отсутсвует", 0, Rare.COMMON, null, Material.BARRIER),
     SLIME("Слизь", 192, Rare.COMMON, Particle.SLIME, Material.SLIME_BALL),
@@ -32,42 +32,17 @@ enum class ArrowParticle(
     FLAME("Огонь", 2048, Rare.EPIC, Particle.FLAME, Material.FLINT_AND_STEEL),
     LAVA("Лава", 4096, Rare.LEGENDARY, Particle.LAVA, Material.LAVA_BUCKET),
     NOTE("Ноты", 4096, Rare.LEGENDARY, Particle.NOTE, Material.BOOK),
-    HEAR("Сердечки", 4096, Rare.LEGENDARY, Particle.HEART, Material.DIAMOND)
-    ;
+    HEAR("Сердечки", 4096, Rare.LEGENDARY, Particle.HEART, Material.DIAMOND);
 
-    override fun getTitle(): String {
-        return title
-    }
-
-    override fun getPrice(): Int {
-        return price
-    }
-
-    override fun getRare(): Rare {
-        return rare
-    }
-
-    override fun getIcon(): ItemStack {
-        return item {
-            type = icon
-            text(rare.with(title) + "\n\n§fРедкость: ${rare.getColored()}\n§fСтоимость: ${MoneyFormatter.texted(price)}")
-        }.build()
-    }
+    override val icon: ItemStack = item {
+        type = material
+        text(rare.with(title) + "\n\n§fРедкость: ${rare.getColored()}\n§fСтоимость: ${MoneyFormatter.texted(price)}")
+    }.build()
 
     override fun give(user: User) {
         user.stat.arrowParticle = this
         user.stat.donate.add(this)
     }
 
-    override fun isActive(user: User): Boolean {
-        return user.stat.arrowParticle == this
-    }
-
-    override fun getName(): String {
-        return name
-    }
-
-    fun getParticle() : Particle? {
-        return type
-    }
+    override fun isActive(user: User) = user.stat.arrowParticle == this
 }

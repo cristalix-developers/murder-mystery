@@ -10,5 +10,4 @@ object DailyRewardManager {
         WeekRewards.values().forEach { transfer.item(it.icon).string("§7Награда: " + it.title) }
         transfer.send("murder:weekly-reward", user)
     }
-
 }

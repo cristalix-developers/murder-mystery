@@ -1,3 +1,4 @@
+/*
 package me.func.commons
 
 import net.md_5.bungee.api.ChatMessageType
@@ -90,4 +91,4 @@ class PlayerBalancer : BiConsumer<Player, String> {
             e.printStackTrace()
         }
     }
-}
+}*/

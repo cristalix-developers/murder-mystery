@@ -5,14 +5,17 @@ import me.func.commons.donate.MoneyFormatter
 import me.func.commons.donate.Rare
 import me.func.commons.user.User
 import me.func.commons.util.SkullManager
-import org.bukkit.inventory.ItemStack
 
 /**
  * @author Рейдж 21.08.2021
  * @project Murder Mystery
  */
-enum class Mask(private val title: String, private val price: Int, private val rare: Rare, private val url: String) :
-    DonatePosition {
+enum class Mask(
+    override val title: String,
+    override val price: Int,
+    override val rare: Rare,
+    private val url: String
+) : DonatePosition {
     NONE(
         "Без маски",
         0,
@@ -222,30 +225,19 @@ enum class Mask(private val title: String, private val price: Int, private val r
         8192,
         Rare.LEGENDARY,
         "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjliMGEzZTRjMGRjODFmNTRiNWEyZGI1NWNjNWM0OTFmNjQ1NWNlMWY5NDczZjk3MDU0NmQ1NjkyZWY4ZDFjIn19fQ=="
-    ),
-    ;
+    ), ;
 
-    override fun getTitle(): String {
-        return title
-    }
 
-    override fun getPrice(): Int {
-        return price
-    }
-
-    override fun getRare(): Rare {
-        return rare
-    }
-
-    override fun getIcon(): ItemStack {
+    override val icon by lazy {
         val skull = SkullManager.create(url)
         val meta = skull.itemMeta
 
-        val lore = listOf("","§fРедкость: ${rare.getColored()}", "§fЦена: ${MoneyFormatter.texted(price)}")
+        val lore = listOf("", "§fРедкость: ${rare.getColored()}", "§fЦена: ${MoneyFormatter.texted(price)}")
         meta.lore = lore
 
         skull.itemMeta = meta
-        return skull
+
+        skull
     }
 
     override fun give(user: User) {
@@ -255,10 +247,6 @@ enum class Mask(private val title: String, private val price: Int, private val r
 
     override fun isActive(user: User): Boolean {
         return user.stat.mask == this
-    }
-
-    override fun getName(): String {
-        return name
     }
 
     fun setMask(user: User) {

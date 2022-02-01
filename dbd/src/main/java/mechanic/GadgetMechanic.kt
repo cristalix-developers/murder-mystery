@@ -48,7 +48,7 @@ object GadgetMechanic : Listener {
     @EventHandler
     fun PlayerItemHeldEvent.handle() {
         val was = player.inventory.getItem(previousSlot)
-        if (was == light)
+        if (was == MurderGame.light)
             player.addPotionEffect(blindness)
     }
 
