@@ -1,40 +1,36 @@
 package me.func.murder.util
 
-import clepto.bukkit.B
-import me.func.commons.gold
-import me.func.commons.user.User
-import me.func.commons.worldMeta
+import me.func.murder.MurderGame
+import me.func.murder.user.User
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.util.Vector
 
-lateinit var goldManager: GoldManager
+class GoldManager(private val game: MurderGame) {
 
-class GoldManager(var places: List<Location>) {
-
-    init {
-        goldManager = this
-    }
+    private val places: List<Location> = game.map.getLabels("gold").map { it.toCenterLocation() }
 
     private val spawned = arrayListOf<Location>()
-    private val vector = Vector(0.0, 0.4, 0.0)
+
+    private val velocity = Vector(0.0, 0.4, 0.0)
 
     fun dropGoldRandomly() {
-        val any = places.minus(spawned).filter { it -> it.getNearbyEntities(4.0,4.0,4.0).map { it.type }.isEmpty() }
+        val any = places.minus(spawned.toSet()).filter { it ->
+            it.getNearbyEntities(4.0, 4.0, 4.0).map { it.type }.isEmpty()
+        }
 
-        if (any.isEmpty())
-            return
+        if (any.isEmpty()) return
 
         val randomLocation = any.random()
 
         // Генерация золота и подбрасывание его вверх, кулдаун 25 секунд
         dropGold(randomLocation)
         spawned.add(randomLocation)
-        B.postpone(20 * 25) { spawned.remove(randomLocation) }
+        game.context.after(20 * 25) { spawned.remove(randomLocation) }
     }
 
     private fun forceTake(user: User, count: Int) {
-        val newGold = gold.clone()
+        val newGold = MurderGame.gold.clone()
         newGold.setAmount(count)
         user.player!!.inventory.removeItem(newGold)
         user.player!!.updateInventory()
@@ -52,6 +48,6 @@ class GoldManager(var places: List<Location>) {
     }
 
     fun dropGold(location: Location) {
-        worldMeta.world.dropItemNaturally(location, gold).velocity = vector
+        game.map.world.dropItemNaturally(location, MurderGame.gold).velocity = velocity
     }
 }

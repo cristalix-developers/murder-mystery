@@ -2,7 +2,14 @@ import dev.xdark.clientapi.item.ItemStack
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.element.AbstractElement
 import ru.cristalix.uiengine.element.RectangleElement
-import ru.cristalix.uiengine.utility.*
+import ru.cristalix.uiengine.utility.BOTTOM
+import ru.cristalix.uiengine.utility.CENTER
+import ru.cristalix.uiengine.utility.Color
+import ru.cristalix.uiengine.utility.MouseButton
+import ru.cristalix.uiengine.utility.TOP
+import ru.cristalix.uiengine.utility.V3
+import ru.cristalix.uiengine.utility.item
+import ru.cristalix.uiengine.utility.text
 
 class Day(private val day: Int, private val icon: ItemStack, private val name: String, private val claimed: Boolean) :
     RectangleElement() {

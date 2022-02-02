@@ -38,7 +38,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 configurations.all {
-    exclude group: "io.reactivex", module:"rxjava"
+    exclude group: "io.reactivex", module: "rxjava"
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
@@ -81,7 +81,6 @@ bundler {
 //afterEvaluate {
 //    tasks.upload.dependsOn(tasks.bundle)
 //}
-
 
 
 remotes {

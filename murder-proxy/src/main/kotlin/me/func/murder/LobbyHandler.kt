@@ -4,11 +4,8 @@ import clepto.bukkit.B
 import dev.implario.bukkit.item.item
 import dev.implario.games5e.packets.PacketQueueLeave
 import io.netty.buffer.Unpooled
-import me.func.commons.app
 import me.func.commons.getByPlayer
-import me.func.commons.getByUuid
 import me.func.commons.map.MapType
-import me.func.commons.mod.ModTransfer
 import me.func.commons.util.Music
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
@@ -59,7 +56,12 @@ object LobbyHandler : Listener {
             leave(player.uniqueId)
             val serializer = PacketDataSerializer(Unpooled.buffer())
             serializer.writeInt(0)
-            (player as CraftPlayer).handle.playerConnection.sendPacket(PacketPlayOutCustomPayload("queue:hide", serializer))
+            (player as CraftPlayer).handle.playerConnection.sendPacket(
+                PacketPlayOutCustomPayload(
+                    "queue:hide",
+                    serializer
+                )
+            )
         }
     }
 

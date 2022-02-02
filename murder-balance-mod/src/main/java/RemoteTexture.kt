@@ -1,6 +1,5 @@
 import dev.xdark.clientapi.resource.ResourceLocation
 import ru.cristalix.uiengine.UIEngine
-import java.awt.SystemColor.info
 import java.io.ByteArrayInputStream
 import java.io.IOException
 import java.net.URL

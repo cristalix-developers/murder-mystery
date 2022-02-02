@@ -1,9 +1,9 @@
 package me.func.murder.util
 
-import me.func.commons.user.User
-import me.func.commons.worldMeta
-import me.func.murder.App
-import org.bukkit.Bukkit
+import me.func.murder.MurderGame
+import me.func.murder.everyAfter
+import me.func.murder.getEntitiesByType
+import me.func.murder.user.User
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.Player
 
@@ -11,18 +11,16 @@ import org.bukkit.entity.Player
  * @author Рейдж 21.08.2021
  * @project Murder Mystery
  */
-class ArrowEffect {
+class ArrowEffect(private val game: MurderGame) {
 
-    fun arrowEffect(app: App) {
-        Bukkit.getScheduler().runTaskTimer(app, {
-            for (entity in worldMeta.world.entities) {
-                if (entity is Arrow) {
-                    val effect: User = app.getUser(entity.shooter as Player)
-                    if (effect.stat.arrowParticle.getParticle() != null) worldMeta.world.spawnParticle(
-                        effect.stat.arrowParticle.getParticle(), entity.getLocation(), 1
-                    )
-                }
+    fun arrowEffect() {
+        game.context.everyAfter(1, 1) {
+            for (entity in game.map.world.getEntitiesByType<Arrow>().filter { it.shooter is Player }) {
+                val user: User = game.userManager.getUser((entity.shooter as Player).uniqueId)
+
+                if (user.stat.arrowParticle.particle != null)
+                    game.map.world.spawnParticle(user.stat.arrowParticle.particle, entity.location, 1)
             }
-        }, 1, 1) // кхм насколько я помню, long delay, long period - оно будет запускаться каждые два тика ?
+        }
     }
 }
