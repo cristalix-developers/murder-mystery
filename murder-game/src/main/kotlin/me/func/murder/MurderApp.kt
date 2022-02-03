@@ -68,7 +68,7 @@ class MurderApp : JavaPlugin() {
         kensuke = BukkitKensuke.setup(this).apply {
             addGlobalUserManager(userManager)
             globalRealm = "" // TODO: setup kensuke
-        } // todo и я не поняла че делать с кенсуке и дбд
+        }
 
         node = DefaultGameNode()
         node.supportedImagePrefixes += setOf("murder-mystery", "murder-mystery-dbd")
