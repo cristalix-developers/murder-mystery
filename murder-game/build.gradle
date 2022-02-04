@@ -1,12 +1,3 @@
-plugins {
-    id 'dev.implario.mcgradle' version '1.0.4'
-}
-
-bukkitPlugin {
-    main = 'me.func.murder.MurderApp'
-    depend << 'CoreAPI'
-}
-
 group = 'me.func'
 version = '1.0-SNAPSHOT'
 
