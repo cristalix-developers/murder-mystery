@@ -4,9 +4,7 @@ import org.lwjgl.opengl.GL11
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.element.animate
 import ru.cristalix.uiengine.utility.Color
-import ru.cristalix.uiengine.utility.Easings
 import ru.cristalix.uiengine.utility.rectangle
-import java.awt.Color.red
 
 object GlowEffect {
 

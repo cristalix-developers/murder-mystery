@@ -6,7 +6,13 @@ import org.lwjgl.opengl.GL11
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.UIEngine.clientApi
 import ru.cristalix.uiengine.element.RectangleElement
-import ru.cristalix.uiengine.utility.*
+import ru.cristalix.uiengine.utility.Color
+import ru.cristalix.uiengine.utility.Relative
+import ru.cristalix.uiengine.utility.V2
+import ru.cristalix.uiengine.utility.V3
+import ru.cristalix.uiengine.utility.WHITE
+import ru.cristalix.uiengine.utility.rectangle
+import ru.cristalix.uiengine.utility.text
 import kotlin.math.PI
 
 const val MAP_SIZE = 90.0
@@ -24,8 +30,10 @@ class Map {
                 mapData = gson.fromJson(NetUtil.readUtf8(data, 65536), MapData::class.java)
                 if (mapData.title != "OUTLAST") {
                     loadTextures(
-                        load(mapData.mapTexturePath,
-                            "088231085F83D889062812" + mapData.title[0].toUpperCase())
+                        load(
+                            mapData.mapTexturePath,
+                            "088231085F83D889062812" + mapData.title[0].toUpperCase()
+                        )
                     ).thenRun {
                         minimap = createMinimap(mapData)
                         started = true

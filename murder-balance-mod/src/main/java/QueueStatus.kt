@@ -7,7 +7,19 @@ import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.element.RectangleElement
 import ru.cristalix.uiengine.element.TextElement
 import ru.cristalix.uiengine.eventloop.animate
-import ru.cristalix.uiengine.utility.*
+import ru.cristalix.uiengine.utility.BOTTOM_LEFT
+import ru.cristalix.uiengine.utility.BOTTOM_RIGHT
+import ru.cristalix.uiengine.utility.CENTER
+import ru.cristalix.uiengine.utility.Color
+import ru.cristalix.uiengine.utility.Easings
+import ru.cristalix.uiengine.utility.LEFT
+import ru.cristalix.uiengine.utility.TOP
+import ru.cristalix.uiengine.utility.TOP_LEFT
+import ru.cristalix.uiengine.utility.TOP_RIGHT
+import ru.cristalix.uiengine.utility.V3
+import ru.cristalix.uiengine.utility.WHITE
+import ru.cristalix.uiengine.utility.rectangle
+import ru.cristalix.uiengine.utility.text
 
 const val MARGIN = 5
 const val WIDTH = 140.0

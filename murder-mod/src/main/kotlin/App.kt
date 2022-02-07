@@ -14,7 +14,7 @@ import ru.cristalix.uiengine.utility.CENTER
 import ru.cristalix.uiengine.utility.TOP
 import ru.cristalix.uiengine.utility.V3
 import ru.cristalix.uiengine.utility.text
-import java.util.*
+import java.util.UUID
 
 const val NAMESPACE = "murder"
 const val FILE_STORE = "http://51.38.128.132/murder/"

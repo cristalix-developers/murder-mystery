@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         google()
-        jcenter()
         maven {
             url "https://repo.implario.dev/public"
         }
@@ -24,7 +23,6 @@ repositories {
 }
 
 apply plugin: 'ru.cristalix.uiengine.bundler'
-apply plugin: 'kotlin'
 
 dependencies {
     compileOnly 'ru.cristalix:client-api:latest-SNAPSHOT'
@@ -40,7 +38,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 }
 
 configurations.all {
-    exclude group: "io.reactivex", module:"rxjava"
+    exclude group: "io.reactivex", module: "rxjava"
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
 }
 
@@ -85,7 +83,6 @@ bundler {
 //}
 
 
-
 remotes {
     webServer {
         host = 'mokou.dedi.c7x.dev'
@@ -106,6 +103,6 @@ task upload() {
     }
 }
 
-    afterEvaluate {
-tasks.upload.dependsOn(tasks.bundle)
-    }
+afterEvaluate {
+    tasks.upload.dependsOn(tasks.bundle)
+}

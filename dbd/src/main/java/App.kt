@@ -88,7 +88,7 @@ class App : JavaPlugin() {
         activeStatus = Status.STARTING
         ChestManager.hideAll()
         clearTraps()
-        Bukkit.getOnlinePlayers().forEach { it.kickPlayer("Выключение сервера.") }
+        game.players.forEach { it.kickPlayer("Выключение сервера.") }
         worldMeta.world.livingEntities.filter { it is Item }.forEach { it.remove() }
 
         // Полная перезагрузка если много игр наиграно

@@ -6,8 +6,16 @@ import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.UIEngine.clientApi
 import ru.cristalix.uiengine.UIEngine.registerHandler
 import ru.cristalix.uiengine.element.Context3D
-import ru.cristalix.uiengine.utility.*
-import java.util.*
+import ru.cristalix.uiengine.utility.Relative
+import ru.cristalix.uiengine.utility.Rotation
+import ru.cristalix.uiengine.utility.V3
+import ru.cristalix.uiengine.utility.WHITE
+import ru.cristalix.uiengine.utility.rectangle
+import java.util.UUID
+import kotlin.collections.HashMap
+import kotlin.collections.MutableMap
+import kotlin.collections.forEach
+import kotlin.collections.set
 
 object NeedHelp {
 

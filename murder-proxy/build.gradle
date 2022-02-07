@@ -1,5 +1,3 @@
-apply plugin: 'org.jetbrains.kotlin.jvm'
-
 group = 'me.func'
 version = '1.0-SNAPSHOT'
 
@@ -21,7 +19,7 @@ tasks.withType(JavaCompile) {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = '1.8'
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 dependencies {
@@ -43,5 +41,16 @@ dependencies {
 
     implementation 'ru.cristalix:boards-bukkit-api:3.0.0'
     implementation 'ru.cristalix:npcs-bukkit-api:3.0.5'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+
     implementation project(':murder-commons')
+}
+
+repositories {
+    mavenCentral()
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }

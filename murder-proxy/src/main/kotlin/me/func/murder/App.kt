@@ -2,7 +2,6 @@ package me.func.murder
 
 import clepto.bukkit.B
 import clepto.cristalix.Cristalix
-import dev.implario.bukkit.item.item
 import dev.implario.bukkit.platform.Platforms
 import dev.implario.games5e.node.CoordinatorClient
 import dev.implario.games5e.node.NoopGameNode
@@ -10,24 +9,27 @@ import dev.implario.games5e.packets.PacketOk
 import dev.implario.games5e.packets.PacketQueueEnter
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import io.netty.buffer.Unpooled
-import me.func.commons.*
+import me.func.commons.MurderInstance
+import me.func.commons.PlayerBalancer
+import me.func.commons.app
 import me.func.commons.content.CustomizationNPC
 import me.func.commons.content.Lootbox
 import me.func.commons.content.TopManager
 import me.func.commons.listener.GlobalListeners
 import me.func.commons.mod.ModTransfer
+import me.func.commons.realm
 import me.func.commons.user.User
+import me.func.commons.userManager
 import me.func.commons.util.MapLoader
 import me.func.commons.util.StandHelper
+import me.func.commons.worldMeta
 import net.minecraft.server.v1_12_R1.PacketDataSerializer
 import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
 import org.bukkit.Bukkit
-import org.bukkit.Material
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.ArmorStand
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.CoreApi
 import ru.cristalix.core.display.data.DataDrawData
@@ -46,8 +48,7 @@ import ru.cristalix.core.render.WorldRenderData
 import ru.cristalix.npcs.data.NpcBehaviour
 import ru.cristalix.npcs.server.Npc
 import ru.cristalix.npcs.server.Npcs
-import java.awt.SystemColor.text
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 
@@ -85,8 +86,14 @@ class App : JavaPlugin() {
                     try {
                         val serializer = PacketDataSerializer(Unpooled.buffer())
                         serializer.writeInt(count)
-                        (it as CraftPlayer).handle.playerConnection.sendPacket(PacketPlayOutCustomPayload("queue:online", serializer))
-                    } catch (exception: Exception) {}
+                        (it as CraftPlayer).handle.playerConnection.sendPacket(
+                            PacketPlayOutCustomPayload(
+                                "queue:online",
+                                serializer
+                            )
+                        )
+                    } catch (_: Exception) {
+                    }
                 }
             }
             online.forEach { (game, stand) ->
@@ -137,34 +144,37 @@ class App : JavaPlugin() {
                         fixDoubleClick = it
 
                         if (type.queue != null) {
-                            Futures.timeout(IPartyService.get().getPartyByMember(it.uniqueId), 3, TimeUnit.SECONDS).whenComplete { group, throwable ->
-                                if (throwable == null) {
-                                    if (!group.map { party -> party.leader == it.uniqueId }.orElse(true)) {
-                                        it.sendMessage(Formatting.error("Вы не лидер пати."))
-                                        return@whenComplete
+                            Futures.timeout(IPartyService.get().getPartyByMember(it.uniqueId), 3, TimeUnit.SECONDS)
+                                .whenComplete { group, throwable ->
+                                    if (throwable == null) {
+                                        if (!group.map { party -> party.leader == it.uniqueId }.orElse(true)) {
+                                            it.sendMessage(Formatting.error("Вы не лидер пати."))
+                                            return@whenComplete
+                                        }
+                                    }
+                                    Futures.timeout(
+                                        client.client.send(
+                                            PacketQueueEnter(
+                                                UUID.fromString(type.queue),
+                                                if (throwable == null && group.isPresent) group.get().members.toList() else listOf(
+                                                    it.uniqueId
+                                                ),
+                                                true, true, HashMap()
+                                            )
+                                        ).awaitFuture(PacketOk::class.java), 2, TimeUnit.SECONDS
+                                    ).whenComplete { _, error ->
+                                        if (error != null) {
+                                            error.printStackTrace()
+                                            it.sendMessage(Formatting.error("Ошибка: ${error::class.simpleName} ${error.message}"))
+                                        } else {
+                                            it.sendMessage(Formatting.fine("Вы добавлены в очередь!"))
+                                            ModTransfer()
+                                                .string(type.name.toLowerCase())
+                                                .integer(type.slots)
+                                                .send("queue:show", getUser(it))
+                                        }
                                     }
                                 }
-                                Futures.timeout(
-                                    client.client.send(
-                                        PacketQueueEnter(
-                                            UUID.fromString(type.queue),
-                                            if (throwable == null && group.isPresent) group.get().members.toList() else listOf(it.uniqueId),
-                                            true, true, HashMap()
-                                        )
-                                    ).awaitFuture(PacketOk::class.java), 2, TimeUnit.SECONDS
-                                ).whenComplete { _, error ->
-                                    if (error != null) {
-                                        error.printStackTrace()
-                                        it.sendMessage(Formatting.error("Ошибка: ${error::class.simpleName} ${error.message}"))
-                                    } else {
-                                        it.sendMessage(Formatting.fine("Вы добавлены в очередь!"))
-                                        ModTransfer()
-                                            .string(type.name.toLowerCase())
-                                            .integer(type.slots)
-                                            .send("queue:show", getUser(it))
-                                    }
-                                }
-                            }
                             return@onClick
                         } else {
                             balancer.accept(it, type.name)
@@ -210,7 +220,7 @@ class App : JavaPlugin() {
             null
         }, "squid")
 
-        B.regCommand({ player, arg ->
+        B.regCommand({ player, _ ->
             Bukkit.getOnlinePlayers().forEach {
                 player.hidePlayer(murder, it)
             }
@@ -218,7 +228,7 @@ class App : JavaPlugin() {
         }, "hide")
     }
 
-    fun getUser(player: Player): User {
+    private fun getUser(player: Player): User {
         return getUser(player.uniqueId)
     }
 

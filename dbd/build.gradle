@@ -3,6 +3,7 @@ plugins {
 }
 
 apply plugin: 'org.jetbrains.kotlin.jvm'
+apply plugin: 'kotlin'
 
 bukkitPlugin {
     main = 'App'
@@ -30,7 +31,7 @@ tasks.withType(JavaCompile) {
 }
 
 compileKotlin {
-    kotlinOptions.jvmTarget = '1.8'
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 dependencies {
@@ -51,4 +52,13 @@ dependencies {
     implementation 'ru.cristalix:boards-bukkit-api:3.0.0'
     implementation 'ru.cristalix:npcs-bukkit-api:3.0.5'
     implementation project(':murder-commons')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+}
+repositories {
+    mavenCentral()
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
