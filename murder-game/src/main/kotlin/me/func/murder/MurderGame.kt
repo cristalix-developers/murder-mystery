@@ -155,13 +155,6 @@ class MurderGame(
         cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
         cristalix.updateRealmInfo()
 
-        players.forEach {
-            context.every(20 * 60) { r ->
-                BattlePassUtil.update(it, QuestType.TIME, 1, false)
-                r.cancel()
-            }
-        }
-
         if (dbd) {
             engineManager = EngineManager(this)
             gateManager = GateManager(this)

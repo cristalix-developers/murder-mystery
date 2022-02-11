@@ -1,6 +1,7 @@
 package me.func.murder
 
 import clepto.cristalix.Cristalix
+import me.func.battlepass.BattlePassUtil
 import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
 import me.func.murder.user.Role
@@ -123,9 +124,13 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     .send("update-online", game.userManager.getUser(it))
             }
         }
+        if ((time / 20) % 60 == 0) {
+            game.players.forEach {
+                BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.TIME, 1, false)
+            }
+        }
         // Каждые 10 секунд, генерировать золото в случайном месте
-        if ((time / 20) % 10 == 0)
-            game.goldManager.dropGoldRandomly()
+        if ((time / 20) % 10 == 0) game.goldManager.dropGoldRandomly()
         game.bowManager.rotateIfPresent(time)
         // Если осталось менее двух минут, выдать скорость мардеру,
         // и подсветить всех на 5 секунд, если меньше 30 сек. выдать свечение
