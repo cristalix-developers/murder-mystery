@@ -9,6 +9,8 @@ import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.UserManager
 import me.func.Arcade
+import me.func.battlepass.BattlePassUtil
+import me.func.battlepass.quest.QuestType
 import me.func.murder.content.TopManager
 import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.DbdTimer
