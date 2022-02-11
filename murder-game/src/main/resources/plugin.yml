@@ -1,5 +1,3 @@
 name: MurderMystery
 main: me.func.murder.MurderApp
 version: 1.0
-
-depend: [ CoreApi ]

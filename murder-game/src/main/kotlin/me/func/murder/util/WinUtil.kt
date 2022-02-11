@@ -8,7 +8,7 @@ class WinUtil(private val game: MurderGame) {
 
     fun check4win(): Boolean {
         // Если время вышло игроки победили
-        if (game.activeDbdStatus.lastSecond * 20 == game.timer.time) {
+        if ((game.dbd && game.activeDbdStatus.lastSecond * 20 == game.timer.time) || (!game.dbd && game.activeStatus.lastSecond * 20 == game.timer.time)) {
             game.winMessage = "§aВремя вышло! Мирные жители победили."
             return true
         }

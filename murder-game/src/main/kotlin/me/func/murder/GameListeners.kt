@@ -7,15 +7,13 @@ import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
 import io.netty.buffer.Unpooled
-import me.func.murder.content.DailyRewardManager
-import me.func.murder.content.Lootbox
-import me.func.murder.content.WeekRewards
+import me.func.Arcade
+import me.func.donate.impl.Corpse
+import me.func.donate.impl.KillMessage
 import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.mechanic.GadgetMechanic
 import me.func.murder.dbd.mechanic.drop.ChestManager
 import me.func.murder.dbd.mechanic.engine.EngineManager
-import me.func.murder.donate.impl.Corpse
-import me.func.murder.donate.impl.KillMessage
 import me.func.murder.map.interactive.BlockInteract
 import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
@@ -96,28 +94,27 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
     private val context = game.context
 
     init {
-        if (dbd) {
+        context.after (1) {
+            if (dbd) {
+                setupMapDecorationListeners()
+                setupDbdJoinListeners()
+                setupDeathHandlerListeners()
+                setupBlockPhysicsCancelListeners()
+                EngineManager(game)
+                ChestManager(game)
+                setupItemHolderListeners()
+                GadgetMechanic(game)
+                setupMoveHandlerListeners()
+            } else {
+                setupDamageListeners()
+                setupConnectionListeners()
+                setupGoldListeners()
+                setupChatListeners()
+                setupInteractListeners()
+                setupInventoryListeners()
+                setupMapDecorationListeners()
+            }
             setupGlobalListeners()
-            setupMapDecorationListeners()
-            setupDbdJoinListeners()
-            setupDeathHandlerListeners()
-            Lootbox(game)
-            setupBlockPhysicsCancelListeners()
-            EngineManager(game)
-            ChestManager(game)
-            setupItemHolderListeners()
-            GadgetMechanic(game)
-            setupMoveHandlerListeners()
-        } else {
-            setupDamageListeners()
-            setupConntecionListeners()
-            setupGlobalListeners()
-            setupGoldListeners()
-            setupChatListeners()
-            setupInteractListeners()
-            Lootbox(game)
-            setupInventoryListeners()
-            setupMapDecorationListeners()
         }
     }
 
@@ -367,12 +364,12 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         if (victim.role == Role.VICTIM) {
             val uuid = victim.player!!.uniqueId.toString()
 
-            game.players.filter { it != (game.killer?.player ?: return@dbdKill) }.forEach { // todo ok?
+            game.players.filter { it != (game.killer?.player ?: return@dbdKill) }.forEach { // ok
                 ModTransfer().string(uuid).send("holohide", game.userManager.getUser(it))
             }
 
             if (game.killer != null && Math.random() < 0.35) {
-                game.broadcast("  > " + game.killer!!.stat.activeKillMessage.texted(victim.name))
+                game.broadcast("  > " + Arcade.getArcadeData(game.killer!!.stat.id).killMessage.texted(victim.name))
             } else {
                 game.broadcast("  > " + KillMessage.NONE.texted(victim.name))
             }
@@ -380,13 +377,15 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             game.killer!!.stat.eventKills++
             game.killer!!.giveMoney(1)
 
+            val corpse = Arcade.getArcadeData(victim.stat.id).corpse
+
             val location = victim.player!!.location.clone()
-            if (victim.stat.activeCorpse != Corpse.NONE)
+            if (corpse != Corpse.NONE)
                 StandHelper(location.clone().subtract(0.0, 1.5, 0.0))
                     .marker(true)
                     .invisible(true)
                     .gravity(false)
-                    .slot(EnumItemSlot.HEAD, victim.stat.activeCorpse.icon)
+                    .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon())
                     .markTrash()
 
             Music.DBD_DEATH.playAll(game)
@@ -452,22 +451,6 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     )
                 }
                 ModHelper.updateBalance(user)
-            }
-            game.after(10) {
-                val now = System.currentTimeMillis()
-                // Обнулить комбо сбора наград если прошло больше суток или комбо >7
-                if ((user.stat.rewardStreak > 0 && now - user.stat.lastEnter > 24 * 60 * 60 * 1000) || user.stat.rewardStreak > 6) {
-                    user.stat.rewardStreak = 0
-                }
-                if (now - user.stat.dailyClaimTimestamp > 14 * 60 * 60 * 1000) {
-                    user.stat.dailyClaimTimestamp = now
-                    DailyRewardManager.open(user)
-
-                    val dailyReward = WeekRewards.values()[user.stat.rewardStreak]
-                    player.sendMessage(Formatting.fine("Ваша ежедневная награда: " + dailyReward.title))
-                    dailyReward.give(user)
-                    user.stat.rewardStreak++
-                }
             }
         }
     }
@@ -646,17 +629,12 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         }
     }
 
-    private fun setupConntecionListeners() {
+    private fun setupConnectionListeners() {
         context.on<PlayerJoinEvent> {
             player.inventory.clear()
             player.gameMode = GameMode.ADVENTURE
+
             val user = game.userManager.getUser(player)
-
-            user.stat.lastEnter = System.currentTimeMillis()
-
-            // Заполнение имени для топа
-            if (user.stat.lastSeenName.isEmpty()) user.stat.lastSeenName =
-                IAccountService.get().getNameByUuid(UUID.fromString(user.session.userId)).get(1, TimeUnit.SECONDS)
 
             if (game.activeStatus != Status.STARTING) return@on
 
@@ -669,6 +647,10 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
                 Music.LOBBY.play(user)
             }
+
+            // Заполнение имени для топа
+            if (user.session.userId != null && user.stat.lastSeenName.isEmpty()) user.stat.lastSeenName =
+                game.cristalix.getPlayer(UUID.fromString(user.session.userId)).displayName ?: ("§7" + player.name)
         }
 
         context.on<PlayerQuitEvent> {
@@ -700,7 +682,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         if (victim.role == Role.MURDER) killMurder(victim)
 
         if (killer != null && Math.random() < 0.35) {
-            game.broadcast(killer.stat.activeKillMessage.texted(victim.name))
+            game.broadcast(Arcade.getArcadeData(killer.stat.id).killMessage.texted(victim.name))
         } else {
             game.broadcast(KillMessage.NONE.texted(victim.name))
         }
@@ -723,10 +705,12 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             id = location.block.typeId
         } while ((id == 0 || id == 171 || id == 96 || id == 167) && counter < 20)
 
-        if (victim.stat.activeCorpse != Corpse.NONE) StandHelper(location.clone().subtract(0.0, 1.5, 0.0)).marker(true)
+        val corpse = Arcade.getArcadeData(victim.stat.id).corpse
+
+        if (corpse != Corpse.NONE) StandHelper(location.clone().subtract(0.0, 1.5, 0.0)).marker(true)
             .invisible(true)
             .gravity(false)
-            .slot(EnumItemSlot.HEAD, victim.stat.activeCorpse.icon) // todo nullable??!
+            .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon()) // todo nullable??!
             .markTrash()
         else game.modHelper.makeCorpse(victim)
 

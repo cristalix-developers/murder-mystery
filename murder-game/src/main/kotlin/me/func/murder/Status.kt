@@ -1,7 +1,6 @@
 package me.func.murder
 
 import clepto.cristalix.Cristalix
-import me.func.murder.donate.impl.NameTag
 import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
 import me.func.murder.user.Role
@@ -34,7 +33,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         // Если время вышло и пора играть
         if (it / 20 == STARTING.lastSecond) {
             // Начать отсчет заново, так как мало игроков
-            if (players.size + 3 < game.slots)
+            if (players.size + 6 < game.slots)
                 actualTime = 1
             else {
                 // Обновление статуса реалма, чтобы нельзя было войти
@@ -54,8 +53,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                         player.inventory.clear()
                         player.itemOnCursor = null
                         player.openInventory.topInventory.clear()
-                        val user = game.userManager.getUser(player)
-                        user.stat.mask.setMask(user)
+                        me.func.Arcade.getArcadeData(player).mask.setMask(player)
                     }
                 }
                 // Список игроков Murder
@@ -81,15 +79,6 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
 
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
                 users.forEach { user ->
-                    val player = user.player!!
-                    val nameTag = user.stat.activeNameTag
-                    player.playerListName =
-                        if (nameTag == NameTag.NONE) " " else "${
-                            nameTag.rare.colored
-                        } §7${nameTag.title}" // todo
-                    // me.func.murder.listener.tab.setTabView(player.uniqueId, me.func.murder.listener.tabView) todo tab
-                    // me.func.murder.listener.tab.update(player)
-
                     ModHelper.sendTitle(user, "Роль: ${user.role.title}")
 
                     // Выполнение ролийных особенностей
@@ -201,14 +190,14 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.broadcast("§c§lКОНЕЦ! ${game.winMessage}")
             game.broadcast("    §cМаньяк ${game.murderName}")
             game.broadcast("    §bДетектив ${game.detectiveName}")
-            if (game.heroName?.isNotEmpty() ?: false && game.detectiveName != game.heroName)
+            if (game.heroName?.isNotEmpty() == true && game.detectiveName != game.heroName)
                 game.broadcast("    §aГерой ${game.heroName}")
             game.broadcast("")
             game.context.after(20 * 8) {
                 // Кик всех игроков с сервера
                 Cristalix.transfer(
                     game.players.map { it.uniqueId },
-                    MurderApp.LOBBY_SERVER
+                    me.func.Arcade.getLobbyRealm()
                 )
             }
             // Очистка мусорных сущностей

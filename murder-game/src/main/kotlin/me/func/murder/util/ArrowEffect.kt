@@ -1,5 +1,6 @@
 package me.func.murder.util
 
+import me.func.Arcade
 import me.func.murder.MurderGame
 import me.func.murder.everyAfter
 import me.func.murder.getEntitiesByType
@@ -18,8 +19,10 @@ class ArrowEffect(private val game: MurderGame) {
             for (entity in game.map.world.getEntitiesByType<Arrow>().filter { it.shooter is Player }) {
                 val user: User = game.userManager.getUser((entity.shooter as Player).uniqueId)
 
-                if (user.stat.arrowParticle.particle != null)
-                    game.map.world.spawnParticle(user.stat.arrowParticle.particle, entity.location, 1)
+                val arrow = Arcade.getArcadeData(user.stat.id).arrowParticle
+
+                if (arrow.type != null)
+                    game.map.world.spawnParticle(arrow.type, entity.location, 1)
             }
         }
     }

@@ -32,7 +32,7 @@ object TopCreator {
 
                 it.forEach { entry ->
                     if (entry.data.stat.lastSeenName == null) entry.data.stat.lastSeenName =
-                        IAccountService.get().getNameByUuid(UUID.fromString(entry.data.session.userId)).get()
+                        game.cristalix.getPlayer(UUID.fromString(entry.data.session.userId)).displayName
 
                     blocks.addContent(
                         UUID.fromString(entry.data.session.userId),

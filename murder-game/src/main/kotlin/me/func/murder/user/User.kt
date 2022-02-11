@@ -2,13 +2,7 @@ package me.func.murder.user
 
 import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
-import me.func.murder.donate.impl.ArrowParticle
-import me.func.murder.donate.impl.Corpse
-import me.func.murder.donate.impl.DeathImage
-import me.func.murder.donate.impl.KillMessage
-import me.func.murder.donate.impl.Mask
-import me.func.murder.donate.impl.NameTag
-import me.func.murder.donate.impl.StepParticle
+import me.func.donate.impl.*
 import me.func.murder.map.MapType
 import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
@@ -80,23 +74,6 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
         if (stat == null) {
             this.stat = Stat(
                 UUID.fromString(session.userId), 0, 0, 0, 0, 0, 0, 2, true, 1,
-                arrayListOf(),
-                arrayListOf(
-                    KillMessage.NONE,
-                    StepParticle.NONE,
-                    DeathImage.NONE,
-                    NameTag.NONE,
-                    Corpse.NONE,
-                    ArrowParticle.NONE,
-                    Mask.NONE,
-                ),
-                KillMessage.NONE,
-                StepParticle.NONE,
-                DeathImage.NONE,
-                NameTag.NONE,
-                Corpse.NONE,
-                ArrowParticle.NONE,
-                Mask.NONE,
                 0,
                 0,
                 0,
@@ -106,24 +83,9 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
                 "",
             )
         } else {
-            if (stat.activeKillMessage == null) stat.activeKillMessage = KillMessage.NONE
-            if (stat.activeParticle == null) stat.activeParticle = StepParticle.NONE
-            if (stat.activeDeathImage == null) stat.activeDeathImage = DeathImage.NONE
-            if (stat.activeNameTag == null) stat.activeNameTag = NameTag.NONE
-            if (stat.activeCorpse == null) stat.activeCorpse = Corpse.NONE
             if (stat.music == null) stat.music = true // todo wtf
             if (stat.lootboxOpenned == null) stat.lootboxOpenned = 0
             if (stat.moneyBooster == null) stat.moneyBooster = 1
-            if (stat.achievement == null || stat.achievement!!.isEmpty()) stat.achievement = arrayListOf()
-            if (stat.donate == null || stat.donate!!.isEmpty()) stat.donate = arrayListOf(
-                KillMessage.NONE,
-                StepParticle.NONE,
-                DeathImage.NONE,
-                NameTag.NONE,
-                Corpse.NONE,
-            )
-            if (stat.activeParticle == null) stat.arrowParticle = ArrowParticle.NONE
-            if (stat.mask == null) stat.mask = Mask.NONE
             this.stat = stat
         }
         this.session = session

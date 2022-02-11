@@ -1,16 +1,13 @@
 package me.func.murder.dbd
 
 import dev.implario.bukkit.item.item
-import me.func.murder.MurderApp
 import me.func.murder.MurderGame
 import me.func.murder.dbd.mechanic.GadgetMechanic
-import me.func.murder.donate.impl.NameTag
 import me.func.murder.getUser
 import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
 import me.func.murder.user.Role
 import me.func.murder.util.Music
-import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Material
 import ru.cristalix.core.realm.RealmStatus
@@ -48,7 +45,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                         player.itemOnCursor = null
                         player.openInventory.topInventory.clear()
                         val user = game.userManager.getUser(player)
-                        user.stat.mask.setMask(user)
+                        me.func.Arcade.getArcadeData(player).mask.setMask(player)
 
                         game.killer!!.player!!.inventory.setItem(2, item {
                             type = Material.FISHING_ROD
@@ -84,11 +81,6 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 game.modHelper.loadMap(game.mapType)
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
                 users.forEach { user ->
-                    val player = user.player!!
-                    val nameTag = user.stat.activeNameTag
-                    player.playerListName = if (nameTag == NameTag.NONE) " " else "${
-                        nameTag.rare.colored
-                    } §7${nameTag.title}"
                     // tab.setTabView(player.uniqueId, tabView)
                     // tab.update(player)
                     ModHelper.sendTitle(user, "Роль: ${user.role.title}")
@@ -199,7 +191,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.after(20 * 8) {
                 // Кик всех игроков с сервера
                 clepto.cristalix.Cristalix.transfer(
-                    game.players.map { it.uniqueId }, MurderApp.LOBBY_SERVER
+                    game.players.map { it.uniqueId }, me.func.Arcade.getLobbyRealm()
                 )
             }
             // Очистка мусорных сущностей

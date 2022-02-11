@@ -3,7 +3,6 @@ package me.func.murder.util
 import me.func.murder.MurderGame
 import me.func.murder.getUser
 import me.func.murder.user.User
-import ru.cristalix.core.display.IDisplayService
 import ru.cristalix.core.display.messages.RadioMessage
 
 enum class Music(private val url: String) {
@@ -18,35 +17,28 @@ enum class Music(private val url: String) {
     PORT("https://implario.dev/murder/port.mp3"),
     VILLAGER_WIN("https://implario.dev/murder/win.mp3");
 
-    fun play(user: User) {
-        MusicHelper.play(user, url)
-    }
+    fun play(user: User) = MusicHelper.play(user, url)
 
-    fun playAll(game: MurderGame) {
-        MusicHelper.playAll(game, url)
-    }
+    fun playAll(game: MurderGame) = MusicHelper.playAll(game, url)
 }
 
 object MusicHelper {
-    private val ds = IDisplayService.get()
-
-    fun play(user: User, url: String) {
+    fun play(user: User?, url: String) {
+        if (user == null)
+            return
         if (user.stat.music == false) return // L43
-        stop(user)
-        ds.sendRadio(user.player!!.uniqueId, RadioMessage(true, url))
+        me.func.util.Music.sound(url, user.player!!)
     }
 
     fun playAll(game: MurderGame, url: String) {
-        ds.sendRadio(game.players.filter {
-            game.userManager.getUser(it).stat.music ?: false // fixme nullable ??? (nullchecks in User.kt)
-        }.map { it.uniqueId }, RadioMessage(true, url))
+        game.players.filter { game.userManager.getUser(it).stat.music }.forEach { me.func.util.Music.sound(url, it) }
     }
 
-    fun stop(user: User) {
-        ds.sendRadio(user.player!!.uniqueId, RadioMessage(true, "null"))
-    }
-
-    fun stopAll(game: MurderGame) {
-        ds.sendRadio(game.players.map { it.uniqueId }, RadioMessage(true, "null"))
+    fun stop(user: User?) {
+        if (user == null)
+            return
+        if (user.player == null)
+            return
+        me.func.util.Music.stop(user.player!!)
     }
 }

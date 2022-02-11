@@ -8,8 +8,7 @@ import dev.implario.games5e.sdk.cristalix.WorldMeta
 import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.UserManager
-import me.func.murder.content.CustomizationNPC
-import me.func.murder.content.Lootbox
+import me.func.Arcade
 import me.func.murder.content.TopManager
 import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.DbdTimer
@@ -33,17 +32,23 @@ import org.bukkit.Material
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.inventory.ItemStack
 import ru.cristalix.core.realm.RealmStatus
+import ru.cristalix.core.transfer.TransferService
 import java.util.UUID
 
 /**
  * Created by Kamillaova on 2022.01.30.
  */
+data class MurderSettings(
+    val teams: List<List<UUID>>
+)
+
 class MurderGame(
     gameId: UUID,
+    settings: MurderSettings,
     val kensuke: Kensuke,
     val userManager: UserManager<User>,
     val statScope: Scope<Stat>,
-    private val dbd: Boolean
+    val dbd: Boolean
 ) : Game(gameId) {
 
     companion object {
@@ -129,7 +134,7 @@ class MurderGame(
     else
         arrayOf(MapType.FIELD, MapType.OUTLAST, MapType.PORT).random()
 
-    val map: WorldMeta = MapLoader.load(this, mapType.address, "prod") // TODO: setup?
+    val map: WorldMeta = MapLoader.load(this, "Murder", mapType.address)
 
     val spawn: Location by lazy(LazyThreadSafetyMode.NONE) {
         val dot = map.getLabel("spawn")
@@ -142,28 +147,34 @@ class MurderGame(
         dot.add(0.5, 0.0, 0.5)
     }
 
+    val cristalix: Cristalix = Cristalix.connectToCristalix(this, "MUR", "MurderMystery")
+
     init {
-        Cristalix.connectToCristalix(this, "MRD", "MurderMystey")
+        cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
+        cristalix.updateRealmInfo()
 
         if (dbd) {
             engineManager = EngineManager(this)
             gateManager = GateManager(this)
             dbdWinUtil = DbdWinUtil(this)
             gadgetMechanic = GadgetMechanic(this)
-            dbdTimer = DbdTimer(this).apply { runTaskTimer(app, 10, 1) }
+            dbdTimer = DbdTimer(this).apply { after(10) { every(1) { dbdTimer?.tick() } } }
         } else {
             mapType.interactive.forEach { it.init(this) }
-            mapType.loadDetails(map.world.entities.toTypedArray())
 
             ArrowEffect(this).arrowEffect()
 
             TopManager(this)
-            CustomizationNPC(this)
             GameListeners(this, dbd = false)
-            Lootbox(this)
 
-            timer.runTaskTimer(app, 10, 1)
+            after(10) {
+                mapType.loadDetails(map.world.entities.toTypedArray())
+                every(1) { timer.tick() }
+            }
         }
+
+        val flatten = settings.teams.flatten()
+        TransferService(cristalix.client).transferBatch(flatten, cristalix.realmId)
     }
 
     override fun acceptPlayer(e: AsyncPlayerPreLoginEvent): Boolean {

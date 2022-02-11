@@ -1,17 +1,17 @@
 package me.func.murder
 
-import me.func.murder.donate.impl.StepParticle
+import me.func.Arcade
+import me.func.donate.impl.StepParticle
 import org.bukkit.GameMode
-import org.bukkit.scheduler.BukkitRunnable
 
-class Timer(private val game: MurderGame) : BukkitRunnable() {
+class Timer(private val game: MurderGame) {
     var time = 0
 
-    override fun run() {
+    fun tick() {
         if (time % 2 == 0) {
             game.players.filter { it.gameMode != GameMode.SPECTATOR }
                 .forEach {
-                    val particle = game.userManager.getUser(it).stat.activeParticle
+                    val particle = Arcade.getArcadeData(it).stepParticle
                     if (particle != StepParticle.NONE)
                         it.world.spawnParticle(particle.type, it.location.clone().add(0.0, 0.2, 0.0), 1)
                 }

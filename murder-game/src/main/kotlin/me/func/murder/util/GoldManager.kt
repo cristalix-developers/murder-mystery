@@ -8,13 +8,16 @@ import org.bukkit.util.Vector
 
 class GoldManager(private val game: MurderGame) {
 
-    private val places: List<Location> = game.map.getLabels("gold").map { it.toCenterLocation() }
+    private val places: MutableList<Location> = mutableListOf()
 
     private val spawned = arrayListOf<Location>()
 
     private val velocity = Vector(0.0, 0.4, 0.0)
 
     fun dropGoldRandomly() {
+        if (places.isEmpty())
+            places.addAll(game.map.getLabels("gold").map { it.toCenterLocation() })
+
         val any = places.minus(spawned.toSet()).filter { it ->
             it.getNearbyEntities(4.0, 4.0, 4.0).map { it.type }.isEmpty()
         }
@@ -47,7 +50,7 @@ class GoldManager(private val game: MurderGame) {
         }
     }
 
-    fun dropGold(location: Location) {
+    private fun dropGold(location: Location) {
         game.map.world.dropItemNaturally(location, MurderGame.gold).velocity = velocity
     }
 }
