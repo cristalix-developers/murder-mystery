@@ -8,6 +8,8 @@ import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
 import io.netty.buffer.Unpooled
 import me.func.Arcade
+import me.func.battlepass.BattlePassUtil
+import me.func.battlepass.quest.QuestType
 import me.func.donate.impl.Corpse
 import me.func.donate.impl.KillMessage
 import me.func.murder.dbd.DbdStatus
@@ -201,6 +203,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     .forEach { _ ->
                         val user = game.userManager.getUser(player)
                         if (user.role == Role.VICTIM) {
+                            BattlePassUtil.update(user.player!!, QuestType.WIN, 1, false)
                             user.stat.wins++
                             user.role = Role.NONE
                             user.out = true
@@ -374,6 +377,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 game.broadcast("  > " + KillMessage.NONE.texted(victim.name))
             }
             ModHelper.sendTitle(victim, "Вас убили!")
+            BattlePassUtil.update(game.killer?.player!!, QuestType.KILL, 1, false)
             game.killer!!.stat.eventKills++
             game.killer!!.giveMoney(1)
 
@@ -536,6 +540,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     if (byArrow || killer.inventory.itemInMainHand.getType() == Material.IRON_SWORD || damage == 10.0) {
                         // Убийца убивает с меча или с лука
                         userKiller.giveMoney(2)
+                        BattlePassUtil.update(userKiller.player!!, QuestType.KILL, 1, false)
                         userKiller.stat.kills++
                         kill(userVictim, userKiller)
                         val sword = killer.inventory.getItem(1)

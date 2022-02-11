@@ -199,7 +199,10 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
-                game.players.forEach { it.kickPlayer("Игра завершена.") }
+                game.players.forEach {
+                    me.func.battlepass.BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.PLAY, 1, false)
+                    it.kickPlayer("Игра завершена.")
+                }
                 game.isTerminated = true
                 // todo
                 -1

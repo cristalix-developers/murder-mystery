@@ -159,6 +159,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.players.forEach {
                 val user = game.userManager.getUser(it)
                 if (it.gameMode != GameMode.SPECTATOR) {
+                    me.func.battlepass.BattlePassUtil.update(user.player!!, me.func.battlepass.quest.QuestType.WIN, 1, false)
                     user.stat.wins++
                     user.giveMoney(10)
                     if (Math.random() < 0.11) {
@@ -207,6 +208,10 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
+                game.players.forEach {
+                    me.func.battlepass.BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.PLAY, 1, false)
+                    it.kickPlayer("Игра завершена.")
+                }
                 game.isTerminated = true
                 -1
             }
