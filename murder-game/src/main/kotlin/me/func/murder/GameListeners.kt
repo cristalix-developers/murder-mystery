@@ -638,6 +638,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerJoinEvent> {
             player.inventory.clear()
             player.gameMode = GameMode.ADVENTURE
+            player.setResourcePack("", "")
 
             val user = game.userManager.getUser(player)
 
