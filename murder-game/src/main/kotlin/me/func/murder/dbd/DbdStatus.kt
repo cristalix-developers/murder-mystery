@@ -12,6 +12,7 @@ import org.bukkit.GameMode
 import org.bukkit.Material
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.util.UtilEntity
+import org.bukkit.Bukkit
 
 enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
     STARTING(20, { time, game ->
@@ -204,7 +205,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     it.kickPlayer("Игра завершена.")
                 }
                 game.isTerminated = true
-                // todo
+                Bukkit.unloadWorld(game.map.world, false)
                 -1
             }
             time < (END.lastSecond - 10) * 20 -> (END.lastSecond - 10) * 20
