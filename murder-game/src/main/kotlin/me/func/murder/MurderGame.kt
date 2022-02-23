@@ -9,8 +9,6 @@ import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.UserManager
 import me.func.Arcade
-import me.func.battlepass.BattlePassUtil
-import me.func.battlepass.quest.QuestType
 import me.func.murder.content.TopManager
 import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.DbdTimer
@@ -161,7 +159,7 @@ class MurderGame(
             gateManager = GateManager(this)
             dbdWinUtil = DbdWinUtil(this)
             gadgetMechanic = GadgetMechanic(this)
-            dbdTimer = DbdTimer(this).apply { after(10) { every(1) { dbdTimer?.tick() } } }
+            dbdTimer = DbdTimer(this).apply { context.everyAfter(10, 1) { dbdTimer?.tick()} }
         } else {
             mapType.interactive.forEach { it.init(this) }
 
