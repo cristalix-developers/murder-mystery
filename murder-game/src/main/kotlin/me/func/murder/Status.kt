@@ -1,6 +1,5 @@
 package me.func.murder
 
-import clepto.cristalix.Cristalix
 import me.func.battlepass.BattlePassUtil
 import me.func.murder.mod.ModHelper
 import me.func.murder.mod.ModTransfer
@@ -201,11 +200,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 game.broadcast("    §aГерой ${game.heroName}")
             game.broadcast("")
             game.context.after(20 * 8) {
-                // Кик всех игроков с сервера
-                game.transferService.transferBatch(
-                    game.players.map { it.uniqueId },
-                    me.func.Arcade.getLobbyRealm()
-                )
+                game.stopGame()
             }
             // Очистка мусорных сущностей
             game.map.world.entities.filter { it.hasMetadata("trash") }.forEach { it.remove() }
@@ -214,7 +209,6 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
-                game.stopGame()
                 -1
             }
             time < (END.lastSecond - 10) * 20 -> (END.lastSecond - 10) * 20

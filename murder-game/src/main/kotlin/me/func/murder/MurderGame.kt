@@ -149,7 +149,7 @@ class MurderGame(
     }
 
     val cristalix: Cristalix = Cristalix.connectToCristalix(this, "MUR", "MurderMystery")
-    val transferService = TransferService(cristalix.client)
+    private val transferService = TransferService(cristalix.client)
 
     init {
         cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
