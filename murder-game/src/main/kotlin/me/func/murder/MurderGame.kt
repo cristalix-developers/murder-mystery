@@ -149,7 +149,7 @@ class MurderGame(
     }
 
     val cristalix: Cristalix = Cristalix.connectToCristalix(this, "MUR", "MurderMystery")
-    private val transferService = TransferService(cristalix.client)
+    val transferService = TransferService(cristalix.client)
 
     init {
         cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
@@ -189,10 +189,7 @@ class MurderGame(
         }
     }
 
-    override fun acceptPlayer(e: AsyncPlayerPreLoginEvent): Boolean {
-        if (players.size > slots) return false
-        return true
-    }
+    override fun acceptPlayer(e: AsyncPlayerPreLoginEvent) = players.size <= slots
 
     override fun getSpawnLocation(uuid: UUID): Location = spawn
 }
