@@ -446,6 +446,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
             // Отправка модов
             game.after(1) {
+                player.setResourcePack("", "")
                 modList.forEach {
                     user.sendPacket(
                         PacketPlayOutCustomPayload(

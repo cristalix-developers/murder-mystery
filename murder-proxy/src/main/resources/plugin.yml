@@ -1,5 +1,0 @@
-main: me.func.murder.App
-name: ArcadeLobby
-version: 1.0.0
-depend:
-  - CoreAPI

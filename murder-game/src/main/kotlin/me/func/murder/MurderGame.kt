@@ -150,6 +150,7 @@ class MurderGame(
     }
 
     val cristalix: Cristalix = Cristalix.connectToCristalix(this, "MUR", "MurderMystery")
+    val transferService = TransferService(cristalix.client)
 
     init {
         cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
@@ -175,8 +176,7 @@ class MurderGame(
             }
         }
 
-        val flatten = settings.teams.flatten()
-        TransferService(cristalix.client).transferBatch(flatten, cristalix.realmId)
+        transferService.transferBatch(settings.teams.flatten(), cristalix.realmId)
     }
 
     override fun acceptPlayer(e: AsyncPlayerPreLoginEvent): Boolean {

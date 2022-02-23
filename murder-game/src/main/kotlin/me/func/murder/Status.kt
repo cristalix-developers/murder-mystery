@@ -164,6 +164,8 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             // Выдача побед выжившим и выдача всем доп. игр
             game.players.forEach {
                 val user = game.userManager.getUser(it)
+                me.func.battlepass.BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.PLAY, 1, false)
+
                 if (it.gameMode != GameMode.SPECTATOR) {
                     BattlePassUtil.update(user.player!!, me.func.battlepass.quest.QuestType.WIN, 1, false)
                     user.stat.wins++
@@ -202,24 +204,19 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.broadcast("")
             game.context.after(20 * 8) {
                 // Кик всех игроков с сервера
-                Cristalix.transfer(
+                game.transferService.transferBatch(
                     game.players.map { it.uniqueId },
                     me.func.Arcade.getLobbyRealm()
                 )
             }
             // Очистка мусорных сущностей
             game.map.world.entities.filter { it.hasMetadata("trash") }.forEach { it.remove() }
-
             game.bowManager.clear()
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
-                game.players.forEach {
-                    BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.PLAY, 1, false)
-                    it.kickPlayer("Игра завершена.")
-                }
-                game.isTerminated = true
-                Bukkit.unloadWorld(game.map.world, false)
+                game.transferService.transferBatch(game.players.map { it.uniqueId }, me.func.Arcade.getLobbyRealm())
+
                 -1
             }
             time < (END.lastSecond - 10) * 20 -> (END.lastSecond - 10) * 20
