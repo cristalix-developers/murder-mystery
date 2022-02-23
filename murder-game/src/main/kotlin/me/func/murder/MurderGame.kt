@@ -27,6 +27,7 @@ import me.func.murder.util.BowManager
 import me.func.murder.util.GoldManager
 import me.func.murder.util.ParticleHelper
 import me.func.murder.util.WinUtil
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
@@ -148,7 +149,7 @@ class MurderGame(
     }
 
     val cristalix: Cristalix = Cristalix.connectToCristalix(this, "MUR", "MurderMystery")
-    val transferService = TransferService(cristalix.client)
+    private val transferService = TransferService(cristalix.client)
 
     init {
         cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
@@ -175,6 +176,17 @@ class MurderGame(
         }
 
         transferService.transferBatch(settings.teams.flatten(), cristalix.realmId)
+    }
+
+    fun stopGame() {
+        transferService.transferBatch(players.map { it.uniqueId }, Arcade.getLobbyRealm())
+
+        after(10) {
+            isTerminated = true
+            Bukkit.unloadWorld(map.world, false)
+
+            unregisterAll()
+        }
     }
 
     override fun acceptPlayer(e: AsyncPlayerPreLoginEvent): Boolean {
