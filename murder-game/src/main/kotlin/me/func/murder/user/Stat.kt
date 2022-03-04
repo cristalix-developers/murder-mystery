@@ -1,6 +1,5 @@
 package me.func.murder.user
 
-import org.bukkit.Achievement
 import java.util.UUID
 
 data class Stat(

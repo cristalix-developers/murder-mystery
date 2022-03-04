@@ -22,15 +22,9 @@ import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.BukkitPlatform
 import ru.cristalix.core.CoreApi
 import ru.cristalix.core.datasync.EntityDataParameters
-import ru.cristalix.core.display.BukkitDisplayService
-import ru.cristalix.core.display.IDisplayService
-import ru.cristalix.core.inventory.IInventoryService
-import ru.cristalix.core.inventory.InventoryService
 import ru.cristalix.core.network.ISocketClient
 import ru.cristalix.core.party.IPartyService
 import ru.cristalix.core.party.PartyService
-import ru.cristalix.core.realm.IRealmService
-import ru.cristalix.core.realm.RealmId
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
 import ru.cristalix.npcs.server.Npcs
@@ -71,13 +65,21 @@ class MurderApp : JavaPlugin() {
         }
 
         node = DefaultGameNode()
-        node.supportedImagePrefixes += setOf("murder", "dbd")
+        node.supportedImagePrefixes += listOf("murder-kamillaova", "dbd-kamillaova")
         node.linker = SessionBukkitLinker.link(node)
 
         Arcade.start(kensuke.globalRealm, ArcadeType.MUR)
 
         node.gameCreator = GameCreator { gameId, image, settings ->
-            MurderGame(gameId, gson.fromJson(settings, MurderSettings::class.java), kensuke, userManager, statScope, image == "dbd")
+            println(image)
+            MurderGame(
+                gameId,
+                gson.fromJson(settings, MurderSettings::class.java),
+                kensuke,
+                userManager,
+                statScope,
+                image == "dbd-kamillaova"
+            )
         }
 
         val coordinatorClient = CoordinatorClient(node)

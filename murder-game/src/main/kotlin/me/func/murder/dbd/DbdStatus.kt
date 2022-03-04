@@ -1,6 +1,8 @@
 package me.func.murder.dbd
 
 import dev.implario.bukkit.item.item
+import me.func.battlepass.BattlePassUtil
+import me.func.battlepass.quest.QuestType
 import me.func.murder.MurderGame
 import me.func.murder.dbd.mechanic.GadgetMechanic
 import me.func.murder.getUser
@@ -10,9 +12,12 @@ import me.func.murder.user.Role
 import me.func.murder.util.Music
 import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.Sound
+import org.bukkit.SoundCategory
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType
 import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.util.UtilEntity
-import org.bukkit.Bukkit
 
 enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
     STARTING(20, { time, game ->
@@ -22,9 +27,9 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         if (time % 20 == 0) game.status = RealmStatus.WAITING_FOR_PLAYERS
 
         // Если время вышло и пора играть
-        if (time / 20 == STARTING.lastSecond) {
+        if (time / 20 >= STARTING.lastSecond && game.players.size >= game.minPlayers) {
             // Начать отсчет заново, так как мало игроков
-            if (players.size < game.slots) {
+            if (players.size < game.minPlayers) {
                 actualTime = 1
             } else {
                 // Чистка двигателей и реанимация сундуков
@@ -34,8 +39,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 game.status = RealmStatus.GAME_STARTED_RESTRICTED
 
                 // Эффект прыгучести, чтобы убрать прыжок
-                val disableJump =
-                    org.bukkit.potion.PotionEffect(org.bukkit.potion.PotionEffectType.JUMP, Int.MAX_VALUE, 250)
+                val disableJump = PotionEffect(PotionEffectType.JUMP, Int.MAX_VALUE, 250)
 
                 // Телепортация игроков на игровые точки и очистка инвентаря
                 val places = game.map.getLabels("start")
@@ -64,8 +68,8 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 // Выдача роли маньяка и создание голема
                 game.killer = users.random()
                 game.killer!!.player!!.addPotionEffect(
-                    org.bukkit.potion.PotionEffect(
-                        org.bukkit.potion.PotionEffectType.SLOW, Int.MAX_VALUE, 0
+                    PotionEffect(
+                        PotionEffectType.SLOW, Int.MAX_VALUE, 0
                     )
                 )
                 game.killer!!.role = Role.MURDER
@@ -73,11 +77,11 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
 
                 // Выдача роли жертвы
                 users.filter { it.role != Role.MURDER }.forEach {
-                        it.player!!.addPotionEffect(disableJump)
-                        it.player!!.addPotionEffect(GadgetMechanic.blindness)
-                        ModTransfer().integer(1).send("dbd:heart-create", it)
-                        it.role = Role.VICTIM
-                    }
+                    it.player!!.addPotionEffect(disableJump)
+                    it.player!!.addPotionEffect(GadgetMechanic.blindness)
+                    ModTransfer().integer(1).send("dbd:heart-create", it)
+                    it.role = Role.VICTIM
+                }
                 // Показать карту
                 game.modHelper.loadMap(game.mapType)
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
@@ -110,36 +114,32 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             val alive = game.players.filter { it.gameMode != GameMode.SPECTATOR }.size
             game.players.map { game.userManager.getUser(it) }.forEach {
                 ModTransfer().string(
-                        "осталось ${
-                            maxOf(
-                                0, MurderGame.ENGINE_NEEDED - game.engineManager!!.enginesDone()
-                            )
-                        } §4⛽"
-                    ).integer(maxOf(0, alive - 1)).send("dbd:update", it)
+                    "осталось ${
+                        maxOf(
+                            0, MurderGame.ENGINE_NEEDED - game.engineManager!!.enginesDone()
+                        )
+                    } §4⛽"
+                ).integer(maxOf(0, alive - 1)).send("dbd:update", it)
                 ModTransfer().integer(GAME.lastSecond).integer(time).boolean(false).send("update-online", it)
             }
         }
         game.players.map { it to it.location.distanceSquared(game.killer?.player!!.location) + 1 }.filter {
-                time % maxOf(5, minOf((it.second / 10).toInt(), 25)) == 0 && game.killer!!.player != it.first
-            }.map { game.userManager.getUser(it.first) }.forEach {
+            time % maxOf(5, minOf((it.second / 10).toInt(), 25)) == 0 && game.killer!!.player != it.first
+        }.map { game.userManager.getUser(it.first) }.forEach {
+            it.player!!.playSound(
+                it.player!!.location, Sound.BLOCK_WOOD_PLACE, SoundCategory.PLAYERS, 1.0f, 0.6f
+            )
+            game.context.after(10) { _ ->
                 it.player!!.playSound(
                     it.player!!.location,
-                    org.bukkit.Sound.BLOCK_WOOD_PLACE,
-                    org.bukkit.SoundCategory.PLAYERS,
-                    1.0f,
-                    0.6f
+                    Sound.BLOCK_WOOD_PLACE,
+                    SoundCategory.PLAYERS,
+                    0.7f,
+                    2.0f
                 )
-                game.context.after(10) { _ ->
-                    it.player!!.playSound(
-                        it.player!!.location,
-                        org.bukkit.Sound.BLOCK_WOOD_PLACE,
-                        org.bukkit.SoundCategory.PLAYERS,
-                        0.7f,
-                        2.0f
-                    )
-                }
-                ModTransfer().integer(it.hearts).send("dbd:heart-update", it)
             }
+            ModTransfer().integer(it.hearts).send("dbd:heart-update", it)
+        }
         // Проверка на победу
         if (game.dbdWinUtil!!.check4win()) {
             game.activeDbdStatus = END
@@ -188,24 +188,14 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.broadcast("")
 
             game.modHelper.sendGlobalTitle("§e§lКОНЕЦ!\n\n\n§4Dead By Daylight")
-
-            game.after(20 * 8) {
-                // Кик всех игроков с сервера
-                clepto.cristalix.Cristalix.transfer(
-                    game.players.map { it.uniqueId }, me.func.Arcade.getLobbyRealm()
-                )
-            }
-            // Очистка мусорных сущностей
-            game.map.world.entities.filter { it.hasMetadata("trash") }.forEach { it.remove() }
         }
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
                 game.players.forEach {
-                    me.func.battlepass.BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.PLAY, 1, false)
-                    it.kickPlayer("Игра завершена.")
+                    BattlePassUtil.update(it, QuestType.PLAY, 1, false)
                 }
-                game.isTerminated = true
-                Bukkit.unloadWorld(game.map.world, false)
+
+                game.stopGame()
                 -1
             }
             time < (END.lastSecond - 10) * 20 -> (END.lastSecond - 10) * 20

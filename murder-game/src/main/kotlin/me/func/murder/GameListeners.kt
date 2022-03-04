@@ -94,9 +94,10 @@ import java.util.concurrent.TimeUnit
  */
 class GameListeners(private val game: MurderGame, dbd: Boolean) {
     private val context = game.context
+    private val playersInGame: MutableList<String> = arrayListOf()
 
     init {
-        context.after (1) {
+        context.after(1) {
             if (dbd) {
                 setupMapDecorationListeners()
                 setupDbdJoinListeners()
@@ -444,6 +445,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerJoinEvent> {
             val user = game.userManager.getUser(player)
 
+            context.after(3) { player.addToTab() }
+
             // Отправка модов
             game.after(1) {
                 player.setResourcePack("", "")
@@ -601,7 +604,6 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
     private fun setupInteractListeners() {
         context.on<PlayerInteractEvent> {
             if (game.activeStatus != Status.GAME || hand == EquipmentSlot.OFF_HAND) return@on
-            // todo map
             game.mapType.interactive.filterIsInstance<BlockInteract>().filter { it.trigger(this) }.forEach {
                 val user = game.userManager.getUser(player)
                 game.goldManager.take(user, it.gold) {
@@ -637,6 +639,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
     private fun setupConnectionListeners() {
         context.on<PlayerJoinEvent> {
+            playersInGame += player.name
+
             player.inventory.clear()
             player.gameMode = GameMode.ADVENTURE
             player.setResourcePack("", "")
@@ -657,10 +661,17 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
             // Заполнение имени для топа
             if (user.session.userId != null && user.stat.lastSeenName.isEmpty()) user.stat.lastSeenName =
-                game.cristalix.getPlayer(UUID.fromString(user.session.userId)).displayName ?: ("§7" + player.name)
+                game.cristalix.getPlayer(UUID.fromString(user.session.userId))?.displayName ?: ("§7" + player.name)
         }
 
         context.on<PlayerQuitEvent> {
+            playersInGame -= player.name
+
+            //if (playersInGame.isEmpty()) {
+            //    game.stopGame(transfer = false)
+            //return@on
+            //}
+
             val user = game.userManager.getUser(player)
 
             user.stat.timePlayedTotal += System.currentTimeMillis() - user.stat.lastEnter
@@ -717,7 +728,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         if (corpse != Corpse.NONE) StandHelper(location.clone().subtract(0.0, 1.5, 0.0)).marker(true)
             .invisible(true)
             .gravity(false)
-            .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon()) // todo nullable??!
+            .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon())
             .markTrash()
         else game.modHelper.makeCorpse(victim)
 

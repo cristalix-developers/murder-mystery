@@ -12,7 +12,7 @@ abstract class BlockInteract(
 
     var triggerBlock: Location? = null
 
-    lateinit var game: MurderGame // todo будет это работать?
+    lateinit var game: MurderGame // _todo будет это работать? Да это вроде работает
 
     override fun init(game: MurderGame) {
         this.game = game

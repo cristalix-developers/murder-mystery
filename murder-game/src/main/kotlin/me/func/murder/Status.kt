@@ -31,9 +31,9 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         var actualTime = it
 
         // Если время вышло и пора играть
-        if (it / 20 == STARTING.lastSecond) {
+        if (it / 20 >= STARTING.lastSecond && game.players.size >= game.minPlayers) {
             // Начать отсчет заново, так как мало игроков
-            if (players.size + 6 < game.slots)
+            if (players.size < game.minPlayers)
                 actualTime = 1
             else {
                 // Обновление статуса реалма, чтобы нельзя было войти
@@ -162,7 +162,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             // Выдача побед выжившим и выдача всем доп. игр
             game.players.forEach {
                 val user = game.userManager.getUser(it)
-                me.func.battlepass.BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.PLAY, 1, false)
+                BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.PLAY, 1, false)
                 if (it.gameMode != GameMode.SPECTATOR) {
                     BattlePassUtil.update(user.player!!, me.func.battlepass.quest.QuestType.WIN, 1, false)
                     user.stat.wins++

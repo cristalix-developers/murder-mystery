@@ -44,11 +44,8 @@ class ModHelper(private val game: MurderGame) {
     }
 
     fun loadMap(map: MapType) {
-        game.players.map { game.userManager.getUser(it) }
-            .forEach {
-                ModTransfer()
-                    .json(map.data)
-                    .send("murder:map-load", it)
+        game.players.map { game.userManager.getUser(it) }.forEach {
+                ModTransfer().json(map.data).send("murder:map-load", it)
             }
     }
 
@@ -58,11 +55,9 @@ class ModHelper(private val game: MurderGame) {
         val alive = users.filter { it.player!!.gameMode != GameMode.SPECTATOR }.size
 
         users.forEach {
-            ModTransfer()
-                .boolean(detectiveAlive)
+            ModTransfer().boolean(detectiveAlive)
                 .integer(alive - 1)
-                .send("murder:update", it) // todo
-            // .send(if (realm.realmId.realmName.contains("MUR")) "murder:update" else "dbd:update", it)
+                .send(if (game.dbd) "dbd:update" else "murder:update", it)
         }
     }
 

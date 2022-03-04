@@ -3,7 +3,6 @@ package me.func.murder.dbd
 import me.func.murder.MurderGame
 import me.func.murder.getUser
 import me.func.murder.mod.ModTransfer
-import org.bukkit.scheduler.BukkitRunnable
 
 class DbdTimer(private val game: MurderGame) {
     var time = 0

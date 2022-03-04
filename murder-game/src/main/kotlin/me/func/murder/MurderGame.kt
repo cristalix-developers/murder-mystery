@@ -39,9 +39,7 @@ import java.util.UUID
 /**
  * Created by Kamillaova on 2022.01.30.
  */
-data class MurderSettings(
-    val teams: List<List<UUID>>
-)
+data class MurderSettings(val teams: List<List<UUID>>)
 
 class MurderGame(
     gameId: UUID,
@@ -93,7 +91,9 @@ class MurderGame(
             if (!dbd) throw IllegalStateException("activeDbdStatus available only in dbd mode"); return field
         }
 
-    var slots = 16
+    var minPlayers = if (dbd) 5 else 10
+
+    var slots = if (dbd) minPlayers else 16
 
     val modHelper = ModHelper(this)
     val goldManager = GoldManager(this)
@@ -130,10 +130,8 @@ class MurderGame(
         }
         private set
 
-    val mapType: MapType = if (dbd)
-        arrayOf(MapType.DBD, MapType.DBD2).random()
-    else
-        arrayOf(MapType.FIELD, MapType.OUTLAST, MapType.PORT).random()
+    val mapType: MapType = if (dbd) arrayOf(MapType.DBD, MapType.DBD2).random()
+    else arrayOf(MapType.FIELD, MapType.OUTLAST, MapType.PORT).random()
 
     val map: WorldMeta = MapLoader.load(this, "Murder", mapType.address)
 
@@ -148,26 +146,30 @@ class MurderGame(
         dot.add(0.5, 0.0, 0.5)
     }
 
-    val cristalix: Cristalix = Cristalix.connectToCristalix(this, "MUR", "MurderMystery")
+    val cristalix: Cristalix = Cristalix.connectToCristalix(
+        this, //
+        if (dbd) "DBD" else "MUR", //
+        if (dbd) "Dead By Daylight" else "MurderMystery"
+    )
+
     private val transferService = TransferService(cristalix.client)
 
     init {
         cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
         cristalix.updateRealmInfo()
 
+        GameListeners(this, dbd)
+
         if (dbd) {
             engineManager = EngineManager(this)
             gateManager = GateManager(this)
             dbdWinUtil = DbdWinUtil(this)
             gadgetMechanic = GadgetMechanic(this)
-            dbdTimer = DbdTimer(this).apply { context.everyAfter(10, 1) { dbdTimer?.tick()} }
+            dbdTimer = DbdTimer(this).apply { context.everyAfter(10, 1) { dbdTimer!!.tick() } }
         } else {
             mapType.interactive.forEach { it.init(this) }
-
-            ArrowEffect(this).arrowEffect()
-
+            ArrowEffect(this)
             TopManager(this)
-            GameListeners(this, dbd = false)
 
             after(10) {
                 mapType.loadDetails(map.world.entities.toTypedArray())
@@ -178,8 +180,8 @@ class MurderGame(
         transferService.transferBatch(settings.teams.flatten(), cristalix.realmId)
     }
 
-    fun stopGame() {
-        transferService.transferBatch(players.map { it.uniqueId }, Arcade.getLobbyRealm())
+    fun stopGame(transfer: Boolean = true) {
+        if (transfer) transferService.transferBatch(players.map { it.uniqueId }, Arcade.getLobbyRealm())
 
         after(10) {
             isTerminated = true

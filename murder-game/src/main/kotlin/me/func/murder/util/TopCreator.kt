@@ -5,7 +5,6 @@ import me.func.murder.everyAfter
 import me.func.murder.user.Stat
 import org.bukkit.Location
 import ru.cristalix.boards.bukkitapi.Boards
-import ru.cristalix.core.account.IAccountService
 import java.util.UUID
 
 object TopCreator {

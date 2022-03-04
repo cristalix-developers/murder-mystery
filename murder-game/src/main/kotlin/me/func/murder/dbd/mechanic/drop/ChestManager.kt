@@ -33,17 +33,17 @@ class ChestManager(private val game: MurderGame) {
         }
     }
 
-    private val chests = game.map.getLabels("chest")
-        .associate {
-            it.block.getRelative(BlockFace.DOWN).location to LootChest(
-                it, 0, StandHelper(it.toCenterLocation().subtract(0.0, 0.6, 0.0))
-                    .gravity(false)
-                    .marker(true)
-                    .invisible(true)
-                    .name("§bОткрыть")
-                    .build()
-            )
-        }.toMutableMap()
+    private val chests = game.map.getLabels("chest").associate {
+        it.block.getRelative(BlockFace.DOWN).location to LootChest(
+            it,
+            0,
+            StandHelper(it.toCenterLocation().subtract(0.0, 0.6, 0.0)).gravity(false)
+                .marker(true)
+                .invisible(true)
+                .name("§bОткрыть")
+                .build()
+        )
+    }.toMutableMap()
 
     private val tickList = mutableListOf<Location>()
 
@@ -58,24 +58,21 @@ class ChestManager(private val game: MurderGame) {
         game.context.on<InventoryOpenEvent> { handle() }
     }
 
-    fun PlayerInteractEvent.handle() {
-        if (player.gameMode == GameMode.SPECTATOR)
-            return
-        if (hasBlock() && blockClicked.type == Material.CHEST &&
-            chests[blockClicked.location]?.open == 0 && (game.killer?.player ?: false) != player
+    private fun PlayerInteractEvent.handle() {
+        if (player.gameMode == GameMode.SPECTATOR) return
+        if (hasBlock() && blockClicked.type == Material.CHEST && chests[blockClicked.location]?.open == 0 && (game.killer?.player
+                ?: false) != player
         ) {
             tickList.add(blockClicked.location)
 
             val location = blockClicked.location.clone().add(0.5, 1.0, 0.5)
             drop(location, fuel)
-            if (Math.random() < 0.5)
-                drop(location, GadgetMechanic.bandage)
+            if (Math.random() < 0.5) drop(location, GadgetMechanic.bandage)
 
             if (Math.random() < 0.4) {
                 val energy = (Math.random() * 350).toInt()
                 game.userManager.getUser(player).lightTicks += energy
-                player.spigot()
-                    .sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l+${energy / 20} §fсек. света"))
+                player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l+${energy / 20} §fсек. света"))
             }
             val chest = chests[blockClicked.location]!!
             chest.open = 1
@@ -83,9 +80,9 @@ class ChestManager(private val game: MurderGame) {
         }
     }
 
-    fun InventoryOpenEvent.handle() {
-        if (inventory.type == InventoryType.CHEST && game.activeStatus == Status.GAME) {
-            cancelled = true
+    private fun InventoryOpenEvent.handle() {
+        if (inventory.type == InventoryType.CHEST && game.activeStatus == Status.GAME || game.activeStatus == Status.STARTING) {
+            isCancelled = true
         }
     }
 
@@ -106,8 +103,7 @@ class ChestManager(private val game: MurderGame) {
 
     private fun tick() {
         // Безопасность превыше всего
-        if (tickList.size > chests.size)
-            tickList.clear()
+        if (tickList.size > chests.size) tickList.clear()
 
         tickList.forEach {
             val position = BlockPosition(it.blockX, it.blockY, it.blockZ)

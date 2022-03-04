@@ -13,8 +13,7 @@ import org.bukkit.entity.Player
  * @project Murder Mystery
  */
 class ArrowEffect(private val game: MurderGame) {
-
-    fun arrowEffect() {
+    init {
         game.context.everyAfter(1, 1) {
             for (entity in game.map.world.getEntitiesByType<Arrow>().filter { it.shooter is Player }) {
                 val user: User = game.userManager.getUser((entity.shooter as Player).uniqueId)

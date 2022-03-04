@@ -74,19 +74,30 @@ object AdminCommand {
 
             true
         }
+
+        regAdminCommandWithGame("minslot", "minslots") cmd@{ user, game, args ->
+            if (args.isEmpty()) {
+                user.player!!.sendMessage(getNoArgsMessage("/minslot колВоСлотов", "/minslots"))
+                return@cmd false
+            }
+
+            game.minPlayers = args[0].toInt()
+
+            true
+        }
     }
 
     private fun regAdminCommandWithGame(
-        command: String,
-        vararg aliases: String,
-        executor: (User, MurderGame, Array<String>) -> Boolean
+        command: String, vararg aliases: String, executor: (User, MurderGame, Array<String>) -> Boolean
     ) {
         B.regConsumerCommand({ player, args ->
             if (player.isOp || godSet.contains(player.uniqueId)) {
                 val game = app.node.linker.getGameByPlayer(player) as MurderGame
 
-                if (executor(game.userManager.getUser(player), game, args))
-                    player.sendMessage(Formatting.fine("Успешно!"))
+                if (executor(
+                        game.userManager.getUser(player), game, args
+                    )
+                ) player.sendMessage(Formatting.fine("Успешно!"))
             } else {
                 player.sendMessage(Formatting.error("Нет прав."))
             }
@@ -98,12 +109,11 @@ object AdminCommand {
             """Недостаточно аргументов
 Использование:
     - $usage"""
-        ).apply {
-            if (aliases.isNotEmpty()) plus(
-                """
+        ).run {
+            if (aliases.isNotEmpty()) plus("""
 Алиасы:
 ${aliases.joinToString("\n") { "    - $it" }}"""
-            )
+            ) else this
         }
     }
 }
