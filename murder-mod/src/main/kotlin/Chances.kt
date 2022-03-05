@@ -1,6 +1,5 @@
 import dev.xdark.clientapi.entity.EntityArmorStand
-import dev.xdark.clientapi.event.render.HotbarRender
-import dev.xdark.clientapi.event.render.NameTemplateRender
+import dev.xdark.clientapi.event.render.*
 import dev.xdark.feder.NetUtil
 import ru.cristalix.clientapi.mod
 import ru.cristalix.clientapi.registerHandler
@@ -152,6 +151,9 @@ class Chances {
         box.enabled = false
 
         registerHandler<HotbarRender> { isCancelled = box.enabled }
+        registerHandler<HealthRender> { isCancelled = box.enabled }
+        registerHandler<ExpBarRender> { isCancelled = box.enabled }
+        registerHandler<VehicleHealthRender> { isCancelled = box.enabled }
         registerHandler<NameTemplateRender> {
             if (!box.enabled && entity !is EntityArmorStand)
                 isCancelled = true
