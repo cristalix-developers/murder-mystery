@@ -153,6 +153,7 @@ class Chances {
         registerHandler<HotbarRender> { isCancelled = box.enabled }
         registerHandler<HealthRender> { isCancelled = box.enabled }
         registerHandler<ExpBarRender> { isCancelled = box.enabled }
+        registerHandler<HungerRender> { isCancelled = box.enabled }
         registerHandler<VehicleHealthRender> { isCancelled = box.enabled }
         registerHandler<NameTemplateRender> {
             if (!box.enabled && entity !is EntityArmorStand)
