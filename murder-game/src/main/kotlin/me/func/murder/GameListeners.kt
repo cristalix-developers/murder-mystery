@@ -24,6 +24,7 @@ import me.func.murder.user.User
 import me.func.murder.util.Music
 import me.func.murder.util.MusicHelper
 import me.func.murder.util.StandHelper
+import me.func.protocol.Indicators
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import net.minecraft.server.v1_12_R1.EnumItemSlot
@@ -396,6 +397,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 player.addToTab()
                 player.setResourcePack("", "")
                 ModLoader.send("murder-mod-bundle.jar", player)
+                Anime.hideIndicator(player, Indicators.HUNGER, Indicators.EXP, Indicators.HEALTH, Indicators.VEHICLE)
             }, 3)
         }
     }
