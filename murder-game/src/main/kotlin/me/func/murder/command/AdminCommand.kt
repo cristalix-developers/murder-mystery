@@ -8,7 +8,7 @@ import me.func.murder.user.User
 import me.func.murder.util.MusicHelper
 import org.bukkit.Bukkit
 import ru.cristalix.core.formatting.Formatting
-import java.util.UUID
+import java.util.*
 
 object AdminCommand {
 
@@ -20,28 +20,6 @@ object AdminCommand {
     )
 
     init {
-        regAdminCommandWithGame("give", "loot") cmd@{ user, game, args ->
-            if (args.size < 2) {
-                user.player!!.sendMessage(getNoArgsMessage("/give игрок кло-во", "/loot"))
-                return@cmd false
-            }
-
-            game.userManager.getUser(Bukkit.getPlayer(args[0])).stat.lootbox += args[1].toInt()
-
-            true
-        }
-
-        regAdminCommandWithGame("money") cmd@{ user, game, args ->
-            if (args.size < 2) {
-                user.player!!.sendMessage(getNoArgsMessage("/money игрок кол-во"))
-                return@cmd false
-            }
-
-            game.userManager.getUser(Bukkit.getPlayer(args[0])).giveMoney(args[1].toInt())
-
-            true
-        }
-
         regAdminCommandWithGame("playall", "all") cmd@{ user, game, args ->
             if (args.isEmpty()) {
                 user.player!!.sendMessage(getNoArgsMessage("/playall ссылкаНаМузыку", "/all"))
@@ -110,7 +88,8 @@ object AdminCommand {
 Использование:
     - $usage"""
         ).run {
-            if (aliases.isNotEmpty()) plus("""
+            if (aliases.isNotEmpty()) plus(
+                """
 Алиасы:
 ${aliases.joinToString("\n") { "    - $it" }}"""
             ) else this

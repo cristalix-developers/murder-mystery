@@ -3,6 +3,8 @@ package me.func.murder.dbd.mechanic
 import clepto.bukkit.Cycle
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
+import me.func.Arcade
+import me.func.mod.Anime
 import me.func.murder.MurderGame
 import me.func.murder.getUser
 import me.func.murder.mod.ModHelper
@@ -97,7 +99,7 @@ class GadgetMechanic(private val game: MurderGame) {
                         .gravity(false)
                         .build()
                 )
-                game.killer!!.giveMoney(1)
+                Arcade.deposit(game.killer!!.player!!.player, 1)
                 return@on
             }
 
@@ -145,7 +147,7 @@ class GadgetMechanic(private val game: MurderGame) {
 
                 val originalLocation = player.location
 
-                ModHelper.sendTitle(user, "Заживление раны...\nНе двигайтесь!")
+                Anime.title(player, "Заживление раны...\nНе двигайтесь!")
 
                 Cycle.run(1, 20 * REGEN_TIME) {
                     if (it == 20 * REGEN_TIME - 1) {

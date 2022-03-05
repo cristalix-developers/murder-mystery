@@ -13,10 +13,10 @@ enum class Role(val title: String, val shortTitle: String, val start: (User, Mur
             user.hearts = 2
             user.player!!.inventory.setItem(1, MurderGame.light)
             game.context.after(100) {
-                ModHelper.sendTitle(user, "§fОткрывайте\n§eсундуки 㫗")
+                me.func.mod.Anime.title(user.player!!, "§fОткрывайте\n§eсундуки 㫗")
             }
             game.context.after(200) {
-                ModHelper.sendTitle(user, "§fАктивируйте\n§bдвигатели §4⛽")
+                me.func.mod.Anime.title(user.player!!, "§fАктивируйте\n§bдвигатели §4⛽")
             }
         }
     ),

@@ -79,7 +79,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
 
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
                 users.forEach { user ->
-                    ModHelper.sendTitle(user, "Роль: ${user.role.title}")
+                    me.func.mod.Anime.title(user.player!!, "Роль: ${user.role.title}")
 
                     // Выполнение ролийных особенностей
                     game.context.after(10 * 20) {
@@ -138,10 +138,8 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.players.forEach { player ->
                 player.addPotionEffect(glowing)
 
-                val user = game.userManager.getUser(player)
-
-                ModHelper.sendTitle(user, "㥏 Скоро рассвет")
-                if (user.role == Role.MURDER) {
+                me.func.mod.Anime.title(player, "㥏 Скоро рассвет")
+                if (game.userManager.getUser(player).role == Role.MURDER) {
                     player.walkSpeed = 0.25f
                     return@forEach
                 }
@@ -166,9 +164,10 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 if (it.gameMode != GameMode.SPECTATOR) {
                     BattlePassUtil.update(user.player!!, me.func.battlepass.quest.QuestType.WIN, 1, false)
                     user.stat.wins++
-                    user.giveMoney(10)
+                    me.func.Arcade.deposit(it.uniqueId, 10)
+
                     if (Math.random() < 0.11) {
-                        user.stat.lootbox++
+                        me.func.Arcade.giveLootbox(it.uniqueId)
                         game.broadcast(fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
                     }
                     val firework = it.world!!.spawn(it.location, Firework::class.java)

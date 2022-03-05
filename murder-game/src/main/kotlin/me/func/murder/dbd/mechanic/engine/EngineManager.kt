@@ -1,6 +1,7 @@
 package me.func.murder.dbd.mechanic.engine
 
 import dev.implario.bukkit.event.on
+import me.func.mod.Anime
 import me.func.murder.MurderGame
 import me.func.murder.Status
 import me.func.murder.dbd.mechanic.drop.ChestManager
@@ -94,7 +95,7 @@ class EngineManager(private val game: MurderGame) {
 
                     val user = game.userManager.getUser(player)
                     user.fuel++
-                    ModHelper.sendTitle(user, "${color + percent}%\n\n\n$percentLine §4⛽")
+                    Anime.title(player, "${color + percent}%\n\n\n$percentLine §4⛽")
 
                     val haveEngines = enginesDone()
 

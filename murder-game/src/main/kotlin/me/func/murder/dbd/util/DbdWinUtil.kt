@@ -1,5 +1,6 @@
 package me.func.murder.dbd.util
 
+import me.func.Arcade
 import me.func.battlepass.BattlePassUtil
 import me.func.battlepass.quest.QuestType
 import me.func.murder.MurderGame
@@ -25,7 +26,7 @@ class DbdWinUtil(private val game: MurderGame) {
             }
             alive.isEmpty() && out.isNotEmpty() -> {
                 out.forEach {
-                    it.giveMoney(5)
+                    Arcade.deposit(it.player!!.uniqueId, 5)
                     BattlePassUtil.update(it.player!!, QuestType.WIN, 1, false)
                     it.stat.eventWins++
                 }
@@ -40,7 +41,7 @@ class DbdWinUtil(private val game: MurderGame) {
             }
             game.activeStatus.lastSecond * 20 == game.dbdTimer!!.time && out.isNotEmpty() -> {
                 out.forEach {
-                    it.giveMoney(7)
+                    Arcade.deposit(it.player!!.uniqueId, 7)
                     BattlePassUtil.update(it.player!!, QuestType.WIN, 1, false)
                     it.stat.eventWins++
                 }

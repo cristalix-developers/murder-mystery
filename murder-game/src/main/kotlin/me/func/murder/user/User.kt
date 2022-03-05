@@ -3,8 +3,6 @@ package me.func.murder.user
 import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
 import me.func.murder.map.MapType
-import me.func.murder.mod.ModHelper
-import me.func.murder.mod.ModTransfer
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.ComponentBuilder
 import net.minecraft.server.v1_12_R1.Packet
@@ -12,7 +10,7 @@ import net.minecraft.server.v1_12_R1.PlayerConnection
 import org.bukkit.Location
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
-import java.util.UUID
+import java.util.*
 
 class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
@@ -30,27 +28,15 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
     var stat: Stat
     private var player: Player? = null
 
-    override fun setPlayer(p: Player) {
-        player = p
+    override fun setPlayer(currentPlayer: Player) {
+        player = currentPlayer
     }
 
-    override fun getPlayer(): Player? {
-        return player
-    }
+    override fun getPlayer() = player
 
     private var session: KensukeSession
 
-    override fun getSession(): KensukeSession {
-        return session
-    }
-
-    fun giveMoney(money: Int) {
-        changeMoney(money)
-    }
-
-    fun minusMoney(money: Int) {
-        changeMoney(-money)
-    }
+    override fun getSession() = session
 
     fun sendPlayAgain(prefix: String, map: MapType) {
         player!!.spigot().sendMessage(
@@ -62,16 +48,10 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
         )
     }
 
-    private fun changeMoney(money: Int) {
-        stat.money += money
-        ModTransfer().integer(money).send("murder:money", this)
-        ModHelper.updateBalance(this)
-    }
-
     init {
         if (stat == null) {
             this.stat = Stat(
-                UUID.fromString(session.userId), 0, 0, 0, 0, 0, 0, 2, true, 1,
+                UUID.fromString(session.userId), 0, 0, 0, 2, true, 1,
                 0,
                 0,
                 0,

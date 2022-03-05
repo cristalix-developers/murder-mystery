@@ -13,6 +13,7 @@ import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.Arcade
 import me.func.battlepass.quest.ArcadeType
+import me.func.mod.conversation.ModLoader
 import me.func.murder.command.AdminCommand
 import me.func.murder.user.Stat
 import me.func.murder.user.User
@@ -51,6 +52,7 @@ class MurderApp : JavaPlugin() {
         EntityDataParameters.register()
         Platforms.set(PlatformDarkPaper())
 
+        ModLoader.loadAll("mods")
         Npcs.init(this)
 
         userManager = BukkitUserManager(

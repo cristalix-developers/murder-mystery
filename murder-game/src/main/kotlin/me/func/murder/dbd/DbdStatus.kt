@@ -88,7 +88,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 users.forEach { user ->
                     // tab.setTabView(player.uniqueId, tabView)
                     // tab.update(player)
-                    ModHelper.sendTitle(user, "Роль: ${user.role.title}")
+                    me.func.mod.Anime.title(user.player!!, "Роль: ${user.role.title}")
                     // Выполнение ролийных особенностей
                     game.context.after(10 * 20) { user.role.start(user, game) }
                     // Отправить информацию о начале игры клиенту
@@ -152,7 +152,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.players.forEach {
                 val user = game.userManager.getUser(it)
                 if (Math.random() < 0.11) {
-                    user.stat.lootbox++
+                    me.func.Arcade.giveLootbox(it.uniqueId)
                     game.broadcast(ru.cristalix.core.formatting.Formatting.fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
                 }
                 val firework = it.world!!.spawn(it.location, org.bukkit.entity.Firework::class.java)

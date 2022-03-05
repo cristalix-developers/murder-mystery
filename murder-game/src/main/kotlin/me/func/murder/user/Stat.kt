@@ -5,10 +5,6 @@ import java.util.UUID
 data class Stat(
     val id: UUID,
 
-    var lootbox: Int,
-    var lootboxOpenned: Int,
-
-    var money: Int,
     var wins: Int,
     var kills: Int,
     var games: Int,

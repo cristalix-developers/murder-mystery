@@ -1,5 +1,6 @@
 package me.func.murder.mod
 
+import me.func.mod.Anime
 import me.func.murder.MurderGame
 import me.func.murder.getUser
 import me.func.murder.map.MapType
@@ -11,17 +12,8 @@ import java.util.UUID
 class ModHelper(private val game: MurderGame) {
 
     companion object {
-        fun sendCooldown(user: User, text: String, ticks: Int) {
+        fun sendCooldown(user: User, text: String, ticks: Int) =
             ModTransfer().string(text).integer(ticks).send("murder:cooldown", user)
-        }
-
-        fun sendTitle(user: User, text: String) {
-            ModTransfer().string(text).send("murder:title", user)
-        }
-
-        fun updateBalance(user: User) {
-            ModTransfer().integer(user.stat.money).send("murder:balance", user)
-        }
     }
 
     fun makeCorpse(corpse: User) {
@@ -61,7 +53,5 @@ class ModHelper(private val game: MurderGame) {
         }
     }
 
-    fun sendGlobalTitle(text: String) {
-        game.players.map { game.userManager.getUser(it.uniqueId) }.forEach { sendTitle(it, text) }
-    }
+    fun sendGlobalTitle(text: String) = game.players.forEach { Anime.title(it, text) }
 }

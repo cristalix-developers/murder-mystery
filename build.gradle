@@ -1,22 +1,10 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.6.10' apply false
+    id 'org.jetbrains.kotlin.jvm' version "1.5.0" apply false
 }
 
-subprojects {
-    apply plugin: "org.jetbrains.kotlin.jvm"
-
-    ext {
-        kotlin_version = "1.6.10"
-    }
-
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = "1.8"
-            //todo freeCompilerArgs = ["-Xlambdas=indy"] // use LambdaMetafactory & invokedynamic for lambdas
-        }
-    }
-
+allprojects {
     repositories {
+        mavenCentral()
         mavenLocal()
         maven {
             url 'https://repo.implario.dev/public/'
@@ -24,10 +12,9 @@ subprojects {
         maven {
             url 'https://repo.implario.dev/cristalix/'
             credentials {
-                username project.properties["IMPLARIO_REPO_USER"]
-                password project.properties["IMPLARIO_REPO_PASSWORD"]
+                username System.getenv("IMPLARIO_REPO_USER") ?: project.properties.get("IMPLARIO_REPO_USER").toString()
+                password System.getenv("IMPLARIO_REPO_PASSWORD") ?: project.properties.get("IMPLARIO_REPO_PASSWORD").toString()
             }
         }
-        mavenCentral()
     }
 }

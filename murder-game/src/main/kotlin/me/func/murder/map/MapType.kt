@@ -21,15 +21,13 @@ import ru.cristalix.core.util.UtilV3
 
 enum class MapType(
     val title: String,
-    val realmMod: Int,
     val music: Music,
     val address: String,
-    val npcSkin: String,
     val data: MapData,
     val interactive: List<Interactive<out PlayerEvent>>
 ) {
     OUTLAST(
-        "Аутласт", 2, Music.OUTLAST, "hall", "6f3f4a2e-7f84-11e9-8374-1cb72caa35fd", MapData(
+        "Аутласт", Music.OUTLAST, "hall", MapData(
             "OUTLAST",
             43.0, -16.0,
             "mcpatcher/cit/others/mod items/gem_ruby.png", // ай ай пробел в пути
@@ -68,9 +66,7 @@ enum class MapType(
                     V3(13.0, 128.0, -32.0),
                 )
 
-                override fun trigger(event: PlayerInteractEvent): Boolean {
-                    return super.trigger(event) && !drop
-                }
+                override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !drop
 
                 override fun interact(user: User) {
                     drop =
@@ -96,9 +92,7 @@ enum class MapType(
                 val inDot = V3(-2.0, 126.0, -65.0)
                 val outDot = V3(-2.0, 109.0, -65.0)
 
-                override fun trigger(event: PlayerInteractEvent): Boolean {
-                    return super.trigger(event) && !event.player.isInsideVehicle
-                }
+                override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !event.player.isInsideVehicle
 
                 override fun interact(user: User) {
                     game.standardsInteract.movePlayer(user, inDot, outDot, 8 * 20, V3(-3.0, 110.0, -61.0))
@@ -118,9 +112,7 @@ enum class MapType(
                 val inDot = V3(-2.0, 109.0, -65.0)
                 val outDot = V3(-2.0, 116.0, -65.0)
 
-                override fun trigger(event: PlayerInteractEvent): Boolean {
-                    return super.trigger(event) && !event.player.isInsideVehicle
-                }
+                override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !event.player.isInsideVehicle
 
                 override fun interact(user: User) {
                     game.standardsInteract.movePlayer(user, inDot, outDot, 5 * 20, V3(-3.0, 116.0, -61.0))
@@ -132,7 +124,7 @@ enum class MapType(
             })
     ),
     FIELD(
-        "Ферма НЛО", 3, Music.FIELD, "field", "303c1f40-2c69-11e8-b5ea-1cb72caa35fd", MapData(
+        "Ферма НЛО", Music.FIELD, "field", MapData(
             "FIELD",
             43.0, 71.0,
             "mcpatcher/cit/others/mod items/gem_ruby.png",
@@ -147,9 +139,7 @@ enum class MapType(
                 nbt("interact", "shpric")
             }
 
-            override fun trigger(event: PlayerInteractEvent): Boolean {
-                return super.trigger(event) && !event.player.inventory.contains(syringe)
-            }
+            override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !event.player.inventory.contains(syringe)
 
             override fun interact(user: User) {
                 user.player!!.inventory.setItem(3, syringe)
@@ -166,9 +156,7 @@ enum class MapType(
             )
             var setBack = mutableListOf<Pair<Int, Byte>>()
 
-            override fun trigger(event: PlayerInteractEvent): Boolean {
-                return super.trigger(event) && !broken
-            }
+            override fun trigger(event: PlayerInteractEvent) =super.trigger(event) && !broken
 
             override fun interact(user: User) {
                 broken = true
@@ -190,11 +178,10 @@ enum class MapType(
             }
         }, object : BlockInteract(V3(-9.0, 91.0, 18.0), 9, "Призыв пришельцев") {
             var isActive = false
+            var isKilling = false
             val spawn = V3(-9.0, 120.0, 18.0)
 
-            override fun trigger(event: PlayerInteractEvent): Boolean {
-                return super.trigger(event) && !isActive
-            }
+            override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !isActive
 
             override fun interact(user: User) {
                 isActive = true
@@ -237,7 +224,6 @@ enum class MapType(
                 val victim = game.players
                     .filter { it.gameMode != org.bukkit.GameMode.SPECTATOR }
                     .random()
-                var isKilling = false
 
                 game.modHelper.sendGlobalTitle("㥗 §aПришествие!")
 
@@ -306,9 +292,8 @@ enum class MapType(
                 }
             }
         })
-    ),
-    PORT(
-        "Порт", 4, Music.PORT, "Port", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
+    ), PORT(
+        "Порт", Music.PORT, "Port",
         MapData(
             "PORT",
             107.0, 69.0,
@@ -328,9 +313,7 @@ enum class MapType(
             )
             var setBack = mutableListOf<Pair<Int, Byte>>()
 
-            override fun trigger(event: PlayerInteractEvent): Boolean {
-                return super.trigger(event) && !broken
-            }
+            override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !broken
 
             override fun interact(user: User) {
                 broken = true
@@ -352,7 +335,7 @@ enum class MapType(
         })
     ),
     DBD(
-        "Dead By Daylight", 7, Music.LOBBY, "dbd", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
+        "Dead By Daylight", Music.LOBBY, "dbd",
         MapData(
             "DBD",
             36.0, 14.0,
@@ -363,7 +346,7 @@ enum class MapType(
         ), listOf()
     ),
     DBD2(
-        "Dead By Daylight", 8, Music.LOBBY, "dbd2", "bf30a1df-85de-11e8-a6de-1cb72caa35fd",
+        "Dead By Daylight", Music.LOBBY, "dbd2",
         MapData(
             "DBD2",
             41.0, 73.0,

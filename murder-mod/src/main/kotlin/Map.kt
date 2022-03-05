@@ -1,18 +1,13 @@
 import com.google.gson.Gson
-import dev.xdark.clientapi.event.network.PluginMessage
 import dev.xdark.clientapi.event.render.RenderTickPre
 import dev.xdark.feder.NetUtil
 import org.lwjgl.opengl.GL11
+import ru.cristalix.clientapi.mod
+import ru.cristalix.clientapi.registerHandler
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.UIEngine.clientApi
 import ru.cristalix.uiengine.element.RectangleElement
-import ru.cristalix.uiengine.utility.Color
-import ru.cristalix.uiengine.utility.Relative
-import ru.cristalix.uiengine.utility.V2
-import ru.cristalix.uiengine.utility.V3
-import ru.cristalix.uiengine.utility.WHITE
-import ru.cristalix.uiengine.utility.rectangle
-import ru.cristalix.uiengine.utility.text
+import ru.cristalix.uiengine.utility.*
 import kotlin.math.PI
 
 const val MAP_SIZE = 90.0
@@ -25,27 +20,25 @@ class Map {
     private var started = false
 
     init {
-        UIEngine.registerHandler(PluginMessage::class.java) {
-            if (channel == "murder:map-load") {
-                mapData = gson.fromJson(NetUtil.readUtf8(data, 65536), MapData::class.java)
-                if (mapData.title != "OUTLAST") {
-                    loadTextures(
-                        load(
-                            mapData.mapTexturePath,
-                            "088231085F83D889062812" + mapData.title[0].toUpperCase()
-                        )
-                    ).thenRun {
-                        minimap = createMinimap(mapData)
-                        started = true
-                    }
-                } else {
+        app.registerChannel("murder:map-load") {
+            mapData = gson.fromJson(NetUtil.readUtf8(this, 65536), MapData::class.java)
+            if (mapData.title != "OUTLAST") {
+                loadTextures(
+                    load(
+                        mapData.mapTexturePath,
+                        "088231085F83D889062812" + mapData.title[0].uppercase()
+                    )
+                ).thenRun {
                     minimap = createMinimap(mapData)
                     started = true
                 }
+            } else {
+                minimap = createMinimap(mapData)
+                started = true
             }
         }
 
-        UIEngine.registerHandler(RenderTickPre::class.java) {
+        registerHandler<RenderTickPre> {
             if (!started)
                 return@registerHandler
             if (mapData.title == "OUTLAST") {
@@ -70,7 +63,7 @@ class Map {
             minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
         }
 
-        UIEngine.registerHandler(RenderTickPre::class.java) {
+        registerHandler<RenderTickPre> {
             if (!started)
                 return@registerHandler
             val player = clientApi.minecraft().player
