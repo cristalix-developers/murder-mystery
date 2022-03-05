@@ -530,7 +530,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             val itemStack = player.inventory.getItem(8)
             val user = game.userManager.getUser(player.uniqueId)
 
-            Arcade.deposit(player.uniqueId, 3)
+            Arcade.deposit(player.uniqueId, 1)
             if (itemStack != null) {
                 player.inventory.addItem(MurderGame.gold)
                 if (itemStack.getAmount() == 10 && user.role != Role.DETECTIVE) {
