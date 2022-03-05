@@ -6,7 +6,6 @@ import clepto.bukkit.Cycle
 import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
-import io.netty.buffer.Unpooled
 import me.func.Arcade
 import me.func.battlepass.BattlePassUtil
 import me.func.battlepass.quest.QuestType
@@ -14,13 +13,13 @@ import me.func.donate.impl.Corpse
 import me.func.donate.impl.KillMessage
 import me.func.mod.Anime
 import me.func.mod.conversation.ModLoader
+import me.func.mod.conversation.ModTransfer
 import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.mechanic.GadgetMechanic
 import me.func.murder.dbd.mechanic.drop.ChestManager
 import me.func.murder.dbd.mechanic.engine.EngineManager
 import me.func.murder.map.interactive.BlockInteract
 import me.func.murder.mod.ModHelper
-import me.func.murder.mod.ModTransfer
 import me.func.murder.user.Role
 import me.func.murder.user.User
 import me.func.murder.util.Music
@@ -29,8 +28,6 @@ import me.func.murder.util.StandHelper
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import net.minecraft.server.v1_12_R1.EnumItemSlot
-import net.minecraft.server.v1_12_R1.PacketDataSerializer
-import net.minecraft.server.v1_12_R1.PacketPlayOutCustomPayload
 import org.bukkit.*
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
@@ -79,12 +76,7 @@ import org.bukkit.potion.PotionEffectType
 import org.bukkit.util.Vector
 import org.spigotmc.event.entity.EntityDismountEvent
 import ru.cristalix.core.account.IAccountService
-import ru.cristalix.core.display.DisplayChannels
-import ru.cristalix.core.display.messages.Mod
 import ru.cristalix.core.formatting.Formatting
-import java.io.File
-import java.nio.file.Files
-import java.util.Collections
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
@@ -143,7 +135,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     .string("§cМаньяк 20%")
                     .string("§aЖертва 80%")
                     .string(game.mapType.title)
-                    .send("murder-join", user)
+                    .send("murder-join", player)
 
                 Music.LOBBY.play(user)
             }
@@ -254,7 +246,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
                     // Если игрока еще можно спасти
                     if (game.players.map { game.userManager.getUser(it).role == Role.VICTIM }.size > 1) {
-                        game.modHelper.makeCorpse(victim)
+                        game.modHelper.makeCorpse(player)
                         victim.player!!.gameMode = GameMode.SPECTATOR
 
                         Anime.title(victim.player!!, "§cВас ранили!\n§eЖдите помощи")
@@ -268,7 +260,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                                 .double(player.location.y + 1.0)
                                 .double(player.location.z)
                                 .string("textures/others/znak_v_3.png")
-                                .send("holo", game.userManager.getUser(it))
+                                .send("holo", it)
                         }
 
 
@@ -309,14 +301,12 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                                         val uuid = victim.player!!.uniqueId.toString()
 
                                         // Отправляем труп опять, чтобы удалить
-                                        game.players
-                                            .map { player -> game.userManager.getUser(player) }
-                                            .forEach { player ->
+                                        game.players.forEach { player ->
                                                 game.modHelper.sendCorpse(
                                                     victim.player!!.name,
                                                     victim.player!!.uniqueId, player, 0.0, 0.0, 0.0
                                                 )
-                                                ModTransfer().string(uuid).send("holohide", player)
+                                                ModTransfer().string(uuid).send("holohide", player.player!!)
                                             }
 
                                         victim.hearts = 1
@@ -368,7 +358,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             val uuid = victim.player!!.uniqueId.toString()
 
             game.players.filter { it != (game.killer?.player ?: return@dbdKill) }.forEach { // ok
-                ModTransfer().string(uuid).send("holohide", game.userManager.getUser(it))
+                ModTransfer().string(uuid).send("holohide", it)
             }
 
             if (game.killer != null && Math.random() < 0.35) {
@@ -523,7 +513,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                         kill(userVictim, userKiller)
                         val sword = killer.inventory.getItem(1)
                         killer.inventory.setItem(1, null)
-                        ModHelper.sendCooldown(userKiller, "Возвращение орудия", 60)
+                        ModHelper.sendCooldown(killer, "Возвращение орудия", 60)
                         context.after(50) { killer.inventory.setItem(1, sword) }
                         return@on
                     }
@@ -626,7 +616,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 ModTransfer().string("§cМаньяк " + 2 * (1 + user.stat.villagerStreak) + "%")
                     .string("§bДетектив " + 3 * (1 + user.stat.villagerStreak) + "%")
                     .string(game.mapType.title)
-                    .send("murder-join", user)
+                    .send("murder-join", player)
 
                 Music.LOBBY.play(user)
             }
@@ -702,7 +692,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             .gravity(false)
             .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon())
             .markTrash()
-        else game.modHelper.makeCorpse(victim)
+        else game.modHelper.makeCorpse(victim.player!!)
 
         game.players.forEach {
             it.playSound(it.location, Sound.ENTITY_PLAYER_DEATH, 1f, 1f)

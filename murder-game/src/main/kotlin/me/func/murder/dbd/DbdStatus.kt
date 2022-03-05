@@ -6,8 +6,6 @@ import me.func.battlepass.quest.QuestType
 import me.func.murder.MurderGame
 import me.func.murder.dbd.mechanic.GadgetMechanic
 import me.func.murder.getUser
-import me.func.murder.mod.ModHelper
-import me.func.murder.mod.ModTransfer
 import me.func.murder.user.Role
 import me.func.murder.util.Music
 import org.bukkit.GameMode
@@ -79,7 +77,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 users.filter { it.role != Role.MURDER }.forEach {
                     it.player!!.addPotionEffect(disableJump)
                     it.player!!.addPotionEffect(GadgetMechanic.blindness)
-                    ModTransfer().integer(1).send("dbd:heart-create", it)
+                    me.func.mod.conversation.ModTransfer().integer(1).send("dbd:heart-create", it.player)
                     it.role = Role.VICTIM
                 }
                 // Показать карту
@@ -92,7 +90,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     // Выполнение ролийных особенностей
                     game.context.after(10 * 20) { user.role.start(user, game) }
                     // Отправить информацию о начале игры клиенту
-                    ModTransfer().string(user.role.shortTitle).send("murder-start", user)
+                    me.func.mod.conversation.ModTransfer().string(user.role.shortTitle).send("murder-start", user.player!!)
 
                     // Сменить музыку
                     game.mapType.music.play(user)
@@ -113,14 +111,15 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         if (time % 20 == 0) {
             val alive = game.players.filter { it.gameMode != GameMode.SPECTATOR }.size
             game.players.map { game.userManager.getUser(it) }.forEach {
-                ModTransfer().string(
+                me.func.mod.conversation.ModTransfer().string(
                     "осталось ${
                         maxOf(
                             0, MurderGame.ENGINE_NEEDED - game.engineManager!!.enginesDone()
                         )
                     } §4⛽"
-                ).integer(maxOf(0, alive - 1)).send("dbd:update", it)
-                ModTransfer().integer(GAME.lastSecond).integer(time).boolean(false).send("update-online", it)
+                ).integer(maxOf(0, alive - 1)).send("dbd:update", it.player)
+                me.func.mod.conversation.ModTransfer()
+                    .integer(GAME.lastSecond).integer(time).boolean(false).send("update-online", it.player)
             }
         }
         game.players.map { it to it.location.distanceSquared(game.killer?.player!!.location) + 1 }.filter {
@@ -138,7 +137,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     2.0f
                 )
             }
-            ModTransfer().integer(it.hearts).send("dbd:heart-update", it)
+            me.func.mod.conversation.ModTransfer().integer(it.hearts).send("dbd:heart-update", it.player)
         }
         // Проверка на победу
         if (game.dbdWinUtil!!.check4win()) {

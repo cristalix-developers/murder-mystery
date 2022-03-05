@@ -1,8 +1,6 @@
 package me.func.murder
 
 import me.func.battlepass.BattlePassUtil
-import me.func.murder.mod.ModHelper
-import me.func.murder.mod.ModTransfer
 import me.func.murder.user.Role
 import org.bukkit.FireworkEffect
 import org.bukkit.GameMode
@@ -22,11 +20,11 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
 
         // Обновление шкалы онлайна
         players.forEach {
-            ModTransfer()
+            me.func.mod.conversation.ModTransfer()
                 .integer(game.slots)
                 .integer(players.size)
                 .boolean(true)
-                .send("update-online", game.userManager.getUser(it.uniqueId))
+                .send("update-online", it)
         }
         var actualTime = it
 
@@ -86,9 +84,9 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                         user.role.start(user, game)
                     }
                     // Отправить информацию о начале игры клиенту
-                    ModTransfer()
+                    me.func.mod.conversation.ModTransfer()
                         .string(user.role.shortTitle)
-                        .send("murder-start", user)
+                        .send("murder-start", user.player!!)
 
                     game.modHelper.updateOnline()
                     // Сменить музыку
@@ -116,11 +114,11 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         // Обновление шкалы времени
         if (time % 20 == 0) {
             game.players.forEach {
-                ModTransfer()
+                me.func.mod.conversation.ModTransfer()
                     .integer(GAME.lastSecond)
                     .integer(time)
                     .boolean(false)
-                    .send("update-online", game.userManager.getUser(it))
+                    .send("update-online", it)
             }
         }
         if ((time / 20) % 60 == 0) {

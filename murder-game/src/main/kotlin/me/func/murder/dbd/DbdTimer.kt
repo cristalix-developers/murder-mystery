@@ -1,8 +1,8 @@
 package me.func.murder.dbd
 
+import me.func.mod.conversation.ModTransfer
 import me.func.murder.MurderGame
 import me.func.murder.getUser
-import me.func.murder.mod.ModTransfer
 
 class DbdTimer(private val game: MurderGame) {
     var time = 0
@@ -18,7 +18,7 @@ class DbdTimer(private val game: MurderGame) {
                         .integer(game.slots)
                         .integer(players.size)
                         .boolean(true)
-                        .send("update-online", game.userManager.getUser(it))
+                        .send("update-online", it)
                 }
             }
             playersBefore = players.size
