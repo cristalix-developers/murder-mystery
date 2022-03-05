@@ -1,32 +1,35 @@
 package me.func.murder.map.interactive
 
 import me.func.murder.MurderGame
+import me.func.murder.app
 import org.bukkit.Location
+import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerInteractEvent
 import ru.cristalix.core.math.V3
 import ru.cristalix.core.util.UtilV3
 
 abstract class BlockInteract(
-    private val trigger: V3, override val gold: Int, override val title: String
+    private val trigger: V3,
+    override val gold: Int, //
+    override val title: String //
 ) : Interactive<PlayerInteractEvent>(gold, title) {
 
-    var triggerBlock: Location? = null
-
-    lateinit var game: MurderGame // _todo будет это работать? Да это вроде работает
+    val triggerBlock: MutableMap<MurderGame, Location?> = hashMapOf() // TODO удаление игры
 
     override fun init(game: MurderGame) {
-        this.game = game
+        if (triggerBlock[game] == null) triggerBlock[game] = UtilV3.toLocation(trigger, game.map.world)
 
-        if (triggerBlock == null) triggerBlock = UtilV3.toLocation(trigger, game.map.world)
-
-        createInteractiveTitle(triggerBlock!!, title)
-        createInteractiveTitle(triggerBlock!!.clone().subtract(0.0, 0.3, 0.0), "§e§l$gold золота")
-        createInteractiveTitle(triggerBlock!!.clone().subtract(0.0, 0.7, 0.0), "§bКЛИК!")
+        createInteractiveTitle(triggerBlock[game]!!, title)
+        createInteractiveTitle(triggerBlock[game]!!.clone().subtract(0.0, 0.3, 0.0), "§e§l$gold золота")
+        createInteractiveTitle(triggerBlock[game]!!.clone().subtract(0.0, 0.7, 0.0), "§bКЛИК!")
     }
 
+    fun getGame(player: Player): MurderGame = app.node.linker.getGameByPlayer(player) as MurderGame
+
     override fun trigger(event: PlayerInteractEvent): Boolean {
-        return (event.hasBlock() &&
-                triggerBlock!!.distanceSquared(event.blockClicked.location) < 15)
-                || (!event.hasBlock() && triggerBlock!!.distanceSquared(event.player.location) < 15)
+        val game = getGame(event.player)
+
+        return (event.hasBlock() && triggerBlock[game]!!.distanceSquared(event.blockClicked.location) < 15)
+                    || (!event.hasBlock() && triggerBlock[game]!!.distanceSquared(event.player.location) < 15)
     }
 }

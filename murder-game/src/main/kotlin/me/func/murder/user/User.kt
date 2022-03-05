@@ -10,7 +10,7 @@ import net.minecraft.server.v1_12_R1.PlayerConnection
 import org.bukkit.Location
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
-import java.util.*
+import java.util.UUID
 
 class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
@@ -26,13 +26,13 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
     var animationLock = false
 
     var stat: Stat
-    private var player: Player? = null
+    private var _player: Player? = null
 
     override fun setPlayer(currentPlayer: Player) {
-        player = currentPlayer
+        _player = currentPlayer
     }
 
-    override fun getPlayer() = player
+    override fun getPlayer(): Player = _player ?: error("player is null")
 
     private var session: KensukeSession
 

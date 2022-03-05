@@ -60,11 +60,11 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 val murder = users.maxByOrNull { it.stat.villagerStreak }!!
                 murder.role = Role.MURDER
                 murder.stat.villagerStreak = 0
-                game.murderName = murder.player!!.name
+                game.murderName = murder.player.name
                 val detective = users.minus(murder).maxByOrNull { it.stat.villagerStreak }!!
                 detective.role = Role.DETECTIVE
                 detective.stat.villagerStreak = 0
-                game.detectiveName = detective.player!!.name
+                game.detectiveName = detective.player.name
                 // Выдача мирных жителей
                 users.forEach {
                     if (it.role != Role.MURDER && it.role != Role.DETECTIVE) {
@@ -77,7 +77,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
 
                 // Показ на экране роли и создание команд, чтобы игроки не видели чужие ники
                 users.forEach { user ->
-                    me.func.mod.Anime.title(user.player!!, "Роль: ${user.role.title}")
+                    me.func.mod.Anime.title(user.player, "Роль: ${user.role.title}")
 
                     // Выполнение ролийных особенностей
                     game.context.after(10 * 20) {
@@ -86,12 +86,13 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     // Отправить информацию о начале игры клиенту
                     me.func.mod.conversation.ModTransfer()
                         .string(user.role.shortTitle)
-                        .send("murder-start", user.player!!)
+                        .send("murder-start", user.player)
 
-                    game.modHelper.updateOnline()
                     // Сменить музыку
                     game.mapType.music.play(user)
                 }
+                game.modHelper.updateOnline()
+
                 // Заспавнить перевернутых пауков
                 game.map.getLabels("spider").forEach {
                     val spider =
@@ -160,13 +161,13 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 val user = game.userManager.getUser(it)
                 BattlePassUtil.update(it, me.func.battlepass.quest.QuestType.PLAY, 1, false)
                 if (it.gameMode != GameMode.SPECTATOR) {
-                    BattlePassUtil.update(user.player!!, me.func.battlepass.quest.QuestType.WIN, 1, false)
+                    BattlePassUtil.update(user.player, me.func.battlepass.quest.QuestType.WIN, 1, false)
                     user.stat.wins++
                     me.func.Arcade.deposit(it.uniqueId, 10)
 
                     if (Math.random() < 0.11) {
                         me.func.Arcade.giveLootbox(it.uniqueId)
-                        game.broadcast(fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
+                        game.broadcast(fine("§e${user.player.name} §fполучил §bлутбокс§f!"))
                     }
                     val firework = it.world!!.spawn(it.location, Firework::class.java)
                     val meta = firework.fireworkMeta

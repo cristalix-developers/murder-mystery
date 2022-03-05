@@ -50,7 +50,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                         val user = game.userManager.getUser(player)
                         me.func.Arcade.getArcadeData(player).mask.setMask(player)
 
-                        game.killer!!.player!!.inventory.setItem(2, item {
+                        game.killer!!.player.inventory.setItem(2, item {
                             type = Material.FISHING_ROD
                             nbt("Unbreakable", 1)
                             text("§bХук")
@@ -65,7 +65,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 val users = players.map { game.userManager.getUser(it) }
                 // Выдача роли маньяка и создание голема
                 game.killer = users.random()
-                game.killer!!.player!!.addPotionEffect(
+                game.killer!!.player.addPotionEffect(
                     PotionEffect(
                         PotionEffectType.SLOW, Int.MAX_VALUE, 0
                     )
@@ -75,8 +75,8 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
 
                 // Выдача роли жертвы
                 users.filter { it.role != Role.MURDER }.forEach {
-                    it.player!!.addPotionEffect(disableJump)
-                    it.player!!.addPotionEffect(GadgetMechanic.blindness)
+                    it.player.addPotionEffect(disableJump)
+                    it.player.addPotionEffect(GadgetMechanic.blindness)
                     me.func.mod.conversation.ModTransfer().integer(1).send("dbd:heart-create", it.player)
                     it.role = Role.VICTIM
                 }
@@ -86,11 +86,13 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 users.forEach { user ->
                     // tab.setTabView(player.uniqueId, tabView)
                     // tab.update(player)
-                    me.func.mod.Anime.title(user.player!!, "Роль: ${user.role.title}")
+                    me.func.mod.Anime.title(user.player, "Роль: ${user.role.title}")
                     // Выполнение ролийных особенностей
                     game.context.after(10 * 20) { user.role.start(user, game) }
                     // Отправить информацию о начале игры клиенту
-                    me.func.mod.conversation.ModTransfer().string(user.role.shortTitle).send("murder-start", user.player!!)
+                    me.func.mod.conversation.ModTransfer().string(user.role.shortTitle).send("murder-start",
+                        user.player
+                    )
 
                     // Сменить музыку
                     game.mapType.music.play(user)
@@ -125,12 +127,12 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         game.players.map { it to it.location.distanceSquared(game.killer?.player!!.location) + 1 }.filter {
             time % maxOf(5, minOf((it.second / 10).toInt(), 25)) == 0 && game.killer!!.player != it.first
         }.map { game.userManager.getUser(it.first) }.forEach {
-            it.player!!.playSound(
-                it.player!!.location, Sound.BLOCK_WOOD_PLACE, SoundCategory.PLAYERS, 1.0f, 0.6f
+            it.player.playSound(
+                it.player.location, Sound.BLOCK_WOOD_PLACE, SoundCategory.PLAYERS, 1.0f, 0.6f
             )
             game.context.after(10) { _ ->
-                it.player!!.playSound(
-                    it.player!!.location,
+                it.player.playSound(
+                    it.player.location,
                     Sound.BLOCK_WOOD_PLACE,
                     SoundCategory.PLAYERS,
                     0.7f,
@@ -152,7 +154,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 val user = game.userManager.getUser(it)
                 if (Math.random() < 0.11) {
                     me.func.Arcade.giveLootbox(it.uniqueId)
-                    game.broadcast(ru.cristalix.core.formatting.Formatting.fine("§e${user.player!!.name} §fполучил §bлутбокс§f!"))
+                    game.broadcast(ru.cristalix.core.formatting.Formatting.fine("§e${user.player.name} §fполучил §bлутбокс§f!"))
                 }
                 val firework = it.world!!.spawn(it.location, org.bukkit.entity.Firework::class.java)
                 val meta = firework.fireworkMeta

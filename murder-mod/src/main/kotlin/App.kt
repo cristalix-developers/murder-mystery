@@ -19,7 +19,7 @@ class App : KotlinMod() {
         app = this
 
         UIEngine.initialize(this)
-        Chances()
+        Chances
         NeedHelp
 
         registerChannel("dbd:heart-create") {

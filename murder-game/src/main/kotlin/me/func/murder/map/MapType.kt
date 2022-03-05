@@ -37,11 +37,11 @@ enum class MapType(
         ), listOf(
             object : BlockInteract(V3(37.0, 117.0, -46.0), 1, "Сдвинуть дверь") {
                 override fun interact(user: User) {
-                    game.standardsInteract.closeDoor(V3(36.0, 116.0, -48.0), 100)
+                    getGame(user.player).standardsInteract.closeDoor(V3(36.0, 116.0, -48.0), 100)
                 }
             }, object : BlockInteract(V3(-43.0, 117.0, -46.0), 1, "Сдвинуть дверь") {
                 override fun interact(user: User) {
-                    game.standardsInteract.closeDoor(V3(-42.0, 116.0, -47.0), 100)
+                    getGame(user.player).standardsInteract.closeDoor(V3(-42.0, 116.0, -47.0), 100)
                 }
             }, object : BlockInteract(V3(13.0, 126.0, -34.0), 3, "Уронить полку") {
                 var drop = false
@@ -69,6 +69,8 @@ enum class MapType(
                 override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !drop
 
                 override fun interact(user: User) {
+                    val game = getGame(user.player)
+
                     drop =
                         game.standardsInteract.dropAndExplode(
                             drop,
@@ -95,7 +97,7 @@ enum class MapType(
                 override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !event.player.isInsideVehicle
 
                 override fun interact(user: User) {
-                    game.standardsInteract.movePlayer(user, inDot, outDot, 8 * 20, V3(-3.0, 110.0, -61.0))
+                    getGame(user.player).standardsInteract.movePlayer(user, inDot, outDot, 8 * 20, V3(-3.0, 110.0, -61.0))
                 }
             }, object : BlockInteract(V3(-3.0, 117.0, -61.0), 2, "Подняться") {
                 val inDot = V3(-2.0, 116.0, -65.0)
@@ -106,7 +108,7 @@ enum class MapType(
                 }
 
                 override fun interact(user: User) {
-                    game.standardsInteract.movePlayer(user, inDot, outDot, 5 * 20, V3(-3.0, 126.0, -61.0))
+                    getGame(user.player).standardsInteract.movePlayer(user, inDot, outDot, 5 * 20, V3(-3.0, 126.0, -61.0))
                 }
             }, object : BlockInteract(V3(-3.0, 110.0, -61.0), 2, "Подняться") {
                 val inDot = V3(-2.0, 109.0, -65.0)
@@ -115,11 +117,11 @@ enum class MapType(
                 override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !event.player.isInsideVehicle
 
                 override fun interact(user: User) {
-                    game.standardsInteract.movePlayer(user, inDot, outDot, 5 * 20, V3(-3.0, 116.0, -61.0))
+                    getGame(user.player).standardsInteract.movePlayer(user, inDot, outDot, 5 * 20, V3(-3.0, 116.0, -61.0))
                 }
             }, object : BlockInteract(V3(24.0, 117.0, -65.0), 8, "Повредить энергопередачу") {
                 override fun interact(user: User) {
-                    game.standardsInteract.breakLamps()
+                    getGame(user.player).standardsInteract.breakLamps()
                 }
             })
     ),
@@ -159,10 +161,12 @@ enum class MapType(
             override fun trigger(event: PlayerInteractEvent) =super.trigger(event) && !broken
 
             override fun interact(user: User) {
+                val game = getGame(user.player)
+
                 broken = true
                 setBack = game.standardsInteract.drop(breakList)
                 // Когда игра закончится вернуть все как было
-                Cycle.run(20 * 30, 25) {
+                /*Cycle.run(20 * 30, 25) {
                     if (game.players.isEmpty()) { // TODO: переделать на eventcontext ?
                         broken = false
                         breakList.map { UtilV3.toLocation(it, game.map.world) }
@@ -174,7 +178,7 @@ enum class MapType(
                         setBack.clear()
                         Cycle.exit()
                     }
-                }
+                }*/ // Это же тут не надо тк карта каждый раз новая подгружается?
             }
         }, object : BlockInteract(V3(-9.0, 91.0, 18.0), 9, "Призыв пришельцев") {
             var isActive = false
@@ -184,9 +188,11 @@ enum class MapType(
             override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !isActive
 
             override fun interact(user: User) {
+                val game = getGame(user.player)
+
                 isActive = true
 
-                val commander = StandHelper(UtilV3.toLocation(spawn, game.map.world))
+                val commander = StandHelper(UtilV3.toLocation(spawn, getGame(user.player).map.world))
                     .gravity(false)
                     .slot(EnumItemSlot.HEAD, ItemStack(Material.IRON_BLOCK))
                     .marker(true)
@@ -316,6 +322,8 @@ enum class MapType(
             override fun trigger(event: PlayerInteractEvent) = super.trigger(event) && !broken
 
             override fun interact(user: User) {
+                val game = getGame(user.player)
+
                 broken = true
                 setBack = game.standardsInteract.drop(breakList)
                 // Когда игра закончится вернуть все как было

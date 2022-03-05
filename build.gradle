@@ -3,6 +3,8 @@ plugins {
 }
 
 allprojects {
+    apply plugin: 'java'
+
     repositories {
         mavenCentral()
         mavenLocal()

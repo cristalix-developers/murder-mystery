@@ -65,6 +65,8 @@ class ChestManager(private val game: MurderGame) {
         ) {
             tickList.add(blockClicked.location)
 
+            isCancelled = true
+
             val location = blockClicked.location.clone().add(0.5, 1.0, 0.5)
             drop(location, fuel)
             if (Math.random() < 0.5) drop(location, GadgetMechanic.bandage)

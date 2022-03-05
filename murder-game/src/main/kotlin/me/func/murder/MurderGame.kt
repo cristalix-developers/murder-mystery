@@ -101,7 +101,7 @@ class MurderGame(
     val bowManager = BowManager(this)
     val winUtil = WinUtil(this)
     val gurney = Gurney(this)
-    val standardsInteract: StandardsInteract = StandardsInteract(this)
+    val standardsInteract = StandardsInteract(this)
     val timer: Timer = Timer(this)
 
     var engineManager: EngineManager? = null
@@ -133,7 +133,12 @@ class MurderGame(
     val mapType: MapType = if (dbd) arrayOf(MapType.DBD, MapType.DBD2).random()
     else arrayOf(MapType.FIELD, MapType.OUTLAST, MapType.PORT).random()
 
-    val map: WorldMeta = MapLoader.load(this, "Murder", mapType.address)
+    val map: WorldMeta = MapLoader.load(this, "Murder", mapType.address).apply {
+        after(40) {
+            world.setGameRuleValue("doDaylightCycle", "false")
+            world.fullTime = 18000
+        }
+    }
 
     val spawn: Location by lazy(LazyThreadSafetyMode.NONE) {
         val dot = map.getLabel("spawn")

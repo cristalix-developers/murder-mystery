@@ -6,10 +6,8 @@ import me.func.murder.MurderGame
 import me.func.murder.getUser
 import me.func.murder.map.MapType
 import me.func.murder.user.Role
-import me.func.murder.user.User
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
-import sun.audio.AudioPlayer.player
 import java.util.UUID
 
 class ModHelper(private val game: MurderGame) {
@@ -23,7 +21,7 @@ class ModHelper(private val game: MurderGame) {
         game.players.map { game.userManager.getUser(it) }.forEach {
             val player = corpse.player!!
             val loc = player.location
-            sendCorpse(player.name, player.uniqueId, it.player!!, loc.x, loc.y, loc.z)
+            sendCorpse(player.name, player.uniqueId, it.player, loc.x, loc.y, loc.z)
         }
     }
 
@@ -42,8 +40,8 @@ class ModHelper(private val game: MurderGame) {
 
     fun updateOnline() {
         val users = game.players.map { game.userManager.getUser(it) }
-        val detectiveAlive = users.any { it.role == Role.DETECTIVE && it.player!!.gameMode != GameMode.SPECTATOR }
-        val alive = users.filter { it.player!!.gameMode != GameMode.SPECTATOR }.size
+        val detectiveAlive = users.any { it.role == Role.DETECTIVE && it.player.gameMode != GameMode.SPECTATOR }
+        val alive = users.filter { it.player.gameMode != GameMode.SPECTATOR }.size
 
         users.forEach {
             ModTransfer().boolean(detectiveAlive)

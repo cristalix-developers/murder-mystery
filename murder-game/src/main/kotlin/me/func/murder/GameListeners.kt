@@ -28,7 +28,6 @@ import me.func.protocol.Indicators
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import net.minecraft.server.v1_12_R1.EnumItemSlot
-import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.GameMode
 import org.bukkit.Material
@@ -183,7 +182,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 winZone.filter { to.distanceSquared(it) < it.tagInt * it.tagInt }.forEach { _ ->
                         val user = game.userManager.getUser(player)
                         if (user.role == Role.VICTIM) {
-                            BattlePassUtil.update(user.player!!, QuestType.WIN, 1, false)
+                            BattlePassUtil.update(user.player, QuestType.WIN, 1, false)
                             user.stat.wins++
                             user.role = Role.NONE
                             user.out = true
@@ -215,25 +214,27 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     PotionEffectType.SPEED
                 ) && !(entity as CraftPlayer).hasPotionEffect(PotionEffectType.INVISIBILITY)
             ) {
+                isCancelled = true
+
                 val victim = game.userManager.getUser(entity as CraftPlayer)
 
                 game.killer?.let { game.killer!!.bites++ } ?: return@on
 
                 if (victim.hearts > 1) {
-                    game.after(4 * 20) { game.killer!!.player!!.inventory.setItem(3, GadgetMechanic.openTrap) }
+                    game.after(4 * 20) { game.killer!!.player.inventory.setItem(3, GadgetMechanic.openTrap) }
                     victim.hearts--
                     (entity as CraftPlayer).addPotionEffect(speed)
                     Music.DBD_RUN.playAll(game)
                     game.after(20 * 15) { Music.DBD_GAME.playAll(game) }
                 } else {
-                    val player = victim.player!!
+                    val player = victim.player
 
                     // Если игрока еще можно спасти
                     if (game.players.map { game.userManager.getUser(it).role == Role.VICTIM }.size > 1) {
                         game.modHelper.makeCorpse(player)
-                        victim.player!!.gameMode = GameMode.SPECTATOR
+                        victim.player.gameMode = GameMode.SPECTATOR
 
-                        Anime.title(victim.player!!, "§cВас ранили!\n§eЖдите помощи")
+                        Anime.title(victim.player, "§cВас ранили!\n§eЖдите помощи")
                         game.broadcast(
                             "  §l> §cИгрок §e${player.name} §cпал! Чтобы спасти нажмите §f§lSHIFT §c c §e1 бинтом§c! Осталось 15 секунд."
                         )
@@ -247,7 +248,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                         }
 
 
-                        val location = victim.player!!.location.clone().add(0.0, 1.3, 0.0)
+                        val location = victim.player.location.clone().add(0.0, 1.3, 0.0)
                         location.pitch = 90f
 
                         Cycle.run(1, 20 * 15) { time ->
@@ -256,7 +257,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                                 return@run
                             }
 
-                            victim.player!!.teleport(location)
+                            victim.player.teleport(location)
 
                             game.players.filter {
                                     it.location.distanceSquared(location) < 10 && it != game.killer!!.player && it.gameMode != GameMode.SPECTATOR
@@ -276,27 +277,27 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                                         it.spigot()
                                             .sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l-1 §fбинт"))
 
-                                        val uuid = victim.player!!.uniqueId.toString()
+                                        val uuid = victim.player.uniqueId.toString()
 
                                         // Отправляем труп опять, чтобы удалить
                                         game.players.forEach { player ->
                                             game.modHelper.sendCorpse(
-                                                victim.player!!.name, victim.player!!.uniqueId, player, 0.0, 0.0, 0.0
+                                                victim.player.name, victim.player.uniqueId, player, 0.0, 0.0, 0.0
                                             )
                                             ModTransfer().string(uuid).send("holohide", player.player!!)
                                         }
 
                                         victim.hearts = 1
-                                        victim.player!!.gameMode = GameMode.ADVENTURE
-                                        victim.player!!.addPotionEffect(
+                                        victim.player.gameMode = GameMode.ADVENTURE
+                                        victim.player.addPotionEffect(
                                             PotionEffect(
                                                 PotionEffectType.CONFUSION, 20 * 2, 1
                                             )
                                         )
-                                        victim.player!!.addPotionEffect(speed)
+                                        victim.player.addPotionEffect(speed)
 
-                                        game.broadcast("  §l> §e${victim.player!!.name} §aспасен благодаря помощи  §e${it.name}")
-                                        Anime.title(victim.player!!, "§cВас ранили!\n§eЖдите помощи")
+                                        game.broadcast("  §l> §e${victim.player.name} §aспасен благодаря помощи  §e${it.name}")
+                                        Anime.title(victim.player, "§cВас ранили!\n§eЖдите помощи")
                                         Cycle.exit()
                                     }
                                 }
@@ -330,7 +331,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
     private fun dbdKill(victim: User) {
         if (victim.role == Role.VICTIM) {
-            val uuid = victim.player!!.uniqueId.toString()
+            val uuid = victim.player.uniqueId.toString()
 
             game.players.filter { it != (game.killer?.player ?: return@dbdKill) }.forEach { // ok
                 ModTransfer().string(uuid).send("holohide", it)
@@ -341,14 +342,14 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             } else {
                 game.broadcast("  > " + KillMessage.NONE.texted(victim.name))
             }
-            Anime.title(victim.player!!, "Вас убили!")
+            Anime.title(victim.player, "Вас убили!")
             BattlePassUtil.update(game.killer?.player!!, QuestType.KILL, 1, false)
             game.killer!!.stat.eventKills++
-            Arcade.deposit(game.killer!!.player!!.uniqueId, 1)
+            Arcade.deposit(game.killer!!.player.uniqueId, 1)
 
             val corpse = Arcade.getArcadeData(victim.stat.id).corpse
 
-            val location = victim.player!!.location.clone()
+            val location = victim.player.location.clone()
             if (corpse != Corpse.NONE) StandHelper(location.clone().subtract(0.0, 1.5, 0.0)).marker(true)
                 .invisible(true)
                 .gravity(false)
@@ -360,8 +361,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         }
         victim.hearts = 2
         victim.sendPlayAgain("§cСмерть!", game.mapType)
-        victim.player!!.gameMode = GameMode.SPECTATOR
-        victim.player!!.inventory.clear()
+        victim.player.gameMode = GameMode.SPECTATOR
+        victim.player.inventory.clear()
         victim.role = Role.NONE
         game.modHelper.updateOnline()
 
@@ -389,16 +390,24 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerAdvancementCriterionGrantEvent> { isCancelled = true }
         context.on<PlayerSwapHandItemsEvent> { isCancelled = true }
         context.on<InventoryClickEvent> { isCancelled = true }
-        context.on<FoodLevelChangeEvent> { foodLevel = 20 }
+        context.on<FoodLevelChangeEvent> { isCancelled = true }
 
         context.on<PlayerJoinEvent> {
-            Bukkit.getScheduler().runTaskLater(app, {
-                player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
-                player.addToTab()
+            game.context.after(3) {
                 player.setResourcePack("", "")
                 ModLoader.send("murder-mod-bundle.jar", player)
                 Anime.hideIndicator(player, Indicators.HUNGER, Indicators.EXP, Indicators.HEALTH, Indicators.VEHICLE)
-            }, 3)
+            }
+
+            game.context.after(20) {
+                player.addToTab()
+                player.playerListName = player.displayName
+            }
+
+            player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
+            player.isGlowing = false
+            player.foodLevel = 20
+            player.health = 20.0
         }
     }
 
@@ -479,8 +488,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 if (userKiller.role == Role.MURDER) {
                     if (byArrow || killer.inventory.itemInMainHand.getType() == Material.IRON_SWORD || damage == 10.0) {
                         // Убийца убивает с меча или с лука
-                        Arcade.deposit(userKiller.player!!.uniqueId, 2)
-                        BattlePassUtil.update(userKiller.player!!, QuestType.KILL, 1, false)
+                        Arcade.deposit(userKiller.player.uniqueId, 2)
+                        BattlePassUtil.update(userKiller.player, QuestType.KILL, 1, false)
                         userKiller.stat.kills++
                         kill(userVictim, userKiller)
                         val sword = killer.inventory.getItem(1)
@@ -492,7 +501,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 } else if (byArrow) {
                     if (userVictim.role == Role.MURDER) {
                         game.heroName = userKiller.name
-                        Arcade.deposit(userKiller.player!!.uniqueId, 3)
+                        Arcade.deposit(userKiller.player.uniqueId, 3)
                     } else kill(userKiller, userKiller)
                     kill(userVictim, userKiller)
                 } else return@on
@@ -628,7 +637,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
     // DamageListeners
     private fun kill(victim: User, killer: User?) {
-        val player = victim.player!!
+        val player = victim.player
         if (player.gameMode == GameMode.SPECTATOR) return
         if (victim.role == Role.DETECTIVE) killDetective(victim)
         if (victim.role == Role.MURDER) killMurder(victim)
@@ -664,7 +673,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             .gravity(false)
             .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon())
             .markTrash()
-        else game.modHelper.makeCorpse(victim.player!!)
+        else game.modHelper.makeCorpse(victim.player)
 
         game.players.forEach {
             it.playSound(it.location, Sound.ENTITY_PLAYER_DEATH, 1f, 1f)
@@ -674,12 +683,12 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
     private fun killDetective(user: User) {
         // Сообщение о выпадении лука
         game.modHelper.sendGlobalTitle("§cЛук выпал")
-        game.bowManager.drop(user.player!!.location)
+        game.bowManager.drop(user.player.location)
     }
 
     private fun killMurder(user: User) {
         // Детектив/Мирный житель убивает с лука убийцу
-        game.players.minus(user.player!!).forEach {
+        game.players.minus(user.player).forEach {
             game.winMessage = "§aМирные жители победили!"
             Anime.title(it, "Победа мирных")
         }
