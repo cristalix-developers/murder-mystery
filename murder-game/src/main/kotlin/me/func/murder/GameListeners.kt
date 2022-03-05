@@ -17,7 +17,6 @@ import me.func.mod.conversation.ModTransfer
 import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.mechanic.GadgetMechanic
 import me.func.murder.dbd.mechanic.drop.ChestManager
-import me.func.murder.dbd.mechanic.engine.EngineManager
 import me.func.murder.map.interactive.BlockInteract
 import me.func.murder.mod.ModHelper
 import me.func.murder.user.Role
@@ -28,7 +27,11 @@ import me.func.murder.util.StandHelper
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import net.minecraft.server.v1_12_R1.EnumItemSlot
-import org.bukkit.*
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import org.bukkit.GameMode
+import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.ArmorStand
@@ -94,10 +97,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 setupDbdJoinListeners()
                 setupDeathHandlerListeners()
                 setupBlockPhysicsCancelListeners()
-                EngineManager(game)
                 ChestManager(game)
                 setupItemHolderListeners()
-                GadgetMechanic(game)
                 setupMoveHandlerListeners()
             } else {
                 setupDamageListeners()
@@ -122,17 +123,14 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             user.stat.lastEnter = System.currentTimeMillis()
 
             // Заполнение имени для топа
-            if (user.stat.lastSeenName.isEmpty())
-                user.stat.lastSeenName =
-                    IAccountService.get().getNameByUuid(UUID.fromString(user.session.userId)).get(1, TimeUnit.SECONDS)
+            if (user.stat.lastSeenName.isEmpty()) user.stat.lastSeenName =
+                IAccountService.get().getNameByUuid(UUID.fromString(user.session.userId)).get(1, TimeUnit.SECONDS)
 
-            if (game.activeDbdStatus != DbdStatus.STARTING)
-                return@on
+            if (game.activeDbdStatus != DbdStatus.STARTING) return@on
 
             // Информация на моды, музыка
             context.after(5) {
-                ModTransfer()
-                    .string("§cМаньяк 20%")
+                ModTransfer().string("§cМаньяк 20%")
                     .string("§aЖертва 80%")
                     .string(game.mapType.title)
                     .send("murder-join", player)
@@ -146,12 +144,10 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerPickupItemEvent> {
             if (game.killer?.player!! != player) {
                 if (item.itemStack == ChestManager.fuel) {
-                    if (player.inventory.getItem(2) == null)
-                        item.remove()
+                    if (player.inventory.getItem(2) == null) item.remove()
                     player.inventory.setItem(2, ChestManager.fuel)
                 } else if (item.itemStack == GadgetMechanic.bandage) {
-                    if (player.inventory.getItem(3) == null)
-                        item.remove()
+                    if (player.inventory.getItem(3) == null) item.remove()
                     player.inventory.setItem(3, GadgetMechanic.bandage)
                 }
             }
@@ -166,21 +162,13 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerBedEnterEvent> { cancel = true }
 
         context.on<PlayerMoveEvent> {
-            if (game.activeDbdStatus == DbdStatus.GAME && player == game.killer?.player && player.velocity.y > 0 &&
-                !player
-                    .isOnGround
-            ) {
+            if (game.activeDbdStatus == DbdStatus.GAME && player == game.killer?.player && player.velocity.y > 0 && !player.isOnGround) {
                 isCancelled = true
                 cancel = true
             }
 
-            if (to.blockX == from.blockX && to.blockY == from.blockY && to.blockZ == from.blockZ && player ==
-                game.killer?.player
-            )
-                return@on
-            if (game.activeDbdStatus == DbdStatus.GAME && player != game.killer!!.player && player.gameMode != GameMode
-                    .SPECTATOR
-            ) {
+            if (to.blockX == from.blockX && to.blockY == from.blockY && to.blockZ == from.blockZ && player == game.killer?.player) return@on
+            if (game.activeDbdStatus == DbdStatus.GAME && player != game.killer!!.player && player.gameMode != GameMode.SPECTATOR) {
                 game.gadgetMechanic!!.traps.removeIf {
                     if (it.location.distanceSquared(player.location) < 3.5) {
                         it.helmet = GadgetMechanic.closeTrap
@@ -191,8 +179,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     }
                     return@removeIf false
                 }
-                winZone.filter { to.distanceSquared(it) < it.tagInt * it.tagInt }
-                    .forEach { _ ->
+                winZone.filter { to.distanceSquared(it) < it.tagInt * it.tagInt }.forEach { _ ->
                         val user = game.userManager.getUser(player)
                         if (user.role == Role.VICTIM) {
                             BattlePassUtil.update(user.player!!, QuestType.WIN, 1, false)
@@ -211,10 +198,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     }
                 game.engineManager!!.engines.filter { it.key.percent < 100 && it.key.location.distanceSquared(to) < 18 }
                     .forEach { (_, _) ->
-                        player.spigot()
-                            .sendMessage(
-                                ChatMessageType.ACTION_BAR,
-                                TextComponent("§eЗалейте топливо! §f§lПКМ §eпо двигателю")
+                        player.spigot().sendMessage(
+                                ChatMessageType.ACTION_BAR, TextComponent("§eЗалейте топливо! §f§lПКМ §eпо двигателю")
                             )
                     }
             }
@@ -225,11 +210,9 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
     private fun setupDeathHandlerListeners() {
         context.on<EntityDamageByEntityEvent> {
-            if (
-                entity is CraftPlayer &&
-                damager == game.killer?.player &&
-                !(entity as CraftPlayer).hasPotionEffect(PotionEffectType.SPEED) &&
-                !(entity as CraftPlayer).hasPotionEffect(PotionEffectType.INVISIBILITY)
+            if (entity is CraftPlayer && damager == game.killer?.player && !(entity as CraftPlayer).hasPotionEffect(
+                    PotionEffectType.SPEED
+                ) && !(entity as CraftPlayer).hasPotionEffect(PotionEffectType.INVISIBILITY)
             ) {
                 val victim = game.userManager.getUser(entity as CraftPlayer)
 
@@ -254,8 +237,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                             "  §l> §cИгрок §e${player.name} §cпал! Чтобы спасти нажмите §f§lSHIFT §c c §e1 бинтом§c! Осталось 15 секунд."
                         )
                         game.players.filter { it != game.killer!!.player }.forEach {
-                            ModTransfer()
-                                .string(player.uniqueId.toString())
+                            ModTransfer().string(player.uniqueId.toString())
                                 .double(player.location.x)
                                 .double(player.location.y + 1.0)
                                 .double(player.location.z)
@@ -275,17 +257,12 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
                             victim.player!!.teleport(location)
 
-                            game.players
-                                .filter {
-                                    it.location.distanceSquared(location) < 10 &&
-                                            it != game.killer!!.player &&
-                                            it.gameMode != GameMode.SPECTATOR
+                            game.players.filter {
+                                    it.location.distanceSquared(location) < 10 && it != game.killer!!.player && it.gameMode != GameMode.SPECTATOR
                                 }.forEach {
                                     if (!it.inventory.contains(GadgetMechanic.bandage)) {
-                                        it.spigot()
-                                            .sendMessage(
-                                                ChatMessageType.ACTION_BAR,
-                                                TextComponent("§cВам нужен §e§l1 бинт§c!")
+                                        it.spigot().sendMessage(
+                                                ChatMessageType.ACTION_BAR, TextComponent("§cВам нужен §e§l1 бинт§c!")
                                             )
                                     } else if (!it.isSneaking) {
                                         it.spigot().sendMessage(
@@ -302,20 +279,17 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
                                         // Отправляем труп опять, чтобы удалить
                                         game.players.forEach { player ->
-                                                game.modHelper.sendCorpse(
-                                                    victim.player!!.name,
-                                                    victim.player!!.uniqueId, player, 0.0, 0.0, 0.0
-                                                )
-                                                ModTransfer().string(uuid).send("holohide", player.player!!)
-                                            }
+                                            game.modHelper.sendCorpse(
+                                                victim.player!!.name, victim.player!!.uniqueId, player, 0.0, 0.0, 0.0
+                                            )
+                                            ModTransfer().string(uuid).send("holohide", player.player!!)
+                                        }
 
                                         victim.hearts = 1
                                         victim.player!!.gameMode = GameMode.ADVENTURE
                                         victim.player!!.addPotionEffect(
                                             PotionEffect(
-                                                PotionEffectType.CONFUSION,
-                                                20 * 2,
-                                                1
+                                                PotionEffectType.CONFUSION, 20 * 2, 1
                                             )
                                         )
                                         victim.player!!.addPotionEffect(speed)
@@ -374,13 +348,11 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             val corpse = Arcade.getArcadeData(victim.stat.id).corpse
 
             val location = victim.player!!.location.clone()
-            if (corpse != Corpse.NONE)
-                StandHelper(location.clone().subtract(0.0, 1.5, 0.0))
-                    .marker(true)
-                    .invisible(true)
-                    .gravity(false)
-                    .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon())
-                    .markTrash()
+            if (corpse != Corpse.NONE) StandHelper(location.clone().subtract(0.0, 1.5, 0.0)).marker(true)
+                .invisible(true)
+                .gravity(false)
+                .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon())
+                .markTrash()
 
             Music.DBD_DEATH.playAll(game)
             game.context.after(5 * 20) { Music.DBD_GAME.playAll(game) }
@@ -420,6 +392,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
         context.on<PlayerJoinEvent> {
             Bukkit.getScheduler().runTaskLater(app, {
+                player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
                 player.addToTab()
                 player.setResourcePack("", "")
                 ModLoader.send("murder-mod-bundle.jar", player)
@@ -430,8 +403,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
     private fun setupMapDecorationListeners() {
         context.on<PlayerMoveEvent> {
             if (to.distanceSquared(from) < 0.4) {
-                player.getNearbyEntities(0.5, 0.5, 0.5).filter { it.hasMetadata("friend") }
-                    .forEach {
+                player.getNearbyEntities(0.5, 0.5, 0.5).filter { it.hasMetadata("friend") }.forEach {
                         game.map.world.getEntity(UUID.fromString(it.getMetadata("friend")[0].asString()))
                             .teleport(it.location.clone().subtract(0.0, 1.0, 0.0))
                     }
@@ -446,11 +418,9 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         }
 
         context.on<PlayerInteractAtEntityEvent> {
-            if (clickedEntity.type != EntityType.ARMOR_STAND)
-                return@on
+            if (clickedEntity.type != EntityType.ARMOR_STAND) return@on
             val stand = clickedEntity as ArmorStand
-            if (stand.helmet == null || stand.helmet.getType() != Material.CLAY_BALL || stand.passengers.size > 0)
-                return@on
+            if (stand.helmet == null || stand.helmet.getType() != Material.CLAY_BALL || stand.passengers.size > 0) return@on
             val nmsItem = CraftItemStack.asNMSCopy(stand.helmet)
             if (nmsItem.hasTag() && nmsItem.tag.hasKeyOfType("murder", 8)) {
                 val tag = nmsItem.tag.getString("murder")
