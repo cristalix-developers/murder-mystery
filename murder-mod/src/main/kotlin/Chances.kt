@@ -219,7 +219,7 @@ object Chances {
                 addChild(text {
                     origin = TOP
                     align = TOP
-                    content = "§fмирных живо §216"
+                    content = "§fМирных живо §216"
                     offset.y += 6
                     shadow = true
                 }, text {
