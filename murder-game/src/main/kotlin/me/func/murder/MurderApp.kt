@@ -84,9 +84,9 @@ class MurderApp : JavaPlugin() {
             )
         }
 
-        val coordinatorClient = CoordinatorClient(node)
-        coordinatorClient.enable()
+        CoordinatorClient(node).enable()
 
+        Arcade.enableStepParticles()
 
         AdminCommand // init
     }
