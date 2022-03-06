@@ -92,9 +92,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     // Выполнение ролийных особенностей
                     game.context.after(10 * 20) { user.role.start(user, game) }
                     // Отправить информацию о начале игры клиенту
-                    ModTransfer().string(user.role.shortTitle).send("murder-start",
-                        user.player
-                    )
+                    ModTransfer().string(user.role.shortTitle).send("murder-start", user.player)
 
                     // Сменить музыку
                     game.mapType.music.play(user)
@@ -122,8 +120,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                         )
                     } §4⛽"
                 ).integer(maxOf(0, alive - 1)).send("dbd:update", it.player)
-                ModTransfer()
-                    .integer(GAME.lastSecond).integer(time).boolean(false).send("update-online", it.player)
+                ModTransfer().integer(GAME.lastSecond).integer(time).boolean(false).send("update-online", it.player)
             }
         }
         game.players.map { it to it.location.distanceSquared(game.killer?.player!!.location) + 1 }.filter {
@@ -134,11 +131,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             )
             game.context.after(10) { _ ->
                 it.player.playSound(
-                    it.player.location,
-                    Sound.BLOCK_WOOD_PLACE,
-                    SoundCategory.PLAYERS,
-                    0.7f,
-                    2.0f
+                    it.player.location, Sound.BLOCK_WOOD_PLACE, SoundCategory.PLAYERS, 0.7f, 2.0f
                 )
             }
             ModTransfer().integer(it.hearts).send("dbd:heart-update", it.player)

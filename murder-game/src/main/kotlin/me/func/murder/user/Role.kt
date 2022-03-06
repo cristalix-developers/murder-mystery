@@ -4,6 +4,7 @@ import dev.implario.bukkit.item.item
 import me.func.murder.MurderGame
 import org.bukkit.Material
 
+// @formatter:off
 enum class Role(val title: String, val shortTitle: String, val start: (User, MurderGame) -> Unit) {
     VICTIM(
         "§2Жертва",

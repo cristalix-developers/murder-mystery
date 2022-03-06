@@ -6,7 +6,18 @@ import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.element.RectangleElement
 import ru.cristalix.uiengine.element.TextElement
 import ru.cristalix.uiengine.eventloop.animate
-import ru.cristalix.uiengine.utility.*
+import ru.cristalix.uiengine.utility.BOTTOM
+import ru.cristalix.uiengine.utility.BOTTOM_RIGHT
+import ru.cristalix.uiengine.utility.CENTER
+import ru.cristalix.uiengine.utility.Color
+import ru.cristalix.uiengine.utility.Easings
+import ru.cristalix.uiengine.utility.LEFT
+import ru.cristalix.uiengine.utility.RIGHT
+import ru.cristalix.uiengine.utility.TOP
+import ru.cristalix.uiengine.utility.V3
+import ru.cristalix.uiengine.utility.WHITE
+import ru.cristalix.uiengine.utility.rectangle
+import ru.cristalix.uiengine.utility.text
 
 object Chances {
 
@@ -50,22 +61,19 @@ object Chances {
         align = BOTTOM
         size = V3(180.0, 5.0, 0.0)
         color = Color(0, 0, 0, 0.62)
-        addChild(
-            rectangle {
-                origin = LEFT
-                align = LEFT
-                size = V3(0.0, 5.0, 0.0)
-                color = Color(42, 102, 189, 1.0)
-            },
-            text {
-                origin = TOP
-                align = TOP
-                color = WHITE
-                shadow = true
-                content = "Загрузка..."
-                offset.y -= 15
-            }
-        )
+        addChild(rectangle {
+            origin = LEFT
+            align = LEFT
+            size = V3(0.0, 5.0, 0.0)
+            color = Color(42, 102, 189, 1.0)
+        }, text {
+            origin = TOP
+            align = TOP
+            color = WHITE
+            shadow = true
+            content = "Загрузка..."
+            offset.y -= 15
+        })
     }
 
     private val cooldown = rectangle {
@@ -74,22 +82,19 @@ object Chances {
         align = BOTTOM
         size = V3(180.0, 5.0, 0.0)
         color = Color(0, 0, 0, 0.62)
-        addChild(
-            rectangle {
-                origin = LEFT
-                align = LEFT
-                size = V3(180.0, 5.0, 0.0)
-                color = Color(244, 148, 198, 1.0)
-            },
-            text {
-                origin = TOP
-                align = TOP
-                color = WHITE
-                shadow = true
-                content = "Загрузка..."
-                offset.y -= 15
-            }
-        )
+        addChild(rectangle {
+            origin = LEFT
+            align = LEFT
+            size = V3(180.0, 5.0, 0.0)
+            color = Color(244, 148, 198, 1.0)
+        }, text {
+            origin = TOP
+            align = TOP
+            color = WHITE
+            shadow = true
+            content = "Загрузка..."
+            offset.y -= 15
+        })
         enabled = false
     }
 
@@ -143,8 +148,7 @@ object Chances {
         box.enabled = false
 
         registerHandler<NameTemplateRender> {
-            if (!box.enabled && entity !is EntityArmorStand)
-                isCancelled = true
+            if (!box.enabled && entity !is EntityArmorStand) isCancelled = true
         }
 
         app.registerChannel("murder-join") {
@@ -236,7 +240,7 @@ object Chances {
         app.registerChannel("murder:update") {
             val detective = readBoolean()
             val online = readInt()
-            (roleAndOnline.children[0] as TextElement).content = "§fмирных живо §2$online"
+            (roleAndOnline.children[0] as TextElement).content = "§fМирных живо §2$online"
             (roleAndOnline.children[1] as TextElement).content = "§fвы $role"
             (detectiveAlive.children[0] as TextElement).content =
                 if (detective) "§bДетектив жив" else "§cДетектив мертв"
@@ -245,7 +249,7 @@ object Chances {
         app.registerChannel("dbd:update") {
             val message = NetUtil.readUtf8(this)
             val online = readInt()
-            (roleAndOnline.children[0] as TextElement).content = "§fмирных живо §2$online"
+            (roleAndOnline.children[0] as TextElement).content = "§fМирных живо §2$online"
             (roleAndOnline.children[1] as TextElement).content = "§fвы $role"
             (detectiveAlive.children[0] as TextElement).content = message
         }

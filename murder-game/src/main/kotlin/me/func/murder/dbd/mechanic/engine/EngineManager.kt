@@ -23,8 +23,9 @@ class EngineManager(private val game: MurderGame) {
     private val light: List<Location> = game.map.getLabels("light")
     var engines: Map<Engine, Location> = game.map.getLabels("engine").associate {
         Engine(
-            it, 0, StandHelper(it.toCenterLocation().subtract(0.0, 1.2, 0.0))
-                .gravity(false)
+            it,
+            0,
+            StandHelper(it.toCenterLocation().subtract(0.0, 1.2, 0.0)).gravity(false)
                 .invisible(true)
                 .name("§lДвигатель §e0%")
                 .marker(true)
@@ -50,11 +51,8 @@ class EngineManager(private val game: MurderGame) {
     }
 
     private fun PlayerInteractEvent.handle() {
-        if (hand != EquipmentSlot.OFF_HAND)
-            return
-        if (game.activeDbdStatus == DbdStatus.GAME && hasBlock() && player.gameMode != GameMode.SPECTATOR && player !=
-            game.killer?.player
-        ) {
+        if (hand != EquipmentSlot.OFF_HAND) return
+        if (game.activeDbdStatus == DbdStatus.GAME && hasBlock() && player.gameMode != GameMode.SPECTATOR && player != game.killer?.player) {
             engines.filter { entry -> entry.key.percent < 100 && entry.key.location.distanceSquared(blockClicked.location) < 14 }
                 .forEach { entry ->
                     if (player.inventory.getItem(2) != ChestManager.fuel) {
@@ -104,8 +102,7 @@ class EngineManager(private val game: MurderGame) {
                         if (haveEngines < MurderGame.ENGINE_NEEDED) {
                             game.broadcast(
                                 "  §l> §bИгрок §e${player.name} §bисправил движок! Осталось еще §e${
-                                    MurderGame
-                                        .ENGINE_NEEDED - haveEngines
+                                    MurderGame.ENGINE_NEEDED - haveEngines
                                 }"
                             )
 
@@ -118,8 +115,7 @@ class EngineManager(private val game: MurderGame) {
                             game.broadcast("  §l> §aИгрок §e${player.name} §aисправил последний движок! §b§lОткрывайте врата")
                             game.broadcast("")
                             game.gateManager.gates.forEach {
-                                it.stand.customName =
-                                    "§eПодойдите, чтобы открыть врата"
+                                it.stand.customName = "§eПодойдите, чтобы открыть врата"
                             }
                         }
                     }

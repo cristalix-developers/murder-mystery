@@ -23,12 +23,12 @@ data class Gate(
     private val game: MurderGame
 ) {
 
-    val stand = StandHelper(status)
-        .gravity(false)
-        .invisible(true)
-        .marker(false)
-        .name("§cАктивируйте двигатели")
-        .build()
+    val stand = StandHelper(status).apply {
+        gravity(false)
+        invisible(true)
+        marker(false)
+        name("§cАктивируйте двигатели")
+    }.build()
 
     private val invisibility = PotionEffect(PotionEffectType.INVISIBILITY, 20 * 11, 1)
     private val weak = PotionEffect(PotionEffectType.WEAKNESS, 20 * 13, 250)
@@ -54,8 +54,7 @@ data class Gate(
         val minCopy = min.clone()
 
         game.after(20 * 17) {
-            game.players.filter { game.killer?.player != it }
-                .forEach { it.addPotionEffect(GadgetMechanic.blindness) }
+            game.players.filter { game.killer?.player != it }.forEach { it.addPotionEffect(GadgetMechanic.blindness) }
         }
 
         Cycle.run(1, 10 * 17) { tick ->
@@ -90,8 +89,7 @@ data class Gate(
                 for (y in 0..((max.y - min.y).toInt())) {
                     for (z in 0..((max.z - min.z).toInt())) {
                         minCopy.set(min.x + (tick - 3 * 10) / 10 - 1, min.y + y, min.z + z)
-                        if (minCopy.block.type == Material.LOG_2)
-                            return@run
+                        if (minCopy.block.type == Material.LOG_2) return@run
                         blocks[minCopy.clone()] = minCopy.block.type to minCopy.block.data
                         minCopy.block.type = Material.AIR
                     }

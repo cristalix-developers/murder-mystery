@@ -19,15 +19,14 @@ class Gurney(private val game: MurderGame) {
 
         val pig = game.map.world.spawnEntity(original, EntityType.PIG) as Pig
 
-        val stand =
-            StandHelper(original.clone().subtract(0.0, 1.0, 0.0)).gravity(false)
-                .invisible(true)
-                .slot(EnumItemSlot.HEAD, item {
-                    type = Material.CLAY_BALL
-                    nbt("murder", "katalka")
-                })
-                .markTrash()
-                .build()
+        val stand = StandHelper(original.clone().subtract(0.0, 1.0, 0.0)).gravity(false)
+            .invisible(true)
+            .slot(EnumItemSlot.HEAD, item {
+                type = Material.CLAY_BALL
+                nbt("murder", "katalka")
+            })
+            .markTrash()
+            .build()
 
         pig.run {
             isSilent = true

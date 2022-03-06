@@ -17,13 +17,12 @@ class BowManager(private val game: MurderGame) {
     fun drop(location: Location) {
         if (droppedBow != null) return
         // Выпадение лука
-        droppedBow =
-            StandHelper(location.clone().subtract(0.0, 1.0, 0.0)).gravity(false)
-                .marker(true)
-                .invisible(true)
-                .slot(EnumItemSlot.HEAD, ItemStack(Material.BOW))
-                .markTrash()
-                .build()
+        droppedBow = StandHelper(location.clone().subtract(0.0, 1.0, 0.0)).gravity(false)
+            .marker(true)
+            .invisible(true)
+            .slot(EnumItemSlot.HEAD, ItemStack(Material.BOW))
+            .markTrash()
+            .build()
         droppedBow!!.isGlowing = true
     }
 
@@ -42,9 +41,8 @@ class BowManager(private val game: MurderGame) {
 
     private fun tryPickUp() {
         // Если есть кто-то рядом, сделать его детективом
-        val nearby =
-            game.players.filter { game.userManager.getUser(it).role != Role.MURDER }
-                .firstOrNull { it.location.distanceSquared(droppedBow!!.location) < 9 }
+        val nearby = game.players.filter { game.userManager.getUser(it).role != Role.MURDER }
+            .firstOrNull { it.location.distanceSquared(droppedBow!!.location) < 9 }
         if (nearby != null) {
             val first = game.userManager.getUser(nearby.uniqueId)
             if (first.role == Role.VILLAGER) {

@@ -4,7 +4,6 @@ import dev.implario.kensuke.KensukeSession
 import dev.implario.kensuke.impl.bukkit.IBukkitKensukeUser
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.ComponentBuilder
-import net.minecraft.server.v1_12_R1.PlayerConnection
 import org.bukkit.Location
 import org.bukkit.entity.Player
 import java.util.UUID

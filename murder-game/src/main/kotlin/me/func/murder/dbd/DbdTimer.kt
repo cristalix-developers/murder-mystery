@@ -13,11 +13,7 @@ class DbdTimer(private val game: MurderGame) {
         if (playersBefore != players.size) {
             game.context.after(10) {
                 players.forEach {
-                    ModTransfer()
-                        .integer(game.slots)
-                        .integer(players.size)
-                        .boolean(true)
-                        .send("update-online", it)
+                    ModTransfer().integer(game.slots).integer(players.size).boolean(true).send("update-online", it)
                 }
             }
             playersBefore = players.size
