@@ -184,7 +184,7 @@ object Chances {
                 load("port.png", "088231078F83D8890628127"),
                 load("dbd.png", "088231078F83D8890628128"),
                 load("dbd2.png", "088231078F83D8890628129"),
-            ).thenRun {
+            ).thenApply {
                 Map()
             }
         }

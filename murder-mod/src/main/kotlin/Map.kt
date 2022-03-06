@@ -28,6 +28,7 @@ class Map {
         registerHandler<RenderTickPre> {
             if (!started)
                 return@registerHandler
+
             if (mapData.title == "OUTLAST") {
                 val y = clientApi.minecraft().player.y
                 if (y > 121) {
@@ -47,11 +48,7 @@ class Map {
                     mapData.maxZ = -16.0
                 }
             }
-        }
 
-        registerHandler<RenderTickPre> {
-            if (!started)
-                return@registerHandler
             val player = clientApi.minecraft().player
 
             val rotation = -player.rotationYaw * PI / 180
@@ -151,7 +148,6 @@ class Map {
         }
 
         UIEngine.overlayContext.addChild(minimapContainer)
-
         return minimap
     }
 }
