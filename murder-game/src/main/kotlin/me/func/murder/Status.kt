@@ -15,8 +15,6 @@ import ru.cristalix.core.realm.RealmStatus
 enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
     STARTING(30, { it, game ->
         // Если набор игроков начался, обновить статус реалма
-        if (it == 40) game.status = RealmStatus.GAME_STARTED_CAN_JOIN
-
         val players = game.players
 
         // Обновление шкалы онлайна
@@ -34,9 +32,6 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             // Начать отсчет заново, так как мало игроков
             if (players.size < game.minPlayers) actualTime = 1
             else {
-                // Обновление статуса реалма, чтобы нельзя было войти
-                game.status = RealmStatus.GAME_STARTED_RESTRICTED
-
                 // Обнуление прошлого героя и добавления количества игр
                 game.heroName = null
 

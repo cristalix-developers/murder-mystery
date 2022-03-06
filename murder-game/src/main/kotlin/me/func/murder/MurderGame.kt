@@ -77,7 +77,6 @@ class MurderGame(
 
     var killer: User? = null
 
-    var status: RealmStatus = RealmStatus.WAITING_FOR_PLAYERS
     var activeStatus: Status = Status.STARTING
 
     var activeDbdStatus: DbdStatus = DbdStatus.STARTING

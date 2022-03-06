@@ -25,8 +25,6 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         var actualTime = time
         val players = game.players
 
-        if (time % 20 == 0) game.status = RealmStatus.WAITING_FOR_PLAYERS
-
         // Если время вышло и пора играть
         if (time / 20 >= STARTING.lastSecond && game.players.size >= game.minPlayers) {
             // Начать отсчет заново, так как мало игроков
@@ -35,9 +33,6 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             } else {
                 // Чистка двигателей и реанимация сундуков
                 game.engineManager.clearAll()
-
-                // Обновление статуса реалма, чтобы нельзя было войти, начинаем игру
-                game.status = RealmStatus.GAME_STARTED_RESTRICTED
 
                 // Эффект прыгучести, чтобы убрать прыжок
                 val disableJump = PotionEffect(PotionEffectType.JUMP, Int.MAX_VALUE, 250)
