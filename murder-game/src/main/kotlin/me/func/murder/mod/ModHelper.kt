@@ -44,7 +44,8 @@ class ModHelper(private val game: MurderGame) {
         val alive = users.filter { it.player.gameMode != GameMode.SPECTATOR }.size
 
         users.forEach {
-            ModTransfer().boolean(detectiveAlive)
+            ModTransfer()
+                .boolean(detectiveAlive)
                 .integer(alive - 1)
                 .send(if (game.dbd) "dbd:update" else "murder:update", it.player)
         }

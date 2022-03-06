@@ -17,8 +17,12 @@ import me.func.mod.conversation.ModLoader
 import me.func.murder.command.AdminCommand
 import me.func.murder.user.Stat
 import me.func.murder.user.User
+// почему нет)
 import net.minecraft.server.v1_12_R1.HandshakeListener.gson
 import org.bukkit.Bukkit
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.BukkitPlatform
 import ru.cristalix.core.CoreApi
@@ -32,7 +36,7 @@ import ru.cristalix.npcs.server.Npcs
 
 lateinit var app: MurderApp
 
-class MurderApp : JavaPlugin() {
+class MurderApp : JavaPlugin(), Listener {
     private val core = CoreApi.get()
     private val statScope = Scope("murder-mystery", Stat::class.java)
 
@@ -51,6 +55,8 @@ class MurderApp : JavaPlugin() {
 
         EntityDataParameters.register()
         Platforms.set(PlatformDarkPaper())
+
+        getServer().pluginManager.registerEvents(this, this)
 
         ModLoader.loadAll("mods")
         Npcs.init(this)
@@ -86,5 +92,10 @@ class MurderApp : JavaPlugin() {
         Arcade.enableStepParticles()
 
         AdminCommand // init
+    }
+
+    @EventHandler
+    fun onPlayerLeave(e: PlayerQuitEvent) {
+        e.setQuitMessage(null)
     }
 }

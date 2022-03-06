@@ -115,7 +115,7 @@ class MurderGame(
         }
     }
 
-    val spawn: Location by lazy(LazyThreadSafetyMode.NONE) {
+    val spawn: Location = run {
         val dot = map.getLabel("spawn")
         val args = dot.tag.split(" ")
         if (args.size > 1) {
