@@ -65,7 +65,7 @@ class MurderApp : JavaPlugin() {
         }
 
         node = DefaultGameNode()
-        node.supportedImagePrefixes += listOf("murder-kamillaova", "dbd-kamillaova")
+        node.supportedImagePrefixes += listOf("murder", "dbd")
         node.linker = SessionBukkitLinker.link(node)
 
         Arcade.start(kensuke.globalRealm, ArcadeType.MUR)
@@ -77,7 +77,7 @@ class MurderApp : JavaPlugin() {
                 kensuke,
                 userManager,
                 statScope,
-                image == "dbd-kamillaova"
+                image == "dbd"
             )
         }
 
