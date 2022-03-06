@@ -32,16 +32,6 @@ class User(session: KensukeSession, stat: Stat?) : IBukkitKensukeUser {
 
     override fun getSession() = session
 
-    fun sendPlayAgain(prefix: String) {
-        player.spigot().sendMessage(
-            *ComponentBuilder("\n$prefix §fИграть на Cristalix §dMurderMystery §e§lКЛИК\n").event(
-                ClickEvent(
-                    ClickEvent.Action.RUN_COMMAND, "/next MUR"
-                )
-            ).create()
-        )
-    }
-
     init {
         if (stat == null) {
             this.stat = Stat(

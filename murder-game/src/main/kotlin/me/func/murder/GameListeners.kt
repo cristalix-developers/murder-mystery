@@ -365,7 +365,6 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             game.context.after(5 * 20) { Music.DBD_GAME.playAll(game) }
         }
         victim.hearts = 2
-        victim.sendPlayAgain("§cСмерть!")
         victim.player.gameMode = GameMode.SPECTATOR
         victim.player.inventory.clear()
         victim.role = Role.NONE
@@ -615,11 +614,6 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerQuitEvent> {
             playersInGame -= player.name
 
-            //if (playersInGame.isEmpty()) {
-            //    game.stopGame(transfer = false)
-            //return@on
-            //}
-
             val user = game.userManager.getUser(player)
 
             user.stat.timePlayedTotal += System.currentTimeMillis() - user.stat.lastEnter
@@ -654,8 +648,6 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         }
 
         Anime.title(player, "Вы проиграли")
-
-        game.userManager.getUser(player).sendPlayAgain("§cСмерть!")
 
         player.gameMode = GameMode.SPECTATOR
         player.inventory.clear()
@@ -699,5 +691,4 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         }
         game.activeStatus = Status.END
     }
-    // DamageListeners
 }
