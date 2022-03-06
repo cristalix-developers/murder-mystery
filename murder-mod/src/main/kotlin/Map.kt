@@ -6,7 +6,13 @@ import ru.cristalix.clientapi.registerHandler
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.UIEngine.clientApi
 import ru.cristalix.uiengine.element.RectangleElement
-import ru.cristalix.uiengine.utility.*
+import ru.cristalix.uiengine.utility.Color
+import ru.cristalix.uiengine.utility.Relative
+import ru.cristalix.uiengine.utility.V2
+import ru.cristalix.uiengine.utility.V3
+import ru.cristalix.uiengine.utility.WHITE
+import ru.cristalix.uiengine.utility.rectangle
+import ru.cristalix.uiengine.utility.text
 import kotlin.math.PI
 
 const val MAP_SIZE = 90.0
@@ -26,8 +32,7 @@ class Map {
         }
 
         registerHandler<RenderTickPre> {
-            if (!started)
-                return@registerHandler
+            if (!started) return@registerHandler
             if (mapData.title == "OUTLAST") {
                 val y = clientApi.minecraft().player.y
                 if (y > 121) {
@@ -50,8 +55,7 @@ class Map {
         }
 
         registerHandler<RenderTickPre> {
-            if (!started)
-                return@registerHandler
+            if (!started) return@registerHandler
             val player = clientApi.minecraft().player
 
             val rotation = -player.rotationYaw * PI / 180

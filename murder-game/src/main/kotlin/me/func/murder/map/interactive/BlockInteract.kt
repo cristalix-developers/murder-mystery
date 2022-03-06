@@ -9,7 +9,7 @@ import ru.cristalix.core.math.V3
 import ru.cristalix.core.util.UtilV3
 
 abstract class BlockInteract(
-    private val trigger: V3,
+    private val trigger: V3, //
     override val gold: Int, //
     override val title: String //
 ) : Interactive<PlayerInteractEvent>(gold, title) {

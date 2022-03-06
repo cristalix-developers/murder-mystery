@@ -1,6 +1,7 @@
 package me.func.murder
 
 import me.func.battlepass.BattlePassUtil
+import me.func.mod.conversation.ModTransfer
 import me.func.murder.user.Role
 import org.bukkit.FireworkEffect
 import org.bukkit.GameMode
@@ -20,7 +21,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
 
         // Обновление шкалы онлайна
         players.forEach {
-            me.func.mod.conversation.ModTransfer()
+            ModTransfer()
                 .integer(game.slots)
                 .integer(players.size)
                 .boolean(true)
@@ -83,7 +84,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                         user.role.start(user, game)
                     }
                     // Отправить информацию о начале игры клиенту
-                    me.func.mod.conversation.ModTransfer()
+                    ModTransfer()
                         .string(user.role.shortTitle)
                         .send("murder-start", user.player)
 
@@ -113,7 +114,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         // Обновление шкалы времени
         if (time % 20 == 0) {
             game.players.forEach {
-                me.func.mod.conversation.ModTransfer()
+                ModTransfer()
                     .integer(GAME.lastSecond)
                     .integer(time)
                     .boolean(false)

@@ -53,8 +53,7 @@ class GadgetMechanic(private val game: MurderGame) {
     init {
         game.context.on<PlayerItemHeldEvent> {
             val was = player.inventory.getItem(previousSlot)
-            if (was == MurderGame.light)
-                player.addPotionEffect(blindness)
+            if (was == MurderGame.light) player.addPotionEffect(blindness)
         }
 
         game.context.on<PlayerFishEvent> {
@@ -78,22 +77,17 @@ class GadgetMechanic(private val game: MurderGame) {
             } else if (state == PlayerFishEvent.State.CAUGHT_ENTITY && entity is CraftPlayer) {
                 entity.velocity = player.location.toVector().subtract(entity.location.toVector()).multiply(0.3)
                 entity.velocity.y = 0.4
-            } else
-                cancel = true
+            } else cancel = true
         }
 
         game.context.on<PlayerInteractEvent> {
-            if (!hasItem())
-                return@on
+            if (!hasItem()) return@on
 
-            if (player == game.killer?.player && action == Action.RIGHT_CLICK_BLOCK
-                && player.inventory.getItem(3) != null
-            ) {
+            if (player == game.killer?.player && action == Action.RIGHT_CLICK_BLOCK && player.inventory.getItem(3) != null) {
                 player.inventory.setItem(3, null)
 
                 traps.add(
-                    StandHelper(blockClicked.location.toCenterLocation().subtract(0.0, 1.2, 0.0))
-                        .markTrash()
+                    StandHelper(blockClicked.location.toCenterLocation().subtract(0.0, 1.2, 0.0)).markTrash()
                         .invisible(true)
                         .marker(true)
                         .slot(EnumItemSlot.HEAD, openTrap)
@@ -104,8 +98,7 @@ class GadgetMechanic(private val game: MurderGame) {
                 return@on
             }
 
-            if (player == game.killer?.player)
-                return@on
+            if (player == game.killer?.player) return@on
 
             val user = game.userManager.getUser(player)
 
@@ -120,11 +113,7 @@ class GadgetMechanic(private val game: MurderGame) {
                 }
 
                 Cycle.run(1, user.lightTicks * 3) {
-                    if (
-                        player.hasPotionEffect(PotionEffectType.BLINDNESS)
-                        || player.itemInHand != MurderGame.light
-                        || user.lightTicks < 0
-                    ) {
+                    if (player.hasPotionEffect(PotionEffectType.BLINDNESS) || player.itemInHand != MurderGame.light || user.lightTicks < 0) {
                         player.addPotionEffect(blindness)
                         player.isSprinting = false
                         Cycle.exit()
@@ -132,8 +121,7 @@ class GadgetMechanic(private val game: MurderGame) {
                     } else {
                         user.lightTicks--
                         player.spigot().sendMessage(
-                            ChatMessageType.ACTION_BAR,
-                            TextComponent("§l${user.lightTicks / 20} §fсек. осталось")
+                            ChatMessageType.ACTION_BAR, TextComponent("§l${user.lightTicks / 20} §fсек. осталось")
                         )
                     }
                 }
@@ -162,8 +150,7 @@ class GadgetMechanic(private val game: MurderGame) {
                         Cycle.exit()
                     } else {
                         player.spigot().sendMessage(
-                            ChatMessageType.ACTION_BAR,
-                            TextComponent("§l${REGEN_TIME - (it / 20)} §fсек. осталось")
+                            ChatMessageType.ACTION_BAR, TextComponent("§l${REGEN_TIME - (it / 20)} §fсек. осталось")
                         )
                     }
                 }

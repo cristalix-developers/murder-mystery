@@ -9,11 +9,11 @@ import java.util.UUID
 
 object TopCreator {
     fun create(
-        game: MurderGame,
-        location: Location,
-        column: String,
-        title: String,
-        key: String,
+        game: MurderGame, //
+        location: Location, //
+        column: String, //
+        title: String, //
+        key: String, //
         function: (Stat) -> String
     ) {
         val blocks = Boards.newBoard()

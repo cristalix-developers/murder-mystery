@@ -48,24 +48,21 @@ class App : KotlinMod() {
                     heart.scale.y = 1.0
                     heart.scale.x = 1.0
                 }
-                if (hearts == 1)
-                    GlowEffect.show(0.1, 255, 0, 0, 0.0)
+                if (hearts == 1) GlowEffect.show(0.1, 255, 0, 0, 0.0)
             }
             UIEngine.schedule(0.1) {
                 heart.animate(0.1) {
                     heart.scale.y = 3.3
                     heart.scale.x = 3.3
                 }
-                if (hearts == 1)
-                    GlowEffect.show(0.1, 255, 0, 0, 0.3)
+                if (hearts == 1) GlowEffect.show(0.1, 255, 0, 0, 0.3)
             }
             UIEngine.schedule(0.2) {
                 heart.animate(0.1) {
                     heart.scale.y = 2.0
                     heart.scale.x = 2.0
                 }
-                if (hearts == 1)
-                    GlowEffect.show(0.1, 255, 0, 0, 0.6)
+                if (hearts == 1) GlowEffect.show(0.1, 255, 0, 0, 0.6)
             }
             heart.content = "§4"
             repeat(hearts) { heart.content += "❤" }

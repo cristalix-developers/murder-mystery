@@ -13,14 +13,13 @@ class WinUtil(private val game: MurderGame) {
             return true
         }
         // Получение всех активных ролей
-        val activeRoles =
-            game.players.asSequence()
-                .filter { it.gameMode != GameMode.SPECTATOR }
-                .map { game.userManager.getUser(it.uniqueId) }
-                .filter { it.role != Role.NONE }
-                .map { it.role }
-                .distinctBy { it }
-                .toList()
+        val activeRoles = game.players.asSequence()
+            .filter { it.gameMode != GameMode.SPECTATOR }
+            .map { game.userManager.getUser(it.uniqueId) }
+            .filter { it.role != Role.NONE }
+            .map { it.role }
+            .distinctBy { it }
+            .toList()
 
         // Если что то сломалось и игроков нет
         return if (activeRoles.isEmpty()) {

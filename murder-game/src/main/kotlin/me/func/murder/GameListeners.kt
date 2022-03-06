@@ -180,27 +180,27 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     return@removeIf false
                 }
                 winZone.filter { to.distanceSquared(it) < it.tagInt * it.tagInt }.forEach { _ ->
-                        val user = game.userManager.getUser(player)
-                        if (user.role == Role.VICTIM) {
-                            BattlePassUtil.update(user.player, QuestType.WIN, 1, false)
-                            user.stat.wins++
-                            user.role = Role.NONE
-                            user.out = true
-                            Arcade.deposit(player, 3)
+                    val user = game.userManager.getUser(player)
+                    if (user.role == Role.VICTIM) {
+                        BattlePassUtil.update(user.player, QuestType.WIN, 1, false)
+                        user.stat.wins++
+                        user.role = Role.NONE
+                        user.out = true
+                        Arcade.deposit(player, 3)
 
-                            player.gameMode = GameMode.SPECTATOR
-                            player.velocity = player.velocity.multiply(1.1).add(Vector(0.0, 1.6, 0.0))
-                            game.broadcast("  > §e${player.name} §aвыбрался наружу и убежал!")
-                        } else if (player == game.killer?.player) {
-                            isCancelled = true
-                            cancel = true
-                        }
+                        player.gameMode = GameMode.SPECTATOR
+                        player.velocity = player.velocity.multiply(1.1).add(Vector(0.0, 1.6, 0.0))
+                        game.broadcast("  > §e${player.name} §aвыбрался наружу и убежал!")
+                    } else if (player == game.killer?.player) {
+                        isCancelled = true
+                        cancel = true
                     }
+                }
                 game.engineManager.engines.filter { it.key.percent < 100 && it.key.location.distanceSquared(to) < 18 }
                     .forEach { (_, _) ->
                         player.spigot().sendMessage(
-                                ChatMessageType.ACTION_BAR, TextComponent("§eЗалейте топливо! §f§lПКМ §eпо двигателю")
-                            )
+                            ChatMessageType.ACTION_BAR, TextComponent("§eЗалейте топливо! §f§lПКМ §eпо двигателю")
+                        )
                     }
             }
         }
@@ -260,47 +260,45 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                             victim.player.teleport(location)
 
                             game.players.filter {
-                                    it.location.distanceSquared(location) < 10 && it != game.killer!!.player && it.gameMode != GameMode.SPECTATOR
-                                }.forEach {
-                                    if (!it.inventory.contains(GadgetMechanic.bandage)) {
-                                        it.spigot().sendMessage(
-                                                ChatMessageType.ACTION_BAR, TextComponent("§cВам нужен §e§l1 бинт§c!")
-                                            )
-                                    } else if (!it.isSneaking) {
-                                        it.spigot().sendMessage(
-                                            ChatMessageType.ACTION_BAR,
-                                            TextComponent("§cНажмите §e§lSHIFT§c, чтобы спасти")
+                                it.location.distanceSquared(location) < 10 && it != game.killer!!.player && it.gameMode != GameMode.SPECTATOR
+                            }.forEach {
+                                if (!it.inventory.contains(GadgetMechanic.bandage)) {
+                                    it.spigot().sendMessage(
+                                        ChatMessageType.ACTION_BAR, TextComponent("§cВам нужен §e§l1 бинт§c!")
+                                    )
+                                } else if (!it.isSneaking) {
+                                    it.spigot().sendMessage(
+                                        ChatMessageType.ACTION_BAR, TextComponent("§cНажмите §e§lSHIFT§c, чтобы спасти")
+                                    )
+                                } else {
+                                    it.inventory.setItem(3, null)
+
+                                    it.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l-1 §fбинт"))
+
+                                    val uuid = victim.player.uniqueId.toString()
+
+                                    // Отправляем труп опять, чтобы удалить
+                                    game.players.forEach { player ->
+                                        game.modHelper.sendCorpse(
+                                            victim.player.name, victim.player.uniqueId, player, 0.0, 0.0, 0.0
                                         )
-                                    } else {
-                                        it.inventory.setItem(3, null)
-
-                                        it.spigot()
-                                            .sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l-1 §fбинт"))
-
-                                        val uuid = victim.player.uniqueId.toString()
-
-                                        // Отправляем труп опять, чтобы удалить
-                                        game.players.forEach { player ->
-                                            game.modHelper.sendCorpse(
-                                                victim.player.name, victim.player.uniqueId, player, 0.0, 0.0, 0.0
-                                            )
-                                            ModTransfer().string(uuid).send("holohide", player.player!!)
-                                        }
-
-                                        victim.hearts = 1
-                                        victim.player.gameMode = GameMode.ADVENTURE
-                                        victim.player.addPotionEffect(
-                                            PotionEffect(
-                                                PotionEffectType.CONFUSION, 20 * 2, 1
-                                            )
-                                        )
-                                        victim.player.addPotionEffect(speed)
-
-                                        game.broadcast("  §l> §e${victim.player.name} §aспасен благодаря помощи  §e${it.name}")
-                                        Anime.title(victim.player, "§cВас ранили!\n§eЖдите помощи")
-                                        Cycle.exit()
+                                        ModTransfer().string(uuid).send("holohide", player.player!!)
                                     }
+
+                                    victim.hearts = 1
+                                    victim.player.gameMode = GameMode.ADVENTURE
+                                    victim.player.addPotionEffect(
+                                        PotionEffect(
+                                            PotionEffectType.CONFUSION, 20 * 2, 1
+                                        )
+                                    )
+                                    victim.player.addPotionEffect(speed)
+
+                                    game.broadcast("  §l> §e${victim.player.name} §aспасен благодаря помощи  §e${it.name}")
+                                    Anime.title(victim.player, "§cВас ранили!\n§eЖдите помощи")
+                                    Cycle.exit()
                                 }
+                            }
                         }
                     } else {
                         dbdKill(victim)
@@ -415,9 +413,9 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerMoveEvent> {
             if (to.distanceSquared(from) < 0.4) {
                 player.getNearbyEntities(0.5, 0.5, 0.5).filter { it.hasMetadata("friend") }.forEach {
-                        game.map.world.getEntity(UUID.fromString(it.getMetadata("friend")[0].asString()))
-                            .teleport(it.location.clone().subtract(0.0, 1.0, 0.0))
-                    }
+                    game.map.world.getEntity(UUID.fromString(it.getMetadata("friend")[0].asString()))
+                        .teleport(it.location.clone().subtract(0.0, 1.0, 0.0))
+                }
             }
         }
 
