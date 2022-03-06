@@ -47,7 +47,6 @@ class Map {
                     mapData.maxZ = -16.0
                 }
             }
-            minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
         }
 
         registerHandler<RenderTickPre> {
