@@ -2,7 +2,6 @@ package me.func.murder.dbd
 
 import me.func.mod.conversation.ModTransfer
 import me.func.murder.MurderGame
-import me.func.murder.getUser
 
 class DbdTimer(private val game: MurderGame) {
     var time = 0

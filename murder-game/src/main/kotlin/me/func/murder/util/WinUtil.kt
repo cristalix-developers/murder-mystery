@@ -14,8 +14,7 @@ class WinUtil(private val game: MurderGame) {
         }
         // Получение всех активных ролей
         val activeRoles =
-            game.players
-                .asSequence()
+            game.players.asSequence()
                 .filter { it.gameMode != GameMode.SPECTATOR }
                 .map { game.userManager.getUser(it.uniqueId) }
                 .filter { it.role != Role.NONE }

@@ -169,7 +169,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
             if (to.blockX == from.blockX && to.blockY == from.blockY && to.blockZ == from.blockZ && player == game.killer?.player) return@on
             if (game.activeDbdStatus == DbdStatus.GAME && player != game.killer!!.player && player.gameMode != GameMode.SPECTATOR) {
-                game.gadgetMechanic!!.traps.removeIf {
+                game.gadgetMechanic.traps.removeIf {
                     if (it.location.distanceSquared(player.location) < 3.5) {
                         it.helmet = GadgetMechanic.closeTrap
                         player.addPotionEffect(GadgetMechanic.slowness)
@@ -196,7 +196,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                             cancel = true
                         }
                     }
-                game.engineManager!!.engines.filter { it.key.percent < 100 && it.key.location.distanceSquared(to) < 18 }
+                game.engineManager.engines.filter { it.key.percent < 100 && it.key.location.distanceSquared(to) < 18 }
                     .forEach { (_, _) ->
                         player.spigot().sendMessage(
                                 ChatMessageType.ACTION_BAR, TextComponent("§eЗалейте топливо! §f§lПКМ §eпо двигателю")
@@ -360,7 +360,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             game.context.after(5 * 20) { Music.DBD_GAME.playAll(game) }
         }
         victim.hearts = 2
-        victim.sendPlayAgain("§cСмерть!", game.mapType)
+        victim.sendPlayAgain("§cСмерть!")
         victim.player.gameMode = GameMode.SPECTATOR
         victim.player.inventory.clear()
         victim.role = Role.NONE
@@ -391,17 +391,17 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerSwapHandItemsEvent> { isCancelled = true }
         context.on<InventoryClickEvent> { isCancelled = true }
         context.on<FoodLevelChangeEvent> { isCancelled = true }
+        context.on<PlayerMoveEvent> {
+            if (player.location.block.isLiquid && !game.dbd) kill(game.userManager.getUser(player))
+        }
 
         context.on<PlayerJoinEvent> {
             game.context.after(3) {
                 player.setResourcePack("", "")
                 ModLoader.send("murder-mod-bundle.jar", player)
-                Anime.hideIndicator(player, Indicators.HUNGER, Indicators.EXP, Indicators.HEALTH, Indicators.VEHICLE)
-            }
-
-            game.context.after(20) {
-                player.addToTab()
-                player.playerListName = player.displayName
+                Anime.hideIndicator(
+                    player, Indicators.HUNGER, Indicators.EXP, Indicators.HEALTH, Indicators.VEHICLE, Indicators.TAB
+                )
             }
 
             player.activePotionEffects.forEach { player.removePotionEffect(it.type) }
@@ -636,7 +636,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
     }
 
     // DamageListeners
-    private fun kill(victim: User, killer: User?) {
+    private fun kill(victim: User, killer: User? = null) {
         val player = victim.player
         if (player.gameMode == GameMode.SPECTATOR) return
         if (victim.role == Role.DETECTIVE) killDetective(victim)
@@ -650,7 +650,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
         Anime.title(player, "Вы проиграли")
 
-        game.userManager.getUser(player).sendPlayAgain("§cСмерть!", game.mapType)
+        game.userManager.getUser(player).sendPlayAgain("§cСмерть!")
 
         player.gameMode = GameMode.SPECTATOR
         player.inventory.clear()

@@ -1,7 +1,5 @@
 package me.func.murder.map
 
-import org.apache.logging.log4j.Marker
-
 data class MapData(
     val title: String,
     val maxX: Double,

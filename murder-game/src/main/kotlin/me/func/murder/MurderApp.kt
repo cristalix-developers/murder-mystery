@@ -55,11 +55,9 @@ class MurderApp : JavaPlugin() {
         ModLoader.loadAll("mods")
         Npcs.init(this)
 
-        userManager = BukkitUserManager(
-            setOf(statScope),
+        userManager = BukkitUserManager(setOf(statScope),
             { session, context -> User(session, context.getData(statScope)) },
-            { user, context -> context.store(statScope, user.stat) }
-        ).apply { isOptional = true }
+            { user, context -> context.store(statScope, user.stat) }).apply { isOptional = true }
 
         kensuke = BukkitKensuke.setup(this).apply {
             addGlobalUserManager(userManager)
@@ -73,7 +71,6 @@ class MurderApp : JavaPlugin() {
         Arcade.start(kensuke.globalRealm, ArcadeType.MUR)
 
         node.gameCreator = GameCreator { gameId, image, settings ->
-            println(image)
             MurderGame(
                 gameId,
                 gson.fromJson(settings, MurderSettings::class.java),

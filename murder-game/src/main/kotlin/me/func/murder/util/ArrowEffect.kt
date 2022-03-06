@@ -20,8 +20,7 @@ class ArrowEffect(private val game: MurderGame) {
 
                 val arrow = Arcade.getArcadeData(user.stat.id).arrowParticle
 
-                if (arrow.type != null)
-                    game.map.world.spawnParticle(arrow.type, entity.location, 1)
+                if (arrow.type != null) game.map.world.spawnParticle(arrow.type, entity.location, 1)
             }
         }
     }

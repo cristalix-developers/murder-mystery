@@ -1,9 +1,11 @@
+@file:Suppress("DEPRECATION")
+
 package me.func.murder.dbd.mechanic.drop
 
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
 import me.func.murder.MurderGame
-import me.func.murder.Status
+import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.mechanic.GadgetMechanic
 import me.func.murder.getUser
 import me.func.murder.util.StandHelper
@@ -17,6 +19,7 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.block.BlockFace
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
+import org.bukkit.event.block.Action
 import org.bukkit.event.inventory.InventoryOpenEvent
 import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerInteractEvent
@@ -49,7 +52,7 @@ class ChestManager(private val game: MurderGame) {
 
     init {
         game.context.every(5) {
-            if (game.activeStatus == Status.GAME) {
+            if (game.activeDbdStatus == DbdStatus.GAME) {
                 tick()
             }
         }
@@ -60,12 +63,12 @@ class ChestManager(private val game: MurderGame) {
 
     private fun PlayerInteractEvent.handle() {
         if (player.gameMode == GameMode.SPECTATOR) return
+        if (action == Action.RIGHT_CLICK_BLOCK && blockClicked?.type == Material.CHEST) isCancelled = true
+
         if (hasBlock() && blockClicked.type == Material.CHEST && chests[blockClicked.location]?.open == 0 && (game.killer?.player
                 ?: false) != player
         ) {
             tickList.add(blockClicked.location)
-
-            isCancelled = true
 
             val location = blockClicked.location.clone().add(0.5, 1.0, 0.5)
             drop(location, fuel)
@@ -83,7 +86,7 @@ class ChestManager(private val game: MurderGame) {
     }
 
     private fun InventoryOpenEvent.handle() {
-        if (inventory.type == InventoryType.CHEST && game.activeStatus == Status.GAME || game.activeStatus == Status.STARTING) {
+        if (inventory.type == InventoryType.CHEST && game.activeDbdStatus == DbdStatus.GAME) {
             isCancelled = true
         }
     }
@@ -93,14 +96,6 @@ class ChestManager(private val game: MurderGame) {
         item.velocity = Vector(Math.random() - 0.5, 1.1, Math.random() - 0.5).multiply(0.1)
         item.customName = "§l§fx1 §f" + item.itemStack.itemMeta.displayName
         item.isCustomNameVisible = true
-    }
-
-    fun hideAll() {
-        tickList.clear()
-        chests.forEach { (_, value) ->
-            value.stand.customName = "§bОткрыть"
-            value.open = 0
-        }
     }
 
     private fun tick() {

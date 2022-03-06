@@ -43,8 +43,7 @@ class BowManager(private val game: MurderGame) {
     private fun tryPickUp() {
         // Если есть кто-то рядом, сделать его детективом
         val nearby =
-            game.players
-                .filter { game.userManager.getUser(it).role != Role.MURDER }
+            game.players.filter { game.userManager.getUser(it).role != Role.MURDER }
                 .firstOrNull { it.location.distanceSquared(droppedBow!!.location) < 9 }
         if (nearby != null) {
             val first = game.userManager.getUser(nearby.uniqueId)

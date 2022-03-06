@@ -31,8 +31,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         // Если время вышло и пора играть
         if (it / 20 >= STARTING.lastSecond && game.players.size >= game.minPlayers) {
             // Начать отсчет заново, так как мало игроков
-            if (players.size < game.minPlayers)
-                actualTime = 1
+            if (players.size < game.minPlayers) actualTime = 1
             else {
                 // Обновление статуса реалма, чтобы нельзя было войти
                 game.status = RealmStatus.GAME_STARTED_RESTRICTED
@@ -95,8 +94,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
 
                 // Заспавнить перевернутых пауков
                 game.map.getLabels("spider").forEach {
-                    val spider =
-                        it.world.spawnEntity(it, org.bukkit.entity.EntityType.SPIDER) as Spider
+                    val spider = it.world.spawnEntity(it, org.bukkit.entity.EntityType.SPIDER) as Spider
                     spider.customName = "Grumm"
                     spider.isCustomNameVisible = false
                     spider.setMetadata("trash", org.bukkit.metadata.FixedMetadataValue(app, true))
@@ -107,8 +105,8 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             }
         }
         // Если набралось максимальное количество игроков, то сократить время ожидания до 10 секунд
-        if (players.size == game.slots && it / 20 < STARTING.lastSecond - 10)
-            actualTime = (STARTING.lastSecond - 10) * 20
+        if (players.size == game.slots && it / 20 < STARTING.lastSecond - 10) actualTime =
+            (STARTING.lastSecond - 10) * 20
         actualTime
     }),
     GAME(330, { time, game ->
@@ -144,9 +142,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 }
             }
         } else if (time == (GAME.lastSecond - 30) * 20) {
-            game.players
-                .filter { it.gameMode != GameMode.SPECTATOR }
-                .forEach { it.isGlowing = true }
+            game.players.filter { it.gameMode != GameMode.SPECTATOR }.forEach { it.isGlowing = true }
         }
         // Проверка на победу
         if (game.winUtil.check4win()) {
@@ -194,8 +190,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.broadcast("§c§lКОНЕЦ! ${game.winMessage}")
             game.broadcast("    §cМаньяк ${game.murderName}")
             game.broadcast("    §bДетектив ${game.detectiveName}")
-            if (game.heroName?.isNotEmpty() == true && game.detectiveName != game.heroName)
-                game.broadcast("    §aГерой ${game.heroName}")
+            if (game.heroName?.isNotEmpty() == true && game.detectiveName != game.heroName) game.broadcast("    §aГерой ${game.heroName}")
             game.broadcast("")
             game.context.after(20 * 8) {
                 game.stopGame()

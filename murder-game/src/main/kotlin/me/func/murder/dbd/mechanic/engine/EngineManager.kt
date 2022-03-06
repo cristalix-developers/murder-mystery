@@ -1,12 +1,13 @@
+@file:Suppress("DEPRECATION")
+
 package me.func.murder.dbd.mechanic.engine
 
 import dev.implario.bukkit.event.on
 import me.func.mod.Anime
 import me.func.murder.MurderGame
-import me.func.murder.Status
+import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.mechanic.drop.ChestManager
 import me.func.murder.getUser
-import me.func.murder.mod.ModHelper
 import me.func.murder.util.Music
 import me.func.murder.util.StandHelper
 import net.md_5.bungee.api.ChatMessageType
@@ -48,10 +49,10 @@ class EngineManager(private val game: MurderGame) {
         game.context.on<PlayerInteractEvent> { handle() }
     }
 
-    fun PlayerInteractEvent.handle() {
+    private fun PlayerInteractEvent.handle() {
         if (hand != EquipmentSlot.OFF_HAND)
             return
-        if (game.activeStatus == Status.GAME && hasBlock() && player.gameMode != GameMode.SPECTATOR && player !=
+        if (game.activeDbdStatus == DbdStatus.GAME && hasBlock() && player.gameMode != GameMode.SPECTATOR && player !=
             game.killer?.player
         ) {
             engines.filter { entry -> entry.key.percent < 100 && entry.key.location.distanceSquared(blockClicked.location) < 14 }
@@ -116,7 +117,7 @@ class EngineManager(private val game: MurderGame) {
                             game.broadcast("")
                             game.broadcast("  §l> §aИгрок §e${player.name} §aисправил последний движок! §b§lОткрывайте врата")
                             game.broadcast("")
-                            game.gateManager!!.gates.forEach {
+                            game.gateManager.gates.forEach {
                                 it.stand.customName =
                                     "§eПодойдите, чтобы открыть врата"
                             }

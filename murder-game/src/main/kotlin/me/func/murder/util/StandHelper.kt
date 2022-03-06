@@ -59,7 +59,5 @@ class StandHelper(location: Location) {
         return this
     }
 
-    fun build(): ArmorStand {
-        return stand
-    }
+    fun build() = stand
 }

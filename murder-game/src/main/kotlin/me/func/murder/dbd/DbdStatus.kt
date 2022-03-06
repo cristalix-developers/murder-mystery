@@ -1,13 +1,16 @@
 package me.func.murder.dbd
 
 import dev.implario.bukkit.item.item
+import me.func.Arcade
 import me.func.battlepass.BattlePassUtil
 import me.func.battlepass.quest.QuestType
+import me.func.mod.conversation.ModTransfer
 import me.func.murder.MurderGame
 import me.func.murder.dbd.mechanic.GadgetMechanic
 import me.func.murder.getUser
 import me.func.murder.user.Role
 import me.func.murder.util.Music
+import org.bukkit.FireworkEffect
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -31,7 +34,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 actualTime = 1
             } else {
                 // Чистка двигателей и реанимация сундуков
-                game.engineManager!!.clearAll()
+                game.engineManager.clearAll()
 
                 // Обновление статуса реалма, чтобы нельзя было войти, начинаем игру
                 game.status = RealmStatus.GAME_STARTED_RESTRICTED
@@ -47,8 +50,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                         player.inventory.clear()
                         player.itemOnCursor = null
                         player.openInventory.topInventory.clear()
-                        val user = game.userManager.getUser(player)
-                        me.func.Arcade.getArcadeData(player).mask.setMask(player)
+                        Arcade.getArcadeData(player).mask.setMask(player)
 
                         game.killer!!.player.inventory.setItem(2, item {
                             type = Material.FISHING_ROD
@@ -77,7 +79,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                 users.filter { it.role != Role.MURDER }.forEach {
                     it.player.addPotionEffect(disableJump)
                     it.player.addPotionEffect(GadgetMechanic.blindness)
-                    me.func.mod.conversation.ModTransfer().integer(1).send("dbd:heart-create", it.player)
+                    ModTransfer().integer(1).send("dbd:heart-create", it.player)
                     it.role = Role.VICTIM
                 }
                 // Показать карту
@@ -90,7 +92,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     // Выполнение ролийных особенностей
                     game.context.after(10 * 20) { user.role.start(user, game) }
                     // Отправить информацию о начале игры клиенту
-                    me.func.mod.conversation.ModTransfer().string(user.role.shortTitle).send("murder-start",
+                    ModTransfer().string(user.role.shortTitle).send("murder-start",
                         user.player
                     )
 
@@ -113,14 +115,14 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         if (time % 20 == 0) {
             val alive = game.players.filter { it.gameMode != GameMode.SPECTATOR }.size
             game.players.map { game.userManager.getUser(it) }.forEach {
-                me.func.mod.conversation.ModTransfer().string(
+                ModTransfer().string(
                     "осталось ${
                         maxOf(
-                            0, MurderGame.ENGINE_NEEDED - game.engineManager!!.enginesDone()
+                            0, MurderGame.ENGINE_NEEDED - game.engineManager.enginesDone()
                         )
                     } §4⛽"
                 ).integer(maxOf(0, alive - 1)).send("dbd:update", it.player)
-                me.func.mod.conversation.ModTransfer()
+                ModTransfer()
                     .integer(GAME.lastSecond).integer(time).boolean(false).send("update-online", it.player)
             }
         }
@@ -139,10 +141,10 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     2.0f
                 )
             }
-            me.func.mod.conversation.ModTransfer().integer(it.hearts).send("dbd:heart-update", it.player)
+            ModTransfer().integer(it.hearts).send("dbd:heart-update", it.player)
         }
         // Проверка на победу
-        if (game.dbdWinUtil!!.check4win()) {
+        if (game.dbdWinUtil.check4win()) {
             game.activeDbdStatus = END
         }
         time
@@ -153,18 +155,18 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.players.forEach {
                 val user = game.userManager.getUser(it)
                 if (Math.random() < 0.11) {
-                    me.func.Arcade.giveLootbox(it.uniqueId)
+                    Arcade.giveLootbox(it.uniqueId)
                     game.broadcast(ru.cristalix.core.formatting.Formatting.fine("§e${user.player.name} §fполучил §bлутбокс§f!"))
                 }
                 val firework = it.world!!.spawn(it.location, org.bukkit.entity.Firework::class.java)
                 val meta = firework.fireworkMeta
                 meta.addEffect(
-                    org.bukkit.FireworkEffect.builder()
+                    FireworkEffect.builder()
                         .flicker(true)
                         .trail(true)
-                        .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
-                        .with(org.bukkit.FireworkEffect.Type.BALL)
-                        .with(org.bukkit.FireworkEffect.Type.BALL_LARGE)
+                        .with(FireworkEffect.Type.BALL_LARGE)
+                        .with(FireworkEffect.Type.BALL)
+                        .with(FireworkEffect.Type.BALL_LARGE)
                         .withColor(org.bukkit.Color.YELLOW)
                         .withColor(org.bukkit.Color.GREEN)
                         .withColor(org.bukkit.Color.WHITE)

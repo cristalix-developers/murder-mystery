@@ -1,8 +1,10 @@
+@file:Suppress("DEPRECATION")
+
 package me.func.murder.dbd.mechanic.gate
 
 import clepto.bukkit.Cycle
 import me.func.murder.MurderGame
-import me.func.murder.Status
+import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.mechanic.GadgetMechanic
 import me.func.murder.getUser
 import me.func.murder.util.StandHelper
@@ -65,7 +67,7 @@ data class Gate(
                         game.players.map { player ->
                             game.userManager.getUser(player)
                         }.forEach { player ->
-                            player.player!!.teleport(player.tempLocation)
+                            player.player.teleport(player.tempLocation)
                         }
                     }
                 }
@@ -100,7 +102,7 @@ data class Gate(
 
     private fun closeDoor(blocks: MutableMap<Location, Pair<Material, Byte>>) {
         game.context.after(5 * 20) {
-            if (game.activeStatus == Status.GAME) {
+            if (game.activeDbdStatus == DbdStatus.GAME) {
                 closeDoor(blocks)
                 return@after
             }

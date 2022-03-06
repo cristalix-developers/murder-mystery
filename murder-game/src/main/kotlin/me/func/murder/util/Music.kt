@@ -3,9 +3,9 @@ package me.func.murder.util
 import me.func.murder.MurderGame
 import me.func.murder.getUser
 import me.func.murder.user.User
+import me.func.util.Music as FMusic
 
 enum class Music(private val url: String) {
-
     LIGHT_OFF("https://implario.dev/murder/electro-break.mp3"),
     OUTLAST("https://implario.dev/murder/game.mp3"),
     FIELD("https://implario.dev/murder/field.mp3"),
@@ -17,27 +17,22 @@ enum class Music(private val url: String) {
     VILLAGER_WIN("https://implario.dev/murder/win.mp3");
 
     fun play(user: User) = MusicHelper.play(user, url)
-
     fun playAll(game: MurderGame) = MusicHelper.playAll(game, url)
 }
 
 object MusicHelper {
     fun play(user: User?, url: String) {
-        if (user == null)
-            return
-        if (user.stat.music == false) return // L43
-        me.func.util.Music.sound(url, user.player!!)
+        if (user == null) return
+        if (!user.stat.music) return
+
+        FMusic.sound(url, user.player)
     }
 
-    fun playAll(game: MurderGame, url: String) {
-        game.players.filter { game.userManager.getUser(it).stat.music }.forEach { me.func.util.Music.sound(url, it) }
-    }
+    fun playAll(game: MurderGame, url: String) =
+        game.players.filter { game.userManager.getUser(it).stat.music }.forEach { FMusic.sound(url, it) }
 
     fun stop(user: User?) {
-        if (user == null)
-            return
-        if (user.player == null)
-            return
-        me.func.util.Music.stop(user.player!!)
+        if (user == null) return
+        FMusic.stop(user.player)
     }
 }

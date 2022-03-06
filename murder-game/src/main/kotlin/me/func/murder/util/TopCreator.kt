@@ -8,7 +8,6 @@ import ru.cristalix.boards.bukkitapi.Boards
 import java.util.UUID
 
 object TopCreator {
-
     fun create(
         game: MurderGame,
         location: Location,
@@ -30,9 +29,6 @@ object TopCreator {
                 blocks.clearContent()
 
                 it.forEach { entry ->
-                    if (entry.data.stat.lastSeenName == null) entry.data.stat.lastSeenName =
-                        game.cristalix.getPlayer(UUID.fromString(entry.data.session.userId)).displayName
-
                     blocks.addContent(
                         UUID.fromString(entry.data.session.userId),
                         "" + entry.position,
