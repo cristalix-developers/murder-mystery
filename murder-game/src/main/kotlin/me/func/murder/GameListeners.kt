@@ -51,6 +51,7 @@ import org.bukkit.event.block.BlockSpreadEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityExplodeEvent
+import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
@@ -108,6 +109,12 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 setupInteractListeners()
                 setupInventoryListeners()
                 setupMapDecorationListeners()
+
+                // reset bow (@funcid я не знаю как ведет себя лук, если ты не детектив, и есть ли он вообще))) )
+                context.on<EntityShootBowEvent> {
+                    val user = game.userManager.getUser(entity as? Player ?: return@on)
+                    if (user.role == Role.DETECTIVE) user.role.start(user, game)
+                }
             }
             setupGlobalListeners()
         }
