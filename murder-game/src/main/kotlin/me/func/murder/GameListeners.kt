@@ -113,7 +113,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 // reset bow (@funcid я не знаю как ведет себя лук, если ты не детектив, и есть ли он вообще))) )
                 context.on<EntityShootBowEvent> {
                     val user = game.userManager.getUser(entity as? Player ?: return@on)
-                    if (user.role == Role.DETECTIVE) user.role.start(user, game)
+                    if (user.role == Role.DETECTIVE) Role.DETECTIVE.start(user, game)
                 }
             }
             setupGlobalListeners()
