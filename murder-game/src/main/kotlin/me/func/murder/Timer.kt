@@ -9,12 +9,12 @@ class Timer(private val game: MurderGame) {
 
     fun tick() {
         if (time % 2 == 0) {
-            game.players.filter { it.gameMode != GameMode.SPECTATOR }
-                .forEach {
-                    val particle = Arcade.getArcadeData(it).stepParticle
-                    if (particle != StepParticle.NONE)
-                        it.world.spawnParticle(particle.type, it.location.clone().add(0.0, 0.2, 0.0), 1)
-                }
+            game.players.filter { it.gameMode != GameMode.SPECTATOR }.forEach {
+                val particle = Arcade.getArcadeData(it).stepParticle
+                if (particle != StepParticle.NONE) it.world.spawnParticle(
+                    particle.type, it.location.clone().add(0.0, 0.2, 0.0), 1
+                )
+            }
         }
 
         time = game.activeStatus.now(time, game) + 1

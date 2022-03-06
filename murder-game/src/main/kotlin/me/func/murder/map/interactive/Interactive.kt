@@ -11,11 +11,10 @@ abstract class Interactive<T : PlayerEvent>(open val gold: Int, open val title: 
     abstract fun trigger(event: T): Boolean
     abstract fun init(game: MurderGame)
 
-    fun createInteractiveTitle(location: Location, title: String) {
-        StandHelper(location.clone().add(0.5, 0.0, 0.5))
-            .invisible(true)
-            .marker(true)
-            .gravity(false)
-            .name(title)
-    }
+    fun createInteractiveTitle(location: Location, title: String) = //
+        StandHelper(location.clone().add(0.5, 0.0, 0.5)) //
+            .invisible(true) //
+            .marker(true) //
+            .gravity(false) //
+            .name(title) //
 }

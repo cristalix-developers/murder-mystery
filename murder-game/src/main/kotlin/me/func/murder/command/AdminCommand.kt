@@ -8,7 +8,7 @@ import me.func.murder.user.User
 import me.func.murder.util.MusicHelper
 import org.bukkit.Bukkit
 import ru.cristalix.core.formatting.Formatting
-import java.util.*
+import java.util.UUID
 
 object AdminCommand {
 
@@ -22,7 +22,7 @@ object AdminCommand {
     init {
         regAdminCommandWithGame("playall", "all") cmd@{ user, game, args ->
             if (args.isEmpty()) {
-                user.player!!.sendMessage(getNoArgsMessage("/playall ссылкаНаМузыку", "/all"))
+                user.player.sendMessage(getNoArgsMessage("/playall ссылкаНаМузыку", "/all"))
                 return@cmd false
             }
 
@@ -33,7 +33,7 @@ object AdminCommand {
 
         regAdminCommandWithGame("play", "one") cmd@{ user, game, args ->
             if (args.size < 2) {
-                user.player!!.sendMessage(getNoArgsMessage("/play игрок ссылкаНаМузыку", "/one"))
+                user.player.sendMessage(getNoArgsMessage("/play игрок ссылкаНаМузыку", "/one"))
                 return@cmd false
             }
 
@@ -44,7 +44,7 @@ object AdminCommand {
 
         regAdminCommandWithGame("slot", "slots") cmd@{ user, game, args ->
             if (args.isEmpty()) {
-                user.player!!.sendMessage(getNoArgsMessage("/slot колВоСлотов", "/slots"))
+                user.player.sendMessage(getNoArgsMessage("/slot колВоСлотов", "/slots"))
                 return@cmd false
             }
 
@@ -55,7 +55,7 @@ object AdminCommand {
 
         regAdminCommandWithGame("minslot", "minslots") cmd@{ user, game, args ->
             if (args.isEmpty()) {
-                user.player!!.sendMessage(getNoArgsMessage("/minslot колВоСлотов", "/minslots"))
+                user.player.sendMessage(getNoArgsMessage("/minslot колВоСлотов", "/minslots"))
                 return@cmd false
             }
 

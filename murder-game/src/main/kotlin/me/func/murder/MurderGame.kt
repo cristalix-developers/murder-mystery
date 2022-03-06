@@ -76,20 +76,11 @@ class MurderGame(
     var heroName: String? = null
 
     var killer: User? = null
-        get() {
-            if (!dbd) throw IllegalStateException("killer available only in dbd mode"); return field
-        }
-        set(value) {
-            if (!dbd) throw IllegalStateException("killer available only in dbd mode"); field = value
-        }
 
     var status: RealmStatus = RealmStatus.WAITING_FOR_PLAYERS
     var activeStatus: Status = Status.STARTING
 
     var activeDbdStatus: DbdStatus = DbdStatus.STARTING
-        get() {
-            if (!dbd) throw IllegalStateException("activeDbdStatus available only in dbd mode"); return field
-        }
 
     var minPlayers = if (dbd) 5 else 10
 
@@ -104,30 +95,15 @@ class MurderGame(
     val standardsInteract = StandardsInteract(this)
     val timer: Timer = Timer(this)
 
-    var engineManager: EngineManager? = null
-        get() {
-            if (!dbd) throw IllegalStateException("engineManager available only in dbd mode"); return field
-        }
+    lateinit var engineManager: EngineManager
         private set
-    var gateManager: GateManager? = null
-        get() {
-            if (!dbd) throw IllegalStateException("gateManager available only in dbd mode"); return field
-        }
+    lateinit var gateManager: GateManager
         private set
-    var dbdWinUtil: DbdWinUtil? = null
-        get() {
-            if (!dbd) throw IllegalStateException("dbdWinUtil available only in dbd mode"); return field
-        }
+    lateinit var dbdWinUtil: DbdWinUtil
         private set
-    var dbdTimer: DbdTimer? = null
-        get() {
-            if (!dbd) throw IllegalStateException("dbdTimer available only in dbd mode"); return field
-        }
+    lateinit var dbdTimer: DbdTimer
         private set
-    var gadgetMechanic: GadgetMechanic? = null
-        get() {
-            if (!dbd) throw IllegalStateException("gadgetMechanic available only in dbd mode"); return field
-        }
+    lateinit var gadgetMechanic: GadgetMechanic
         private set
 
     val mapType: MapType = if (dbd) arrayOf(MapType.DBD, MapType.DBD2).random()
@@ -170,7 +146,7 @@ class MurderGame(
             gateManager = GateManager(this)
             dbdWinUtil = DbdWinUtil(this)
             gadgetMechanic = GadgetMechanic(this)
-            dbdTimer = DbdTimer(this).apply { context.everyAfter(10, 1) { dbdTimer!!.tick() } }
+            dbdTimer = DbdTimer(this).apply { context.everyAfter(10, 1) { dbdTimer.tick() } }
         } else {
             mapType.interactive.forEach { it.init(this) }
             ArrowEffect(this)

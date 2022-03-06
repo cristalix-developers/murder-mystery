@@ -14,7 +14,7 @@ abstract class BlockInteract(
     override val title: String //
 ) : Interactive<PlayerInteractEvent>(gold, title) {
 
-    val triggerBlock: MutableMap<MurderGame, Location?> = hashMapOf() // TODO удаление игры
+    val triggerBlock: MutableMap<MurderGame, Location?> = hashMapOf() // да игры не удаляются я знаю, лень сделать)
 
     override fun init(game: MurderGame) {
         if (triggerBlock[game] == null) triggerBlock[game] = UtilV3.toLocation(trigger, game.map.world)

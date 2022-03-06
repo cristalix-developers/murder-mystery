@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package me.func.murder.dbd.mechanic
 
 import clepto.bukkit.Cycle
@@ -7,7 +9,6 @@ import me.func.Arcade
 import me.func.mod.Anime
 import me.func.murder.MurderGame
 import me.func.murder.getUser
-import me.func.murder.mod.ModHelper
 import me.func.murder.util.StandHelper
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
@@ -99,7 +100,7 @@ class GadgetMechanic(private val game: MurderGame) {
                         .gravity(false)
                         .build()
                 )
-                Arcade.deposit(game.killer!!.player!!.player, 1)
+                Arcade.deposit(game.killer!!.player.player, 1)
                 return@on
             }
 
@@ -136,7 +137,7 @@ class GadgetMechanic(private val game: MurderGame) {
                         )
                     }
                 }
-            } else if (MurderGame.ENGINE_NEEDED > game.engineManager!!.enginesDone()) {
+            } else if (MurderGame.ENGINE_NEEDED > game.engineManager.enginesDone()) {
                 player.addPotionEffect(blindness)
             }
 
@@ -169,9 +170,5 @@ class GadgetMechanic(private val game: MurderGame) {
             }
             isCancelled = true
         }
-    }
-
-    fun clearTraps() {
-        traps.clear()
     }
 }

@@ -9,14 +9,11 @@ import org.bukkit.util.Vector
 class GoldManager(private val game: MurderGame) {
 
     private val places: MutableList<Location> = mutableListOf()
-
     private val spawned = arrayListOf<Location>()
-
     private val velocity = Vector(0.0, 0.4, 0.0)
 
     fun dropGoldRandomly() {
-        if (places.isEmpty())
-            places.addAll(game.map.getLabels("gold").map { it.toCenterLocation() })
+        if (places.isEmpty()) places.addAll(game.map.getLabels("gold").map { it.toCenterLocation() })
 
         val any = places.minus(spawned.toSet()).filter { it ->
             it.getNearbyEntities(4.0, 4.0, 4.0).map { it.type }.isEmpty()
@@ -35,12 +32,12 @@ class GoldManager(private val game: MurderGame) {
     private fun forceTake(user: User, count: Int) {
         val newGold = MurderGame.gold.clone()
         newGold.setAmount(count)
-        user.player!!.inventory.removeItem(newGold)
-        user.player!!.updateInventory()
+        user.player.inventory.removeItem(newGold)
+        user.player.updateInventory()
     }
 
     private fun has(user: User, count: Int): Boolean {
-        return user.player!!.inventory.contains(Material.GOLD_INGOT, count)
+        return user.player.inventory.contains(Material.GOLD_INGOT, count)
     }
 
     fun take(user: User, count: Int, ifPresent: () -> Any) {

@@ -22,5 +22,5 @@ data class Stat(
     var dailyClaimTimestamp: Long,
     var rewardStreak: Int,
 
-    var lastSeenName: String, // nullable??
+    var lastSeenName: String,
 )

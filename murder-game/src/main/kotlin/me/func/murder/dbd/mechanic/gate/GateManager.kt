@@ -1,7 +1,7 @@
 package me.func.murder.dbd.mechanic.gate
 
 import me.func.murder.MurderGame
-import me.func.murder.Status
+import me.func.murder.dbd.DbdStatus
 import me.func.murder.getUser
 import org.bukkit.GameMode
 
@@ -29,9 +29,9 @@ class GateManager(private val game: MurderGame) {
 
     init {
         game.context.every(2) {
-            if (game.activeStatus != Status.GAME) {
+            if (game.activeDbdStatus != DbdStatus.GAME) {
                 return@every
-            } else if (game.engineManager!!.enginesDone() >= MurderGame.ENGINE_NEEDED) {
+            } else if (game.engineManager.enginesDone() >= MurderGame.ENGINE_NEEDED) {
                 val players = game.players
                     .filter { game.killer!!.player != it && it.gameMode != GameMode.SPECTATOR }
 
@@ -52,7 +52,7 @@ class GateManager(private val game: MurderGame) {
                             if (gate.ticksResolved / 20 >= NEED_SECONDS) {
                                 game.players
                                     .map { player -> game.userManager.getUser(player) }
-                                    .forEach { it.tempLocation = it.player!!.location.clone() }
+                                    .forEach { it.tempLocation = it.player.location.clone() }
                                 gate.open()
                             }
                         } else if (gate.hasPlayer) {

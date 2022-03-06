@@ -4,7 +4,6 @@ import me.func.murder.MurderGame
 import org.bukkit.Location
 
 class ParticleHelper(private val game: MurderGame) {
-
     fun acceptTickBowDropped(location: Location, tick: Int) {
         // Создание частиц возле лука
         val radius = 1.2 // Радиус окружности
@@ -21,18 +20,5 @@ class ParticleHelper(private val game: MurderGame) {
                 1
             )
         }
-    }
-
-    fun happyVillager(location: Location) {
-        // Создание частиц возле лука
-        game.map.world.spawnParticle(
-            org.bukkit.Particle.VILLAGER_HAPPY,
-            location.clone().add(
-                (Math.random() - 0.5) / 0.8,
-                (Math.random() + 0.5),
-                (Math.random() - 0.5) / 0.8
-            ),
-            1
-        )
     }
 }
