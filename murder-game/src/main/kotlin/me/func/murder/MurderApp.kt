@@ -83,6 +83,8 @@ class MurderApp : JavaPlugin() {
 
         CoordinatorClient(node).enable()
 
+        Arcade.enableStepParticles()
+
         AdminCommand // init
     }
 }

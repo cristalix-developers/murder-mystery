@@ -1,4 +1,3 @@
-
 import dev.xdark.clientapi.entity.EntityArmorStand
 import dev.xdark.clientapi.event.render.NameTemplateRender
 import dev.xdark.feder.NetUtil
@@ -7,18 +6,7 @@ import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.element.RectangleElement
 import ru.cristalix.uiengine.element.TextElement
 import ru.cristalix.uiengine.eventloop.animate
-import ru.cristalix.uiengine.utility.BOTTOM
-import ru.cristalix.uiengine.utility.BOTTOM_RIGHT
-import ru.cristalix.uiengine.utility.CENTER
-import ru.cristalix.uiengine.utility.Color
-import ru.cristalix.uiengine.utility.Easings
-import ru.cristalix.uiengine.utility.LEFT
-import ru.cristalix.uiengine.utility.RIGHT
-import ru.cristalix.uiengine.utility.TOP
-import ru.cristalix.uiengine.utility.V3
-import ru.cristalix.uiengine.utility.WHITE
-import ru.cristalix.uiengine.utility.rectangle
-import ru.cristalix.uiengine.utility.text
+import ru.cristalix.uiengine.utility.*
 
 object Chances {
 
@@ -194,6 +182,8 @@ object Chances {
                 load("2.png", "088231088F83D8890128127"),
                 load("field.png", "088231085F83D8890628127"),
                 load("port.png", "088231078F83D8890628127"),
+                load("dbd.png", "088231078F83D8890628128"),
+                load("dbd2.png", "088231078F83D8890628129"),
             ).thenRun {
                 Map()
             }

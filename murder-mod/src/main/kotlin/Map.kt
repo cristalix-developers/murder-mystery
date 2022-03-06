@@ -1,4 +1,3 @@
-
 import com.google.gson.Gson
 import dev.xdark.clientapi.event.render.RenderTickPre
 import dev.xdark.feder.NetUtil
@@ -7,13 +6,7 @@ import ru.cristalix.clientapi.registerHandler
 import ru.cristalix.uiengine.UIEngine
 import ru.cristalix.uiengine.UIEngine.clientApi
 import ru.cristalix.uiengine.element.RectangleElement
-import ru.cristalix.uiengine.utility.Color
-import ru.cristalix.uiengine.utility.Relative
-import ru.cristalix.uiengine.utility.V2
-import ru.cristalix.uiengine.utility.V3
-import ru.cristalix.uiengine.utility.WHITE
-import ru.cristalix.uiengine.utility.rectangle
-import ru.cristalix.uiengine.utility.text
+import ru.cristalix.uiengine.utility.*
 import kotlin.math.PI
 
 const val MAP_SIZE = 90.0
@@ -28,20 +21,8 @@ class Map {
     init {
         app.registerChannel("murder:map-load") {
             mapData = gson.fromJson(NetUtil.readUtf8(this, 65536), MapData::class.java)
-            if (mapData.title != "OUTLAST") {
-                loadTextures(
-                    load(
-                        mapData.mapTexturePath,
-                        "088231085F83D889062812" + mapData.title[0].uppercase()
-                    )
-                ).thenRun {
-                    minimap = createMinimap(mapData)
-                    started = true
-                }
-            } else {
-                minimap = createMinimap(mapData)
-                started = true
-            }
+            minimap = createMinimap(mapData)
+            started = true
         }
 
         registerHandler<RenderTickPre> {
@@ -66,7 +47,6 @@ class Map {
                     mapData.maxZ = -16.0
                 }
             }
-            minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
         }
 
         registerHandler<RenderTickPre> {
