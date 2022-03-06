@@ -7,7 +7,7 @@ import ru.cristalix.uiengine.utility.V3
 import ru.cristalix.uiengine.utility.text
 
 const val NAMESPACE = "murder"
-const val FILE_STORE = "http://51.38.128.132/murder/"
+const val FILE_STORE = "https://implario.dev/murder/"
 
 lateinit var app: App
 
