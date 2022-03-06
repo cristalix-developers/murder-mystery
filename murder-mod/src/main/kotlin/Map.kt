@@ -33,6 +33,7 @@ class Map {
 
         registerHandler<RenderTickPre> {
             if (!started) return@registerHandler
+
             if (mapData.title == "OUTLAST") {
                 val y = clientApi.minecraft().player.y
                 if (y > 121) {
@@ -54,8 +55,6 @@ class Map {
             }
         }
 
-        registerHandler<RenderTickPre> {
-            if (!started) return@registerHandler
             val player = clientApi.minecraft().player
 
             val rotation = -player.rotationYaw * PI / 180
@@ -72,7 +71,6 @@ class Map {
             minimap.origin.y =
                 -(player.lastZ + (player.z - player.lastZ) * partialTicks - mapData.maxZ) / mapData.textureSize
         }
-    }
 
     private fun createMinimap(mapData: MapData): RectangleElement {
         val minimap = rectangle {
@@ -155,7 +153,6 @@ class Map {
         }
 
         UIEngine.overlayContext.addChild(minimapContainer)
-
         return minimap
     }
 }
