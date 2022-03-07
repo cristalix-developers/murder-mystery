@@ -28,6 +28,7 @@ class Map {
         app.registerChannel("murder:map-load") {
             mapData = gson.fromJson(NetUtil.readUtf8(this, 65536), MapData::class.java)
             minimap = createMinimap(mapData)
+            minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
             started = true
         }
 
