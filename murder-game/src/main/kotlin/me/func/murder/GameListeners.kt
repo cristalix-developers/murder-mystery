@@ -51,9 +51,9 @@ import org.bukkit.event.block.BlockSpreadEvent
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityExplodeEvent
-import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
 import org.bukkit.event.entity.ProjectileHitEvent
+import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.hanging.HangingBreakByEntityEvent
 import org.bukkit.event.inventory.CraftItemEvent
 import org.bukkit.event.inventory.InventoryClickEvent
@@ -311,9 +311,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<EntityDamageEvent> { if (game.activeDbdStatus != DbdStatus.GAME) cancelled = true }
         context.on<PlayerQuitEvent> {
             if (game.activeDbdStatus == DbdStatus.GAME) dbdKill(
-                game.userManager.getUser(
-                    player
-                )
+                game.userManager.getUser(player)
             )
         }
     }
@@ -502,6 +500,18 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     } else kill(userKiller, userKiller)
                     kill(userVictim, userKiller)
                 } else return@on
+            }
+        }
+
+        context.on<ProjectileLaunchEvent> {
+            if (getEntity() is Arrow && getEntity().shooter is CraftPlayer) {
+                (getEntity() as Arrow).pickupStatus = Arrow.PickupStatus.DISALLOWED
+                val user = game.userManager.getUser(getEntity().shooter as Player)
+                user.player.inventory.removeItem(MurderGame.arrow)
+                if (user.role == Role.DETECTIVE) {
+                    ModHelper.sendCooldown(user.player, "Перезарядка лука", 110)
+                    context.after(100) { user.player.inventory.setItem(20, MurderGame.arrow) }
+                }
             }
         }
     }
