@@ -13,7 +13,6 @@ import ru.cristalix.core.formatting.Formatting
 class BowManager(private val game: MurderGame) {
 
     private var droppedBow: ArmorStand? = null
-
     fun drop(location: Location) {
         if (droppedBow != null) return
         // Выпадение лука
