@@ -28,7 +28,9 @@ class Map {
         app.registerChannel("murder:map-load") {
             mapData = gson.fromJson(NetUtil.readUtf8(this, 65536), MapData::class.java)
             minimap = createMinimap(mapData)
-            minimap.textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
+
+            println("Map texture loaded - ${NAMESPACE}:${mapData.mapTexturePath}")
+
             started = true
         }
 
@@ -82,8 +84,7 @@ class Map {
             scale = V3(2.5, 2.5, 1.0)
 
             align = Relative.CENTER
-            val mapTexture = mapData.mapTexturePath.replace("minecraft:", "")
-            textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapTexture)
+            textureLocation = clientApi.resourceManager().getLocation(NAMESPACE, mapData.mapTexturePath)
 
             addChild(rectangle {
                 color = WHITE

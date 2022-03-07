@@ -18,6 +18,7 @@ import ru.cristalix.uiengine.utility.V3
 import ru.cristalix.uiengine.utility.WHITE
 import ru.cristalix.uiengine.utility.rectangle
 import ru.cristalix.uiengine.utility.text
+import kotlin.collections.Map
 
 object Chances {
 
@@ -179,6 +180,9 @@ object Chances {
             }
 
             box.enabled = true
+
+            Map()
+
             // Загрузка фотографий
             loadTextures(
                 load("1.png", "088121088F83D8890128127"),
@@ -188,9 +192,7 @@ object Chances {
                 load("port.png", "088231078F83D8890628127"),
                 load("dbd.png", "088231078F83D8890628128"),
                 load("dbd2.png", "088231078F83D8890628129"),
-            ).thenApply {
-                Map()
-            }
+            ).get()
         }
 
         app.registerChannel("murder-start") {
