@@ -32,7 +32,6 @@ import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.inventory.ItemStack
-import ru.cristalix.core.realm.RealmStatus
 import ru.cristalix.core.transfer.TransferService
 import java.util.UUID
 
@@ -171,7 +170,7 @@ class MurderGame(
         }
     }
 
-    override fun acceptPlayer(e: AsyncPlayerPreLoginEvent) = players.size <= slots
+    override fun acceptPlayer(e: AsyncPlayerPreLoginEvent) = (players.size <= slots) && cristalix.acceptPlayer(e)
 
     override fun getSpawnLocation(uuid: UUID): Location = spawn
 }
