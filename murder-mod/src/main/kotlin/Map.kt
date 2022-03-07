@@ -54,7 +54,6 @@ class Map {
                     mapData.maxZ = -16.0
                 }
             }
-        }
 
             val player = clientApi.minecraft().player
 
@@ -72,6 +71,7 @@ class Map {
             minimap.origin.y =
                 -(player.lastZ + (player.z - player.lastZ) * partialTicks - mapData.maxZ) / mapData.textureSize
         }
+    }
 
     private fun createMinimap(mapData: MapData): RectangleElement {
         val minimap = rectangle {
