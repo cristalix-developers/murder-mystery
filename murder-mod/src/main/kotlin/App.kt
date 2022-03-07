@@ -6,8 +6,7 @@ import ru.cristalix.uiengine.utility.TOP
 import ru.cristalix.uiengine.utility.V3
 import ru.cristalix.uiengine.utility.text
 
-const val NAMESPACE = "murder"
-const val FILE_STORE = "https://implario.dev/murder/"
+const val NAMESPACE = "animation"
 
 lateinit var app: App
 

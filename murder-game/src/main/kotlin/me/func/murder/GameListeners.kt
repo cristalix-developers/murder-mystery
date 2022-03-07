@@ -81,7 +81,7 @@ import org.bukkit.util.Vector
 import org.spigotmc.event.entity.EntityDismountEvent
 import ru.cristalix.core.account.IAccountService
 import ru.cristalix.core.formatting.Formatting
-import java.util.UUID
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**
@@ -396,6 +396,19 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 ModLoader.send("murder-mod-bundle.jar", player)
                 Anime.hideIndicator(
                     player, Indicators.HUNGER, Indicators.EXP, Indicators.HEALTH, Indicators.VEHICLE, Indicators.TAB
+                )
+
+                Anime.loadTextures(
+                    player,
+                    *listOf(
+                        "1.png",
+                        "-1.png",
+                        "2.png",
+                        "field.png",
+                        "port.png",
+                        "dbd.png",
+                        "dbd2.png"
+                    ).map { "https://implario.dev/murder/${it}" }.toTypedArray()
                 )
             }
 

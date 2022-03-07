@@ -182,19 +182,6 @@ object Chances {
             box.enabled = true
 
             Map()
-
-            // Загрузка фотографий
-            loadTextures(
-                load("1.png", "088121088F83D8890128127"),
-                load("-1.png", "081221088F83D8890128127"),
-                load("2.png", "088231088F83D8890128127"),
-                load("field.png", "088231085F83D8890628127"),
-                load("port.png", "088231078F83D8890628127"),
-                load("dbd.png", "088231078F83D8890628128"),
-                load("dbd2.png", "088231078F83D8890628129"),
-            ).thenAccept {
-                println("Map textures downloaded!")
-            }
         }
 
         app.registerChannel("murder-start") {
