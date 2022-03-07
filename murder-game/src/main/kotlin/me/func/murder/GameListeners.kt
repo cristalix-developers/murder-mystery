@@ -28,10 +28,13 @@ import me.func.protocol.Indicators
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import net.minecraft.server.v1_12_R1.EnumItemSlot
+import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.ChatColor
 import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
 import org.bukkit.entity.ArmorStand
@@ -39,6 +42,7 @@ import org.bukkit.entity.Arrow
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.entity.Projectile
+import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockBurnEvent
 import org.bukkit.event.block.BlockFadeEvent
@@ -77,6 +81,7 @@ import org.bukkit.event.player.PlayerToggleSprintEvent
 import org.bukkit.inventory.EquipmentSlot
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
+import org.bukkit.util.EulerAngle
 import org.bukkit.util.Vector
 import org.spigotmc.event.entity.EntityDismountEvent
 import ru.cristalix.core.account.IAccountService
@@ -526,6 +531,80 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     context.after(100) { user.player.inventory.setItem(20, MurderGame.arrow) }
                 }
             }
+        }
+
+        context.on<EntityDamageEvent> {
+            isCancelled = true
+
+            if (game.activeStatus == Status.GAME && damage < 0.01) {
+                if (entity is CraftPlayer) {
+                    kill(game.userManager.getUser(entity as CraftPlayer), null)
+                }
+            }
+        }
+
+        context.on<PlayerInteractEvent> {
+            if (game.activeStatus != Status.GAME) return@on
+
+            val user = game.userManager.getUser(player)
+
+            // Если маньяк нажал на меч, то запустить его вперед
+            if (user.role == Role.MURDER && action == Action.RIGHT_CLICK_AIR && material == Material.IRON_SWORD) {
+                user.player.playSound(user.player.location, Sound.BLOCK_CLOTH_STEP, 1.1f, 1f)
+                val sword = StandHelper(player.location.clone().add(0.0, 1.0, 0.0))
+                    .invisible(true)
+                    .marker(true)
+                    .gravity(false)
+                    .child(true)
+                    .markTrash()
+                    .build()
+                val nmsSword = (sword as CraftArmorStand).handle
+                sword.itemInHand = player.itemInHand
+                player.itemInHand = null
+                sword.rightArmPose = EulerAngle(
+                    Math.toRadians(350.0),
+                    Math.toRadians(player.location.pitch * -1.0),
+                    Math.toRadians(90.0)
+                )
+                sword.isCollidable = false
+                sword.setSilent(true)
+
+                val vector = player.eyeLocation.direction.normalize()
+
+                val giveBackTime = 5 * 20
+
+                ModHelper.sendCooldown(user.player, "Возвращение орудия", giveBackTime + 10)
+                Cycle.run(1, giveBackTime) { iteration ->
+                    if (iteration == giveBackTime - 1) {
+                        player.inventory.setItem(1, sword.itemInHand)
+                        sword.remove()
+                    }
+
+                    val origin = sword.location.clone().add(0.0, 1.0, -0.4)
+
+                    sword.world.spawnParticle(Particle.DRIP_LAVA, origin, 1)
+
+                    nmsSword.move(EnumMoveType.SELF, 0.0, 0.0, 0.0)
+                    if (sword.location.clone().add(
+                            vector.x / 100 - vector.x / 10000,
+                            vector.y / 100 - vector.y / 10000 + 1.4,
+                            vector.z / 100 - vector.z / 10000
+                        ).block.type != Material.AIR
+                    )
+                        return@run
+                    nmsSword.move(EnumMoveType.SELF, vector.x / 1.6, vector.y / 1.6, vector.z / 1.6)
+                    game.players.minus(player)
+                        .filter { it.gameMode != GameMode.SPECTATOR && it.location.distanceSquared(sword.location) < 1.5 }
+                        .forEach {
+                            it.damage(10.0, player)
+                        }
+                }
+            }
+        }
+
+        context.on<PlayerQuitEvent> {
+            if (game.activeStatus != Status.GAME) return@on
+            kill(game.userManager.getUser(player))
         }
     }
 
