@@ -221,8 +221,6 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     PotionEffectType.SPEED
                 ) && !(entity as CraftPlayer).hasPotionEffect(PotionEffectType.INVISIBILITY)
             ) {
-                isCancelled = true
-
                 val victim = game.userManager.getUser(entity as CraftPlayer)
 
                 game.killer?.let { game.killer!!.bites++ } ?: return@on
@@ -395,6 +393,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         context.on<PlayerSwapHandItemsEvent> { isCancelled = true }
         context.on<InventoryClickEvent> { isCancelled = true }
         context.on<FoodLevelChangeEvent> { isCancelled = true }
+        context.on<EntityDamageEvent> { if (cause == EntityDamageEvent.DamageCause.FALL) isCancelled = true }
         context.on<PlayerMoveEvent> {
             if (player.location.block.isLiquid && !game.dbd) kill(game.userManager.getUser(player))
         }
