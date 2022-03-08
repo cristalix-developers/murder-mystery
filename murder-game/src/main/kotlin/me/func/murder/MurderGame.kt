@@ -140,7 +140,7 @@ class MurderGame(
         cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
         cristalix.updateRealmInfo()
 
-        Arcade.start(kensuke.globalRealm, if (dbd) ArcadeType.DBD else ArcadeType.MUR, client = cristalix.client)
+        Arcade.start(kensuke.globalRealm, ArcadeType.MUR, client = cristalix.client)
 
         GameListeners(this, dbd)
 
