@@ -86,7 +86,7 @@ import org.bukkit.util.Vector
 import org.spigotmc.event.entity.EntityDismountEvent
 import ru.cristalix.core.account.IAccountService
 import ru.cristalix.core.formatting.Formatting
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 /**
@@ -234,7 +234,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                     val player = victim.player
 
                     // Если игрока еще можно спасти
-                    if (game.players.map { game.userManager.getUser(it).role == Role.VICTIM }.size > 1) {
+                    if (game.players.filter { game.userManager.getUser(it).role == Role.VICTIM }.size > 1) {
                         game.modHelper.makeCorpse(player)
                         victim.player.gameMode = GameMode.SPECTATOR
 
