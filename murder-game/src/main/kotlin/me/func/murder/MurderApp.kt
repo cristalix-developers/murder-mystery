@@ -12,11 +12,13 @@ import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.Arcade
+import me.func.battlepass.quest.ArcadeType
 import me.func.mod.conversation.ModLoader
 import me.func.murder.command.AdminCommand
 import me.func.murder.user.Stat
 import me.func.murder.user.User
 import net.minecraft.server.v1_12_R1.HandshakeListener.gson
+import net.minecraft.server.v1_12_R1.SoundEffects.id
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -24,13 +26,18 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.BukkitPlatform
 import ru.cristalix.core.CoreApi
+import ru.cristalix.core.CoreCredentials
 import ru.cristalix.core.datasync.EntityDataParameters
 import ru.cristalix.core.network.ISocketClient
+import ru.cristalix.core.network.SocketClient
 import ru.cristalix.core.party.IPartyService
 import ru.cristalix.core.party.PartyService
+import ru.cristalix.core.realm.RealmId
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
 import ru.cristalix.npcs.server.Npcs
+import java.lang.reflect.Constructor
+
 
 lateinit var app: MurderApp
 
@@ -50,6 +57,8 @@ class MurderApp : JavaPlugin(), Listener {
         core.init(BukkitPlatform(Bukkit.getServer(), Bukkit.getLogger(), this))
         core.registerService(IPartyService::class.java, PartyService(ISocketClient.get()))
         core.registerService(ITransferService::class.java, TransferService(ISocketClient.get()))
+
+        Arcade.start(ArcadeType.MUR)
 
         EntityDataParameters.register()
         Platforms.set(PlatformDarkPaper())

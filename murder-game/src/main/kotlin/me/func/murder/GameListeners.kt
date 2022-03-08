@@ -99,7 +99,6 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
     init {
         context.after(1) {
             if (dbd) {
-                setupMapDecorationListeners()
                 setupDbdJoinListeners()
                 setupDeathHandlerListeners()
                 setupBlockPhysicsCancelListeners()
@@ -113,8 +112,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 setupChatListeners()
                 setupInteractListeners()
                 setupInventoryListeners()
-                setupMapDecorationListeners()
             }
+            setupMapDecorationListeners()
             setupGlobalListeners()
         }
     }
@@ -224,12 +223,14 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
                 game.killer?.let { game.killer!!.bites++ } ?: return@on
 
+                val respawnTimeSeconds = 20
+
                 if (victim.hearts > 1) {
                     game.after(4 * 20) { game.killer!!.player.inventory.setItem(3, GadgetMechanic.openTrap) }
                     victim.hearts--
                     (entity as CraftPlayer).addPotionEffect(speed)
                     Music.DBD_RUN.playAll(game)
-                    game.after(20 * 15) { Music.DBD_GAME.playAll(game) }
+                    game.after(20L * respawnTimeSeconds) { Music.DBD_GAME.playAll(game) }
                 } else {
                     val player = victim.player
 
@@ -239,6 +240,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                         victim.player.gameMode = GameMode.SPECTATOR
 
                         Anime.title(victim.player, "§cВас ранили!\n§eЖдите помощи")
+                        Anime.reload(victim.player, respawnTimeSeconds.toDouble(), "Вас еще могут спасти!")
                         game.broadcast(
                             "  §l> §cИгрок §e${player.name} §cпал! Чтобы спасти нажмите §f§lSHIFT §c c §e1 бинтом§c! Осталось 15 секунд."
                         )
@@ -255,8 +257,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                         val location = victim.player.location.clone().add(0.0, 1.3, 0.0)
                         location.pitch = 90f
 
-                        Cycle.run(1, 20 * 15) { time ->
-                            if (time == 20 * 15 - 1) {
+                        Cycle.run(1, 20 * respawnTimeSeconds) { time ->
+                            if (time == 20 * respawnTimeSeconds - 1) {
                                 dbdKill(victim)
                                 return@run
                             }
@@ -264,7 +266,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                             victim.player.teleport(location)
 
                             game.players.filter {
-                                it.location.distanceSquared(location) < 10 && it != game.killer!!.player && it.gameMode != GameMode.SPECTATOR
+                                it.location.distanceSquared(location) < 12 && it != game.killer!!.player && it
+                                    .gameMode != GameMode.SPECTATOR
                             }.forEach {
                                 if (!it.inventory.contains(GadgetMechanic.bandage)) {
                                     it.spigot().sendMessage(
