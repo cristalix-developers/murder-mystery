@@ -25,16 +25,8 @@ class ModHelper(private val game: MurderGame) {
         }
     }
 
-    fun sendCorpse(name: String, uuid: UUID, to: Player, x: Double, y: Double, z: Double) {
-        ModTransfer().string(name)
-            .string("https://webdata.c7x.dev/textures/skin/$uuid")
-            .string(uuid.toString())
-            .double(x)
-            .double(y + 3)
-            .double(z)
-            .boolean(true)
-            .send("corpse", to)
-    }
+    fun sendCorpse(name: String, uuid: UUID, to: Player, x: Double, y: Double, z: Double) =
+        Anime.corpse(to, name, uuid, x, y + 3, z, secondsAlive = 300)
 
     fun loadMap(map: MapType) = game.players.forEach { ModTransfer().json(map.data).send("murder:map-load", it) }
 
