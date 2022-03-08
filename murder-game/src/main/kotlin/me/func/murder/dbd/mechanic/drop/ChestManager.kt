@@ -4,6 +4,7 @@ package me.func.murder.dbd.mechanic.drop
 
 import dev.implario.bukkit.event.on
 import dev.implario.bukkit.item.item
+import me.func.Arcade
 import me.func.murder.MurderGame
 import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.mechanic.GadgetMechanic
@@ -80,6 +81,9 @@ class ChestManager(private val game: MurderGame) {
                 player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent("§l+${energy / 20} §fсек. света"))
             }
             val chest = chests[blockClicked.location]!!
+
+            Arcade.deposit(player, 1)
+
             chest.open = 1
             chest.stand.customName = "§7Пусто"
         }

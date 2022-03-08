@@ -353,7 +353,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             if (corpse != Corpse.NONE) StandHelper(location.clone().subtract(0.0, 1.5, 0.0)).marker(true)
                 .invisible(true)
                 .gravity(false)
-                .slot(EnumItemSlot.HEAD, Arcade.getArcadeData(victim.stat.id).corpse.getIcon())
+                .slot(EnumItemSlot.HEAD, corpse.getIcon())
                 .markTrash()
 
             Music.DBD_DEATH.playAll(game)

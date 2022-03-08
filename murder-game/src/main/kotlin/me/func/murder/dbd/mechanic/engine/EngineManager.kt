@@ -3,6 +3,7 @@
 package me.func.murder.dbd.mechanic.engine
 
 import dev.implario.bukkit.event.on
+import me.func.Arcade
 import me.func.mod.Anime
 import me.func.murder.MurderGame
 import me.func.murder.dbd.DbdStatus
@@ -95,6 +96,7 @@ class EngineManager(private val game: MurderGame) {
                     val user = game.userManager.getUser(player)
                     user.fuel++
                     Anime.title(player, "${color + percent}%\n\n\n$percentLine §4⛽")
+                    Arcade.deposit(player, 1)
 
                     val haveEngines = enginesDone()
 
