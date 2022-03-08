@@ -9,6 +9,7 @@ import dev.implario.kensuke.Kensuke
 import dev.implario.kensuke.Scope
 import dev.implario.kensuke.UserManager
 import me.func.Arcade
+import me.func.battlepass.quest.ArcadeType
 import me.func.murder.content.TopManager
 import me.func.murder.dbd.DbdStatus
 import me.func.murder.dbd.DbdTimer
@@ -68,6 +69,8 @@ class MurderGame(
             text("§6Фонарик §l§eПКМ")
         }
     }
+
+    var started: Boolean = false
 
     var murderName: String? = null
     var detectiveName: String? = null
@@ -137,6 +140,8 @@ class MurderGame(
         cristalix.setRealmInfoBuilder { it.lobbyFallback(Arcade.getLobbyRealm()) }
         cristalix.updateRealmInfo()
 
+        Arcade.start(kensuke.globalRealm, if (dbd) ArcadeType.DBD else ArcadeType.MUR, client = cristalix.client)
+
         GameListeners(this, dbd)
 
         if (dbd) {
@@ -150,10 +155,7 @@ class MurderGame(
             ArrowEffect(this)
             TopManager(this)
 
-            after(10) {
-                mapType.loadDetails(map.world.entities.toTypedArray())
-                every(1) { timer.tick() }
-            }
+            context.everyAfter(10, 1) { timer.tick() }
         }
 
         transferService.transferBatch(settings.teams.flatten(), cristalix.realmId)

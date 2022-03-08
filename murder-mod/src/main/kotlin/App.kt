@@ -6,7 +6,7 @@ import ru.cristalix.uiengine.utility.TOP
 import ru.cristalix.uiengine.utility.V3
 import ru.cristalix.uiengine.utility.text
 
-const val NAMESPACE = "cache/animation/"
+const val NAMESPACE = "cache/animation"
 
 lateinit var app: App
 

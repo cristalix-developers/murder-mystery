@@ -10,7 +10,6 @@ import org.bukkit.entity.Spider
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import ru.cristalix.core.formatting.Formatting.fine
-import ru.cristalix.core.realm.RealmStatus
 
 enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
     STARTING(30, { it, game ->
@@ -106,6 +105,11 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         actualTime
     }),
     GAME(330, { time, game ->
+        if (!game.started) {
+            game.mapType.loadDetails(game.map.world.entities.toTypedArray())
+            game.started = true
+        }
+
         // Обновление шкалы времени
         if (time % 20 == 0) {
             game.players.forEach {

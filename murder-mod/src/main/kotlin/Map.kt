@@ -106,8 +106,6 @@ class Map {
                 GL11.glDepthFunc(GL11.GL_LEQUAL)
             }
 
-            mask = true
-
             for (marker in mapData.markers) {
                 addChild(text {
                     offset = V3(marker.x, marker.y)

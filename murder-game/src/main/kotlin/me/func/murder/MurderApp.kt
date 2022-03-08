@@ -12,12 +12,10 @@ import dev.implario.kensuke.impl.bukkit.BukkitKensuke
 import dev.implario.kensuke.impl.bukkit.BukkitUserManager
 import dev.implario.platform.impl.darkpaper.PlatformDarkPaper
 import me.func.Arcade
-import me.func.battlepass.quest.ArcadeType
 import me.func.mod.conversation.ModLoader
 import me.func.murder.command.AdminCommand
 import me.func.murder.user.Stat
 import me.func.murder.user.User
-// почему нет)
 import net.minecraft.server.v1_12_R1.HandshakeListener.gson
 import org.bukkit.Bukkit
 import org.bukkit.event.EventHandler
@@ -73,8 +71,6 @@ class MurderApp : JavaPlugin(), Listener {
         node = DefaultGameNode()
         node.supportedImagePrefixes += listOf("murder", "dbd")
         node.linker = SessionBukkitLinker.link(node)
-
-        Arcade.start(kensuke.globalRealm, ArcadeType.MUR)
 
         node.gameCreator = GameCreator { gameId, image, settings ->
             MurderGame(
