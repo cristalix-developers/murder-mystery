@@ -172,7 +172,7 @@ class MurderGame(
         }
     }
 
-    override fun acceptPlayer(e: AsyncPlayerPreLoginEvent) = (players.size <= slots) && cristalix.acceptPlayer(e)
+    override fun acceptPlayer(e: AsyncPlayerPreLoginEvent) = cristalix.acceptPlayer(e) && (players.size <= slots)
 
     override fun getSpawnLocation(uuid: UUID): Location = spawn
 }

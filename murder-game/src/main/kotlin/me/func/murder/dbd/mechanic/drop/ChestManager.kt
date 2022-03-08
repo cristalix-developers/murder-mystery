@@ -82,10 +82,9 @@ class ChestManager(private val game: MurderGame) {
             }
             val chest = chests[blockClicked.location]!!
 
-            Arcade.deposit(player, 1)
-
             chest.open = 1
             chest.stand.customName = "§7Пусто"
+            Arcade.deposit(player, 1)
         }
     }
 

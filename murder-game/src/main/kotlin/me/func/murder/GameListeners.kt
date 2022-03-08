@@ -128,21 +128,21 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
             user.stat.lastEnter = System.currentTimeMillis()
 
+            if (game.activeDbdStatus == DbdStatus.STARTING) {
+                // Информация на моды, музыка
+                context.after(5) {
+                    ModTransfer().string("§cМаньяк 20%")
+                        .string("§aЖертва 80%")
+                        .string(game.mapType.title)
+                        .send("murder-join", player)
+
+                    Music.LOBBY.play(user)
+                }
+            }
+
             // Заполнение имени для топа
             if (user.stat.lastSeenName.isEmpty()) user.stat.lastSeenName =
-                IAccountService.get().getNameByUuid(UUID.fromString(user.session.userId)).get(1, TimeUnit.SECONDS)
-
-            if (game.activeDbdStatus != DbdStatus.STARTING) return@on
-
-            // Информация на моды, музыка
-            context.after(5) {
-                ModTransfer().string("§cМаньяк 20%")
-                    .string("§aЖертва 80%")
-                    .string(game.mapType.title)
-                    .send("murder-join", player)
-
-                Music.LOBBY.play(user)
-            }
+                game.cristalix.getPlayer(player)?.displayName ?: player.displayName
         }
     }
 
