@@ -14,7 +14,7 @@ class DbdWinUtil(private val game: MurderGame) {
 
         return when {
             game.players.isEmpty() -> true
-            alive.isEmpty() && out.isEmpty() && (game.killer?.role ?: false) == Role.MURDER -> {
+            alive.isEmpty() && out.isEmpty() && game.killer?.role == Role.MURDER -> {
                 BattlePassUtil.update(game.killer?.player!!, QuestType.WIN, 1, false)
                 game.killer!!.stat.eventWins++
                 game.winMessage = "§cМаньяк убил все живое..."

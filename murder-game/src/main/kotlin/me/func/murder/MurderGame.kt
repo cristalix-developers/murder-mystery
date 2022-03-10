@@ -51,7 +51,7 @@ class MurderGame(
 ) : Game(gameId) {
 
     companion object {
-        const val ENGINE_NEEDED = 7 // dbd
+        const val ENGINE_NEEDED = 5 // dbd
 
         val gold: ItemStack = item {
             type = Material.GOLD_INGOT
