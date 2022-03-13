@@ -20,6 +20,7 @@ import me.func.murder.user.User
 import net.minecraft.server.v1_12_R1.HandshakeListener.gson
 import net.minecraft.server.v1_12_R1.SoundEffects.id
 import org.bukkit.Bukkit
+import org.bukkit.entity.EntityType
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
@@ -91,6 +92,12 @@ class MurderApp : JavaPlugin(), Listener {
                 image == "dbd"
             )
         }
+
+        Bukkit.getScheduler().runTaskTimer(this, {
+            Bukkit.getWorlds().firstOrNull { it.livingEntities.none { it.type == EntityType.PLAYER } }?.let {
+                Bukkit.unloadWorld(it, false)
+            }
+        }, 300, 20 * 60)
 
         CoordinatorClient(node).enable()
 

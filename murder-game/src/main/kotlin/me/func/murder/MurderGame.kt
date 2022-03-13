@@ -51,7 +51,7 @@ class MurderGame(
 ) : Game(gameId) {
 
     companion object {
-        const val ENGINE_NEEDED = 5 // dbd
+        const val ENGINE_NEEDED = 6 // dbd
 
         val gold: ItemStack = item {
             type = Material.GOLD_INGOT
@@ -162,12 +162,12 @@ class MurderGame(
     fun stopGame(transfer: Boolean = true) {
         if (transfer) transferService.transferBatch(players.map { it.uniqueId }, Arcade.getLobbyRealm())
 
-        after(10) {
+        Bukkit.getScheduler().runTaskLater(app, {
             isTerminated = true
             Bukkit.unloadWorld(map.world, false)
 
             unregisterAll()
-        }
+        }, 5)
     }
 
     override fun acceptPlayer(e: AsyncPlayerPreLoginEvent) = cristalix.acceptPlayer(e) && (players.size <= slots)
