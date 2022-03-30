@@ -94,10 +94,12 @@ class MurderApp : JavaPlugin(), Listener {
         }
 
         Bukkit.getScheduler().runTaskTimer(this, {
-            Bukkit.getWorlds().firstOrNull { it.livingEntities.none { it.type == EntityType.PLAYER } }?.let {
+            Bukkit.getWorlds().firstOrNull { it.players.isEmpty() }?.let {
                 Bukkit.unloadWorld(it, false)
+                println("One world was deleted! Active games: ${app.node.runningGames.size}, loaded world count: " +
+                        "${Bukkit.getWorlds().size}")
             }
-        }, 300, 20 * 60)
+        }, 120, 20 * 60)
 
         CoordinatorClient(node).enable()
 

@@ -83,7 +83,7 @@ class MurderGame(
 
     var activeDbdStatus: DbdStatus = DbdStatus.STARTING
 
-    var minPlayers = if (dbd) 5 else 10
+    var minPlayers = if (dbd) 5 else 7
 
     var slots = if (dbd) minPlayers else 16
 
