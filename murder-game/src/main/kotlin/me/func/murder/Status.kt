@@ -161,6 +161,8 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     user.stat.wins++
                     me.func.Arcade.deposit(it.uniqueId, 10)
 
+                    it.gameMode = GameMode.SPECTATOR
+
                     if (Math.random() < 0.11) {
                         me.func.Arcade.giveLootbox(it.uniqueId)
                         game.broadcast(fine("§e${user.player.name} §fполучил §bлутбокс§f!"))

@@ -21,7 +21,7 @@ class WinUtil(private val game: MurderGame) {
             .distinctBy { it }
             .toList()
 
-        // Если что то сломалось и игроков нет
+        // Если что-то сломалось и игроков нет
         return if (activeRoles.isEmpty()) {
             game.winMessage = "§eЧто!?"
             return true

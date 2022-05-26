@@ -85,6 +85,7 @@ import org.bukkit.util.EulerAngle
 import org.bukkit.util.Vector
 import org.spigotmc.event.entity.EntityDismountEvent
 import ru.cristalix.core.formatting.Formatting
+import java.awt.SystemColor.text
 import java.util.UUID
 
 /**
@@ -184,7 +185,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 }
                 winZone.filter { to.distanceSquared(it) < it.tagInt * it.tagInt }.forEach { _ ->
                     val user = game.userManager.getUser(player)
-                    if (user.role == Role.VICTIM) {
+                    if (user.role == Role.VICTIM && player.gameMode != GameMode.SPECTATOR) {
                         BattlePassUtil.update(user.player, QuestType.WIN, 1, false)
                         user.stat.wins++
                         user.role = Role.NONE

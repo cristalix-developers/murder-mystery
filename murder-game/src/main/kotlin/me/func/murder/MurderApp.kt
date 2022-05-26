@@ -18,26 +18,19 @@ import me.func.murder.command.AdminCommand
 import me.func.murder.user.Stat
 import me.func.murder.user.User
 import net.minecraft.server.v1_12_R1.HandshakeListener.gson
-import net.minecraft.server.v1_12_R1.SoundEffects.id
 import org.bukkit.Bukkit
-import org.bukkit.entity.EntityType
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.java.JavaPlugin
 import ru.cristalix.core.BukkitPlatform
 import ru.cristalix.core.CoreApi
-import ru.cristalix.core.CoreCredentials
 import ru.cristalix.core.datasync.EntityDataParameters
 import ru.cristalix.core.network.ISocketClient
-import ru.cristalix.core.network.SocketClient
 import ru.cristalix.core.party.IPartyService
 import ru.cristalix.core.party.PartyService
-import ru.cristalix.core.realm.RealmId
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
-import ru.cristalix.npcs.server.Npcs
-import java.lang.reflect.Constructor
 
 
 lateinit var app: MurderApp
@@ -67,7 +60,6 @@ class MurderApp : JavaPlugin(), Listener {
         getServer().pluginManager.registerEvents(this, this)
 
         ModLoader.loadAll("mods")
-        Npcs.init(this)
 
         userManager = BukkitUserManager(setOf(statScope),
             { session, context -> User(session, context.getData(statScope)) },
