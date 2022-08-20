@@ -415,7 +415,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                         "port.png",
                         "dbd.png",
                         "dbd2.png"
-                    ).map { "https://implario.dev/murder/${it}" }.toTypedArray()
+                    ).map { "storage.c7x.dev/func/murder/${it}" }.toTypedArray()
                 )
             }
 
