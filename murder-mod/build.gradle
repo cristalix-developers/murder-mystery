@@ -1,22 +1,35 @@
 plugins {
-    id 'dev.implario.bundler' version '3.0.2'
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'dev.implario.bundler' version '4.0.1'
 }
 
 dependencies {
-    compileOnly 'ru.cristalix:client-api:live-SNAPSHOT'
+    compileOnly 'ru.cristalix:client-api:foranelfer-SNAPSHOT'
+    implementation 'ru.cristalix:uiengine:foranelfer-SNAPSHOT'
+    implementation 'ru.cristalix:client-sdk:foranelfer-SNAPSHOT'
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.6.21'
+    implementation 'implario:humanize:1.1.3'
+}
 
-    implementation 'ru.cristalix:uiengine:live-SNAPSHOT'
-    implementation 'ru.cristalix:client-sdk:live-SNAPSHOT'
-    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.6.20-M1'
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+bundle {
+    modName 'Murder Mystery'
+    mainClass 'App'
+    author 'func'
+    // dontoptimize()
+    keep('class ru.cristalix.data.** { *; }')
+    keep('class ru.cristalix.** { *; }')
 }
 
 jar {
-    from configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
-}
-
-bundler {
-    name 'Murder Mystery'
-    mainClass 'App'
-    version '1.0'
-    author 'func'
+    duplicatesStrategy DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.directory ? it : zipTree(it) }
+    }
 }
