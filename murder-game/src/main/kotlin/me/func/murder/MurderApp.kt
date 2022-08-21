@@ -32,7 +32,6 @@ import ru.cristalix.core.party.PartyService
 import ru.cristalix.core.transfer.ITransferService
 import ru.cristalix.core.transfer.TransferService
 
-
 lateinit var app: MurderApp
 
 class MurderApp : JavaPlugin(), Listener {
