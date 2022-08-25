@@ -90,7 +90,7 @@ class MurderApp : JavaPlugin(), Listener {
                 println("One world was deleted! Active games: ${app.node.runningGames.size}, loaded world count: " +
                         "${Bukkit.getWorlds().size}")
             }
-        }, 120, 20 * 60)
+        }, 120, (20 * 60).toLong())
 
         CoordinatorClient(node).enable()
 

@@ -5,7 +5,7 @@ package me.func.murder
 import clepto.bukkit.Cycle
 import com.destroystokyo.paper.event.player.PlayerAdvancementCriterionGrantEvent
 import dev.implario.bukkit.event.on
-import dev.implario.bukkit.item.item
+import dev.implario.bukkit.item.ItemBuilder
 import me.func.Arcade
 import me.func.battlepass.BattlePassUtil
 import me.func.battlepass.quest.QuestType
@@ -31,9 +31,11 @@ import net.minecraft.server.v1_12_R1.EnumItemSlot
 import net.minecraft.server.v1_12_R1.EnumMoveType
 import org.bukkit.ChatColor
 import org.bukkit.GameMode
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.Sound
+import org.bukkit.block.Block
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack
@@ -85,8 +87,7 @@ import org.bukkit.util.EulerAngle
 import org.bukkit.util.Vector
 import org.spigotmc.event.entity.EntityDismountEvent
 import ru.cristalix.core.formatting.Formatting
-import java.awt.SystemColor.text
-import java.util.UUID
+import java.util.*
 
 /**
  * Created by Kamillaova on 2022.01.30.
@@ -178,7 +179,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                         it.helmet = GadgetMechanic.closeTrap
                         player.addPotionEffect(GadgetMechanic.slowness)
                         Music.DBD_RUN.playAll(game)
-                        context.after(20 * 5) { Music.DBD_GAME.playAll(game) }
+                        context.after((20 * 5).toLong()) { Music.DBD_GAME.playAll(game) }
                         return@removeIf true
                     }
                     return@removeIf false
@@ -225,7 +226,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 val respawnTimeSeconds = 20
 
                 if (victim.hearts > 1) {
-                    game.after(4 * 20) { game.killer!!.player.inventory.setItem(3, GadgetMechanic.openTrap) }
+                    game.after((4 * 20).toLong()) { game.killer!!.player.inventory.setItem(3, GadgetMechanic.openTrap) }
                     victim.hearts--
                     (entity as CraftPlayer).addPotionEffect(speed)
                     Music.DBD_RUN.playAll(game)
@@ -359,7 +360,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                 .markTrash()
 
             Music.DBD_DEATH.playAll(game)
-            game.context.after(5 * 20) { Music.DBD_GAME.playAll(game) }
+            game.context.after((5 * 20).toLong()) { Music.DBD_GAME.playAll(game) }
         }
         victim.hearts = 2
         victim.player.gameMode = GameMode.SPECTATOR
@@ -616,11 +617,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             isCancelled = true
         }
 
-        val bow = item {
-            type = Material.BOW
-            text("§eЛук")
-            nbt("Unbreakable", 1)
-        }
+        val bow = ItemBuilder().type(Material.BOW).text("§eЛук").nbt("Unbreakable", 1).build()
 
         context.on<PlayerAttemptPickupItemEvent> {
             if (item.itemStack.getType() != Material.GOLD_INGOT) {
@@ -687,7 +684,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
             player.inventory.clear()
             player.gameMode = GameMode.ADVENTURE
-            player.setResourcePack("", "")
+            player.setResourcePack("https://storage.c7x.ru/func/murdermystery/murder.zip", "" +
+                    "e4df041bfbd5e6ecb8e59c70ff099cddec62839d52bbc45db872c219bd0c8288")
 
             val user = game.userManager.getUser(player)
 
@@ -774,10 +772,28 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
         }
     }
 
+    private fun isLocationSafe(location: Location): Boolean {
+        val x: Int = location.blockX
+        val y: Int = location.blockY
+        val z: Int = location.blockZ
+
+        val block: Block = location.world.getBlockAt(x, y, z)
+        val above: Block = location.world.getBlockAt(x, y + 1, z)
+
+        return block.type.isSolid || above.type.isSolid
+    }
+    private fun findSafeLocation(location: Location): Location {
+        var location = location
+        while (!isLocationSafe(location)) {
+            location = location.subtract(0.0,-1.0,0.0)
+        }
+        return location
+    }
+
     private fun killDetective(user: User) {
         // Сообщение о выпадении лука
         game.modHelper.sendGlobalTitle("§cЛук выпал")
-        game.bowManager.drop(user.player.location)
+        game.bowManager.drop(findSafeLocation(user.player.location))
     }
 
     private fun killMurder(user: User) {

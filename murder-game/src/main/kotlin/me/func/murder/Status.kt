@@ -74,7 +74,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
                     me.func.mod.Anime.title(user.player, "Роль: ${user.role.title}")
 
                     // Выполнение ролийных особенностей
-                    game.context.after(10 * 20) {
+                    game.context.after((10 * 20).toLong()) {
                         user.role.start(user, game)
                     }
                     // Отправить информацию о начале игры клиенту
@@ -194,7 +194,7 @@ enum class Status(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
             game.broadcast("    §bДетектив ${game.detectiveName}")
             if (game.heroName?.isNotEmpty() == true && game.detectiveName != game.heroName) game.broadcast("    §aГерой ${game.heroName}")
             game.broadcast("")
-            game.context.after(20 * 8) {
+            game.context.after((20 * 8).toLong()) {
                 game.stopGame()
             }
             // Очистка мусорных сущностей
