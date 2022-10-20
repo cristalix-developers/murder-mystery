@@ -24,7 +24,7 @@ import me.func.murder.user.User
 import me.func.murder.util.Music
 import me.func.murder.util.MusicHelper
 import me.func.murder.util.StandHelper
-import me.func.protocol.Indicators
+import me.func.protocol.ui.indicator.Indicators
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.TextComponent
 import net.minecraft.server.v1_12_R1.EnumItemSlot
