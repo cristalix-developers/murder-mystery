@@ -125,6 +125,8 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
             player.gameMode = GameMode.ADVENTURE
             val user = game.userManager.getUser(player)
 
+            player.setResourcePack("https://storage.c7x.dev/func/murder/murder.zip", "")
+
             user.stat.lastEnter = System.currentTimeMillis()
 
             if (game.activeDbdStatus == DbdStatus.STARTING) {
@@ -400,7 +402,6 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
         context.on<PlayerJoinEvent> {
             game.context.after(3) {
-                player.setResourcePack("", "")
                 ModLoader.send("murder-mod-bundle.jar", player)
                 Anime.hideIndicator(
                     player, Indicators.HUNGER, Indicators.EXP, Indicators.HEALTH, Indicators.VEHICLE, Indicators.TAB
@@ -416,7 +417,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
                         "port.png",
                         "dbd.png",
                         "dbd2.png"
-                    ).map { "storage.c7x.dev/func/murder/${it}" }.toTypedArray()
+                    ).map { "https://storage.c7x.dev/func/murder/${it}" }.toTypedArray()
                 )
             }
 
@@ -684,8 +685,7 @@ class GameListeners(private val game: MurderGame, dbd: Boolean) {
 
             player.inventory.clear()
             player.gameMode = GameMode.ADVENTURE
-            player.setResourcePack("https://storage.c7x.ru/func/murdermystery/murder.zip", "" +
-                    "e4df041bfbd5e6ecb8e59c70ff099cddec62839d52bbc45db872c219bd0c8288")
+            player.setResourcePack("https://storage.c7x.dev/func/murder/murder.zip", "")
 
             val user = game.userManager.getUser(player)
 

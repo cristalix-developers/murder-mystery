@@ -64,7 +64,7 @@ class MurderGame(
 
         val light: ItemStack = item {
             type = Material.CLAY_BALL
-            nbt("thief", "4")
+            nbt("other", "mask")
             text("§6Фонарик §l§eПКМ")
         }
     }

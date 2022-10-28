@@ -32,7 +32,7 @@ class ChestManager(private val game: MurderGame) {
     companion object {
         val fuel: ItemStack = item {
             text("§l§eТопливо")
-            nbt("brawl", "emz_weapeon")
+            nbt("other", "element_fire")
             type = Material.CLAY_BALL
         }
     }

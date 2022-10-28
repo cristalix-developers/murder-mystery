@@ -18,6 +18,7 @@ import org.bukkit.SoundCategory
 import org.bukkit.potion.PotionEffect
 import org.bukkit.potion.PotionEffectType
 import ru.cristalix.core.util.UtilEntity
+import java.awt.SystemColor.text
 
 enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
     STARTING(20, { time, game ->
@@ -182,7 +183,7 @@ enum class DbdStatus(val lastSecond: Int, val now: (Int, MurderGame) -> Int) {
         when {
             time == GAME.lastSecond * 20 + 20 * 10 -> {
                 game.players.forEach {
-                    BattlePassUtil.update(it, QuestType.PLAY, 1, false)
+                   BattlePassUtil.update(it, QuestType.PLAY, 1, false)
                 }
 
                 game.stopGame()
